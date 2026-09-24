@@ -23,7 +23,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 ## Quick start
 
-1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header.
+1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
 2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right: what would change your mind, then which option leads.
 3. Click **New blank tree** to build your own.
 
@@ -110,7 +110,9 @@ The one figure that doesn't match is the value of pinning down Sam's gap. The ap
 ## Privacy and storage
 
 - Everything runs in the browser. The app makes no network calls apart from loading Google Fonts.
-- Your work is saved in your own browser (localStorage), per device and per browser. Nothing is sent anywhere, and trees can't be shared through the app.
+- Your tree is kept only while its browser tab is open (sessionStorage). It survives a reload, and it's gone when you close the tab, so nothing about a real person stays on the device. Every new visit starts with the Sam example. If you've changed the tree, the browser asks before the tab closes.
+- Nothing is sent anywhere, and trees can't be shared through the app.
+- The browser remembers only your theme, the tree zoom, and that you've seen the **How it works** window.
 - Under strict data-protection policies, delete the two Google Fonts lines at the top of `index.html`. The app then uses system fonts, with nothing else lost.
 
 ## Deploy your own copy

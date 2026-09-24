@@ -280,7 +280,7 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
   </main>
   <aside class="panel side" id="side" aria-live="polite"></aside>
 </div>
-<p class="foot">The tree folds back from the right: each circle is worth the chance-weighted average of what follows it. Ranges are simulated across 10,000 plausible worlds, drawn independently, as curves bounded by Low and High and centred on Likely. Values are averages (risk-neutral), with no discounting. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a>. Saved in this browser.</p>
+<p class="foot">The tree folds back from the right: each circle is worth the chance-weighted average of what follows it. Ranges are simulated across 10,000 plausible worlds, drawn independently, as curves bounded by Low and High and centred on Likely. Values are averages (risk-neutral), with no discounting. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a>. Your tree is kept only while this tab is open.</p>
 <div class="toast" id="toast" role="status"></div>
 <dialog class="help" id="help" aria-labelledby="help-title">
   <div class="help-head"><h2 id="help-title">How Foldback works</h2><button class="x" data-help="close" aria-label="Close">✕</button></div>
@@ -343,7 +343,7 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
       <li>The tree prices only what's in it. Fairness, legal exposure and the effect on people and teams count only if you add them.</li>
     </ul>
   </div>
-  <div class="help-foot"><span class="muted">Everything runs and is saved in this browser. Nothing is sent anywhere. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a></span><button class="btn" data-help="close">Close</button><button class="btn primary" data-start="sam" data-help="close">Load the example</button></div>
+  <div class="help-foot"><span class="muted">Everything runs in this browser and nothing is sent anywhere. Your tree is kept only while this tab is open. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a></span><button class="btn" data-help="close">Close</button><button class="btn primary" data-start="sam" data-help="close">Load the example</button></div>
 </dialog>
 <script>// ===== Decision engine (no DOM) =====
 const E = (() => {
@@ -656,8 +656,15 @@ const TPL = {
 let S, undoSnap = null;
 const LS = 'foldback2:v1';
 const SEED = 2364; // default random seed: the same tree and seed always give the same results
-const store = { get() { try { return localStorage.getItem(LS); } catch (e) { return null; } }, set(v) { try { localStorage.setItem(LS, v); } catch (e) { } } };
-function load() { const r = store.get(); if (r) { try { S = JSON.parse(r); if (S.cur === 'Kč ') S.cur = '$'; if (S.seed == null) S.seed = SEED; if (S.options) return; } catch (e) { } } S = Object.assign({ cur: '$', seed: SEED, tpl: 'sam', diag: { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } }, TPL.sam.f()); }
+// The tree lives in sessionStorage: it survives a reload of this tab and is gone when the tab closes,
+// so a tree about a real person never stays behind on the device. Trees saved by earlier versions are removed.
+try { localStorage.removeItem(LS); } catch (e) { }
+const store = { get() { try { return sessionStorage.getItem(LS); } catch (e) { return null; } }, set(v) { try { sessionStorage.setItem(LS, v); } catch (e) { } } };
+function fresh(key, cur = '$', seed = SEED) { const s = Object.assign({ cur, seed, tpl: key }, TPL[key].f()); s.diag = key === 'sam' ? { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } : {}; return s; }
+function load() { const r = store.get(); if (r) { try { S = JSON.parse(r); if (S.seed == null) S.seed = SEED; if (S.options) return; } catch (e) { } } S = fresh('sam'); }
+// Edited = the tree differs from the template it started from (ids, currency, seed and panel state aside).
+const content = s => JSON.stringify([s.title, s.numbers, s.options, s.diag], (k, v) => k === 'id' ? undefined : v);
+const edited = () => !!S && content(S) !== content(fresh(TPL[S.tpl] ? S.tpl : 'sam'));
 const snapshot = () => JSON.stringify(S);
 function remember() { undoSnap = snapshot(); }
 
@@ -1015,7 +1022,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
-  if (d.start) { remember(); const key = d.start; S = Object.assign({ cur: cur(), seed: S.seed == null ? SEED : S.seed, tpl: key }, TPL[key].f()); S.diag = key === 'sam' ? { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } : {}; renderAll(); $('#canvas').scrollLeft = 0; toast(key === 'sam' ? 'Loaded the example' : 'Started a blank tree', true); if (key === 'blank') focusSoon('#title', true); return; }
+  if (d.start) { remember(); const key = d.start; S = fresh(key, cur(), S.seed == null ? SEED : S.seed); renderAll(); $('#canvas').scrollLeft = 0; toast(key === 'sam' ? 'Loaded the example' : 'Started a blank tree', true); if (key === 'blank') focusSoon('#title', true); return; }
   if (b.id === 'undo' && undoSnap) { S = JSON.parse(undoSnap); undoSnap = null; renderAll(); $('#toast').classList.remove('on'); return; }
   if (d.addopt) { remember(); const o = Op('', '0'); S.options.push(o); renderTree(); refresh(0); focusSoon(`.nm[data-id="${o.id}"]`); return; }
   if (d.split) { remember(); const r = find(d.split); const n = r.n; n.branches = n.branches || []; let focusId;
@@ -1073,10 +1080,12 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-help
 help.addEventListener('click', e => { if (e.target === help) help.close(); }); // click on the backdrop
 
 // ---------- boot ----------
-const firstVisit = !store.get();
+const HK = 'foldback2:help-seen'; // the walkthrough opens once per browser; the ? button reopens it
+let helpSeen = true; try { helpSeen = !!localStorage.getItem(HK); localStorage.setItem(HK, '1'); } catch (e) { }
 load(); applyTheme(themeMode());
 renderAll(); treeZoom.apply();
-if (firstVisit) help.showModal();
+if (!helpSeen) help.showModal();
+window.addEventListener('beforeunload', e => { if (edited()) { e.preventDefault(); e.returnValue = ''; } });
 })();
 </script>
 </body></html>
