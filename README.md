@@ -2,7 +2,7 @@
 
 **Decision trees for people decisions, in one HTML file.**
 
-Foldback turns an argument about a person into a disagreement about a number. You draw the options, the chances and the values straight onto a tree. The app folds the tree back, says which option is best, shows the single number that would change your mind, and tells you whether it's worth finding anything out before you decide.
+Foldback turns an argument about a person into a disagreement about a number. You draw the options, the chances and the values straight onto a tree. The app folds the tree back, shows the single number that would change your mind, says which option leads and by how much, and tells you what, if anything, is worth finding out before you decide.
 
 It implements the approach in Andrew Marritt's article [“Should you replace Sam?”](https://andrewmarritt.substack.com/p/should-you-replace-sam), and uses his keep / coach / exit decision as the built-in example.
 
@@ -14,10 +14,9 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 - **Build the tree by typing.** Options and outcomes are cards you type into. Press Enter in a name to add the next one, and click **+ what could happen?** to split an option into chance outcomes.
 - **Uncertainty is typed, not configured.** Any field takes a range such as `-37k to -25k ~-30k`, and it's simulated automatically.
-- **A verdict that updates live.** It shows the best option at your likely values, and how often each option comes out best across 10,000 plausible worlds.
-- **What would change your mind.** For each estimate, the value at which the recommendation switches, flagged when it falls inside your own range.
-- **Two kinds of mistake.** The cut-off for choosing an option follows from what each wrong choice costs, not from a reflexive 50%.
-- **What is worth finding out.** The most that perfect knowledge of every estimate, or of one estimate at a time, could be worth (EVPI and EVPPI).
+- **Where it stands, updated live.** Which option leads on your likely values, by how much, and how often it comes out best across 10,000 plausible worlds.
+- **What would change your mind.** Shown first. For each estimate, the value at which the leading option changes, flagged when it falls inside your own range. This is the number the discussion should be about.
+- **What is worth finding out.** A ranking of which estimate to pin down first, each with the most that knowing it exactly could be worth (EVPPI), plus the estimates that would not change the choice on their own.
 - **Is a diagnostic month worth it?** It prices a trial that signals whether an event will happen, such as whether coaching is taking, against what it costs.
 - **Evidence tags.** Each shared number can record whether it comes from data, expert judgement or a guess, and how confident its source is. Tags are a record only and never change a number. The app flags weak evidence sitting on a tight or certain number.
 - **Meeting note.** A plain-text summary to paste into minutes or an email, including what each number rests on.
@@ -25,7 +24,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 ## Quick start
 
 1. Open the app. The **Should we replace Sam?** example loads.
-2. Change any number on the tree or in **Shared numbers**, and watch the verdict panel on the right.
+2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right: what would change your mind, then which option leads.
 3. Click **New blank tree** to build your own.
 
 ### What you can type in a field
@@ -45,18 +44,30 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 **Certain value** on an option is what choosing it costs or earns for sure, before anything uncertain happens. **Value if it happens** on an outcome is added only on that path. The number at the end of each path, in the Result column, is the path total.
 
-Functions available in formulas: `min`, `max`, `if(test, a, b)`, `abs`, `sqrt`, `exp`, `log`, `round`, `floor`, `ceil`, `clamp`, `normcdf`, `norminv`, and `zbar(selection_ratio)`, the average standardised score of those selected, for utility sums of the Brogden kind.
+### Advanced formulas
+
+You rarely need these, but they are there:
+
+| Function | What it does |
+|---|---|
+| `abs`, `sqrt`, `exp`, `log` (or `ln`), `log10`, `pow`, `round`, `floor`, `ceil` | the usual maths; `^` also raises to a power |
+| `clamp(x, low, high)` | keeps `x` between `low` and `high` |
+| `normcdf(z)`, `norminv(p)` | the standard normal distribution and its inverse |
+| `zbar(selection_ratio)` | the average standardised score of those selected when you hire the top fraction, for utility sums of the Brogden kind, e.g. `0.1 * sdy * zbar(0.2) * 4` |
+
+Comparisons (`<`, `>`, `<=`, `>=`, `==`, `!=`) give 1 or 0 and combine with `&&` and `||`.
+
+Formulas can also use `min(a, b)`, `max(a, b)` and `if(test, a, b)`, for example `max(0, cost_of_exit + 5k)`. More functions are listed under [Advanced formulas](#advanced-formulas).
 
 ## Method
 
 | Part | How it's computed |
 |---|---|
-| Folding back | Each chance point is worth the probability-weighted average of what follows it. The option with the highest value at the likely values is shown as best. |
+| Folding back | Each chance point is worth the probability-weighted average of what follows it. The option with the highest value at the likely values is shown as leading. |
 | Ranges | Each range becomes a Beta curve stretched between Low and High, with its median at Likely. The spread is a PERT-style default (a + b = 6). Low and High are hard limits: nothing outside them is simulated. |
 | Plausible worlds | 10,000 draws per range, taken by inverse-CDF sampling from a fixed random seed per number, so results don't jitter as you type. Each world folds the tree back once. Ranges are drawn independently. |
 | What would change your mind | Each estimate is swept on its own, holding the others at their likely values, and the switch points are refined by bisection. |
-| Two kinds of mistake | From the simulated worlds: the average cost of each wrong choice, and the cut-off chance they imply. This rule always agrees with choosing the higher average; it makes the asymmetry visible. |
-| What is worth finding out | EVPI straight from the simulated worlds. EVPPI by regressing each option's value on one estimate with a cubic smoother, in the style of Strong, Oakley & Brennan (2014). Both are ceilings, not the value of a real study. |
+| What is worth finding out | EVPPI by regressing each option's value on one estimate with a cubic smoother, in the style of Strong, Oakley & Brennan (2014), ranked from largest. Estimates whose EVPPI rounds to zero are listed as not changing the choice on their own. EVPI (knowing everything) comes straight from the simulated worlds. Both are ceilings, not the value of a real study. |
 | Diagnostic month | Exact Bayesian analysis of a yes/no signal on one chance, with the same accuracy for good and bad results. The app computes the value of deciding after the signal and compares it with the cost. |
 | Values | Averages (risk-neutral), with no discounting. |
 
