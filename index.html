@@ -110,9 +110,13 @@ button,input,select{font:inherit;color:inherit}
 
 /* verdict */
 .side h2{font-size:.85rem;color:var(--muted);font-weight:600;font-family:var(--font-b)}
-.best-name{font-family:var(--font-h);font-size:1.5rem;font-weight:700;margin:.15rem 0 .1rem;line-height:1.2}
-.best-name mark{background:var(--marker);color:#15202B;padding:0 .2em;border-radius:3px}
-.best-sub{color:var(--muted);font-size:.9rem}
+.lead-line{font-size:1.02rem;line-height:1.45;margin:.25rem 0 0}
+.lead-line mark{background:var(--marker);color:#15202B;padding:0 .2em;border-radius:3px;font-weight:700}
+.lead-line .sub{display:block;color:var(--muted);font-size:.88rem;margin-top:.15rem}
+.bars-h{font-size:.95rem;margin:.9rem 0 .3rem}
+ol.voi{list-style:none;margin:.3rem 0;padding:0}
+ol.voi li{display:grid;grid-template-columns:1fr auto;gap:.5rem;font-size:.84rem;margin:.25rem 0;align-items:end}
+ol.voi i{display:block;height:6px;border-radius:3px;background:var(--dec);margin-top:.15rem}
 .side svg{display:block;width:100%;height:auto}
 .flip{margin:.9rem 0 0;padding:.7rem .8rem;border-radius:8px;background:var(--surface2)}
 .flip h3{font-size:.95rem;margin-bottom:.35rem}
@@ -209,7 +213,7 @@ details.why ul{padding-left:1.1rem;margin:.2rem 0}
 .theme button[aria-pressed="true"]{background:var(--dec-soft);color:var(--ink);font-weight:700}
 .theme svg{width:14px;height:14px}
 @media (max-width:520px){.theme .lbl{display:none}}
-.flip .big,.flip .num,.best-sub b,.kp b{white-space:nowrap}
+.flip .big,.flip .num,.lead-line b,.kp b{white-space:nowrap}
 </style></head>
 <body>
 <div class="bar">
@@ -241,8 +245,6 @@ const E = (() => {
   function lgamma(z) { if (z < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - lgamma(1 - z); z -= 1; let x = 0.99999999999980993; for (let i = 0; i < 8; i++) x += LG[i] / (z + i + 1); const t = z + 7.5; return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x); }
   function betacf(a, b, x) { const MAXIT = 300, EPS = 3e-14, FPMIN = 1e-300; let qab = a + b, qap = a + 1, qam = a - 1, c = 1, d = 1 - qab * x / qap; if (Math.abs(d) < FPMIN) d = FPMIN; d = 1 / d; let h = d; for (let m = 1; m <= MAXIT; m++) { const m2 = 2 * m; let aa = m * (b - m) * x / ((qam + m2) * (a + m2)); d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN; c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN; d = 1 / d; h *= d * c; aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2)); d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN; c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < EPS) break; } return h; }
   function ibeta(x, a, b) { if (x <= 0) return 0; if (x >= 1) return 1; const bt = Math.exp(lgamma(a + b) - lgamma(a) - lgamma(b) + a * Math.log(x) + b * Math.log(1 - x)); if (x < (a + 1) / (a + b + 2)) return bt * betacf(a, b, x) / a; return 1 - bt * betacf(b, a, 1 - x) / b; }
-  function betaPdf(x, a, b) { if (x <= 0 || x >= 1) return 0; return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) + lgamma(a + b) - lgamma(a) - lgamma(b)); }
-  function betaQ(p, a, b) { let lo = 0, hi = 1; for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (ibeta(m, a, b) < p) lo = m; else hi = m; } return (lo + hi) / 2; }
   function erf(x) { const s = Math.sign(x); x = Math.abs(x); const t = 1 / (1 + 0.3275911 * x); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
   function normcdf(x) { return 0.5 * (1 + erf(x / Math.SQRT2)); }
   function normpdf(x) { return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI); }
@@ -251,60 +253,27 @@ const E = (() => {
   function zbar(sr) { if (!(sr > 0 && sr < 1)) return NaN; return normpdf(norminv(1 - sr)) / sr; }
 
   // ---------- elicitation: scaled Beta on [L,U] ----------
-  // Fits like SHELF::fitdist with both limits supplied: Beta on [L,U], least squares on the CDF at the elicited points.
-  function nelderMead(f, x0, iters = 400) {
-    const n = x0.length; let s = [x0.slice()]; for (let i = 0; i < n; i++) { const x = x0.slice(); x[i] += 0.5; s.push(x); }
-    let fs = s.map(f);
-    for (let it = 0; it < iters; it++) {
-      const idx = fs.map((v, i) => i).sort((a, b) => fs[a] - fs[b]); s = idx.map(i => s[i]); fs = idx.map(i => fs[i]);
-      if (Math.abs(fs[n] - fs[0]) < 1e-14) break;
-      const c = new Array(n).fill(0); for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) c[j] += s[i][j] / n;
-      const xr = c.map((v, j) => v + (v - s[n][j])); const fr = f(xr);
-      if (fr < fs[0]) { const xe = c.map((v, j) => v + 2 * (v - s[n][j])); const fe = f(xe); if (fe < fr) { s[n] = xe; fs[n] = fe; } else { s[n] = xr; fs[n] = fr; } }
-      else if (fr < fs[n - 1]) { s[n] = xr; fs[n] = fr; }
-      else { const xc = c.map((v, j) => v + 0.5 * (s[n][j] - v)); const fc = f(xc); if (fc < fs[n]) { s[n] = xc; fs[n] = fc; } else { for (let i = 1; i <= n; i++) { s[i] = s[i].map((v, j) => s[0][j] + 0.5 * (v - s[0][j])); fs[i] = f(s[i]); } } }
-    }
-    return s[0];
-  }
-  // input: {low, median, high, q1?, q3?}; returns {a,b,L,U,ok,msg,fitted:{q1,med,q3}}
+  // Low and High are hard limits; the median sits at Likely; spread is a PERT-style default (a + b = 6).
+  // input: {low, median, high}; returns {ok, a, b, L, U} or {ok:false, msg}
   function fitBeta(inp) {
     const L = +inp.low, U = +inp.high, m = +inp.median;
     if (![L, U, m].every(Number.isFinite)) return { ok: false, msg: 'Fill in Likely, Low and High.' };
     if (!(L < m && m < U)) return { ok: false, msg: 'Needs Low < Likely < High.' };
-    const hasQ = Number.isFinite(+inp.q1) && Number.isFinite(+inp.q3) && inp.q1 !== '' && inp.q3 !== '' && inp.q1 != null && inp.q3 != null;
     const zm = (m - L) / (U - L);
-    // PERT-style default: a+b = 6, solve median
     let lo = 1e-3, hi = 6 - 1e-3;
     for (let i = 0; i < 80; i++) { const a = (lo + hi) / 2; if (ibeta(zm, a, 6 - a) > 0.5) lo = a; else hi = a; }
-    let a = (lo + hi) / 2, b = 6 - a, msg = '';
-    if (hasQ) {
-      const q1 = +inp.q1, q3 = +inp.q3;
-      if (!(L < q1 && q1 < m && m < q3 && q3 < U)) return { ok: false, msg: 'Quartiles must sit between the limits and either side of the most likely value.' };
-      const pts = [[(q1 - L) / (U - L), 0.25], [zm, 0.5], [(q3 - L) / (U - L), 0.75]];
-      const f = th => { const A = Math.exp(th[0]), B = Math.exp(th[1]); if (A > 5e3 || B > 5e3) return 1e9; let s = 0; for (const [z, p] of pts) { const d = ibeta(z, A, B) - p; s += d * d; } return s; };
-      const th = nelderMead(f, [Math.log(a), Math.log(b)]); a = Math.exp(th[0]); b = Math.exp(th[1]);
-      const sse = f(th); if (sse > 0.002) msg = 'These values are hard to fit with a smooth curve. Check Low, Likely and High.';
-    }
-    const fitted = { q1: L + (U - L) * betaQ(0.25, a, b), med: L + (U - L) * betaQ(0.5, a, b), q3: L + (U - L) * betaQ(0.75, a, b) };
-    return { ok: true, a, b, L, U, msg, fitted, hasQ };
+    const a = (lo + hi) / 2;
+    return { ok: true, a, b: 6 - a, L, U };
   }
 
-  // grid CDF for a (possibly evidence-updated) scaled Beta -> inverse-CDF sampler
+  // grid CDF for a scaled Beta -> inverse-CDF sampler
   const GRID = 2000;
-  function buildGrid(fit, ev) {
+  function buildGrid(fit) {
     const { a, b, L, U } = fit; const xs = new Float64Array(GRID + 1), cdf = new Float64Array(GRID + 1);
     for (let j = 0; j <= GRID; j++) { const z = j / GRID; xs[j] = L + (U - L) * z; cdf[j] = ibeta(z, a, b); }
-    if (ev) { // multiply cell masses by likelihood at cell midpoints (x is a probability)
-      const mass = new Float64Array(GRID); let tot = 0, maxll = -Infinity; const ll = new Float64Array(GRID);
-      for (let j = 0; j < GRID; j++) { const p = Math.min(1 - 1e-12, Math.max(1e-12, (xs[j] + xs[j + 1]) / 2)); ll[j] = ev.w * (ev.k * Math.log(p) + (ev.n - ev.k) * Math.log(1 - p)); if (ll[j] > maxll) maxll = ll[j]; }
-      for (let j = 0; j < GRID; j++) { mass[j] = (cdf[j + 1] - cdf[j]) * Math.exp(ll[j] - maxll); tot += mass[j]; }
-      if (!(tot > 0)) return { xs, cdf, degenerate: true };
-      cdf[0] = 0; for (let j = 0; j < GRID; j++) cdf[j + 1] = cdf[j] + mass[j] / tot;
-    }
     return { xs, cdf };
   }
   function gridQ(g, u) { const c = g.cdf; let lo = 0, hi = c.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (c[m] < u) lo = m; else hi = m; } const span = c[hi] - c[lo]; const t = span > 0 ? (u - c[lo]) / span : 0.5; return g.xs[lo] + t * (g.xs[hi] - g.xs[lo]); }
-  function gridStats(g) { return { q05: gridQ(g, 0.05), q25: gridQ(g, 0.25), q50: gridQ(g, 0.5), q75: gridQ(g, 0.75), q95: gridQ(g, 0.95), pLowEdge: g.cdf[Math.round(g.cdf.length * 0.01)], pHighEdge: 1 - g.cdf[g.cdf.length - 1 - Math.round(g.cdf.length * 0.01)] }; }
 
   // ---------- expression compiler (whitelisted -> JS) ----------
   const FUNCS = {
@@ -357,7 +326,7 @@ const E = (() => {
   }
 
   // ---------- model compile ----------
-  // model = {inputs:[{name,kind:'fixed'|'range'|'calc',isProb,value,low,median,high,q1,q3,expr,evidence}], options:[{id,name,value,branches:[...]}]}
+  // model = {inputs:[{name,kind:'fixed'|'range'|'calc',isProb,value,low,median,high,expr}], options:[{id,name,value,branches:[...]}]}
   function compileModel(model) {
     const errors = []; const names = new Set(); const byName = {};
     for (const inp of model.inputs) {
@@ -376,10 +345,8 @@ const E = (() => {
         catch (e) { errors.push({ where: 'input:' + inp.id, msg: e.message.replace(/Unknown name/, 'Unknown (or later-defined) name') }); }
       } else if (inp.kind === 'range') {
         const fit = fitBeta(inp); if (!fit.ok) errors.push({ where: 'input:' + inp.id, msg: fit.msg });
-        let ev = null; if (fit.ok && inp.isProb && inp.evidence && inp.evidence.on) { const k = +inp.evidence.k, n = +inp.evidence.n, w = inp.evidence.w === '' || inp.evidence.w == null ? 1 : +inp.evidence.w; if (Number.isFinite(k) && Number.isFinite(n) && n > 0 && k >= 0 && k <= n && w >= 0 && w <= 1) ev = { k, n, w }; else errors.push({ where: 'input:' + inp.id, msg: 'Track record needs 0 ≤ successes ≤ cases, and relevance between 0 and 1.' }); }
         if (fit.ok && inp.isProb && (fit.L < 0 || fit.U > 1)) errors.push({ where: 'input:' + inp.id, msg: 'A probability must stay between 0 and 1.' });
-        const fit2 = fit.ok && ev && inp.evidence.prior === 'flat' ? { a: 1, b: 1, L: 0, U: 1, ok: true } : fit;
-        C.inputs.push({ inp, name: nm, fit: fit2, ev, point: +inp.median });
+        C.inputs.push({ inp, name: nm, fit, point: +inp.median });
       } else {
         const v = +inp.value; if (!Number.isFinite(v)) errors.push({ where: 'input:' + inp.id, msg: 'Enter a number in Likely.' });
         if (inp.isProb && (v < 0 || v > 1)) errors.push({ where: 'input:' + inp.id, msg: 'A probability must stay between 0 and 1.' });
@@ -439,7 +406,7 @@ const E = (() => {
     const draws = {}; const stats = {};
     for (const x of C.inputs) {
       if (x.fit && x.fit.ok) {
-        const g = buildGrid(x.fit, x.ev); x.grid = g; x.gstats = gridStats(g);
+        const g = buildGrid(x.fit); x.grid = g;
         const u = uniforms(seed, 'in:' + x.inp.id, N); const d = new Float64Array(N); for (let i = 0; i < N; i++) d[i] = gridQ(g, u[i]); draws[x.name] = d;
       }
     }
@@ -464,13 +431,11 @@ const E = (() => {
     return { opts, evpi: pm - bestNow, bestIdx: means.indexOf(bestNow) };
   }
   function pairStats(sim, a, b) { // a = reference, b = challenger; d = b - a
-    const N = sim.N, A = sim.vals[a], B = sim.vals[b]; const d = new Float64Array(N); let pos = 0, sPos = 0, sNeg = 0, nNeg = 0;
-    for (let i = 0; i < N; i++) { d[i] = B[i] - A[i]; if (d[i] > 0) { pos++; sPos += d[i]; } else { nNeg++; sNeg += -d[i]; } }
-    const pB = pos / N; const costWrongB = nNeg ? sNeg / nNeg : 0; const costWrongA = pos ? sPos / pos : 0; // choosing B when A was better costs avg |d| on d<0
-    const thr = costWrongB + costWrongA > 0 ? costWrongB / (costWrongB + costWrongA) : 0.5;
-    return { d, pB, meanD: mean(d), q025: quantile(d, 0.025), q975: quantile(d, 0.975), costWrongB, costWrongA, threshold: thr };
+    const N = sim.N, A = sim.vals[a], B = sim.vals[b]; const d = new Float64Array(N); let pos = 0;
+    for (let i = 0; i < N; i++) { d[i] = B[i] - A[i]; if (d[i] > 0) pos++; }
+    return { d, pB: pos / N };
   }
-  // ---------- regression-based EVPPI / EVSI (Strong, Oakley & Brennan style; cubic smoother) ----------
+  // ---------- regression-based EVPPI (Strong, Oakley & Brennan style; cubic smoother) ----------
   function solve(A, y) { const n = y.length; const M = A.map((r, i) => r.concat([y[i]])); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;[M[c], M[p]] = [M[p], M[c]]; if (Math.abs(M[c][c]) < 1e-12) return null; for (let r = 0; r < n; r++) if (r !== c) { const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; } } return M.map((r, i) => r[n] / r[i]); }
   function fittedOn(x, ys, deg = 3) {
     const N = x.length; let mx = 0, sx = 0; for (let i = 0; i < N; i++) mx += x[i]; mx /= N; for (let i = 0; i < N; i++) sx += (x[i] - mx) ** 2; sx = Math.sqrt(sx / N) || 1;
@@ -479,8 +444,7 @@ const E = (() => {
     return ys.map(y => { const Xty = new Array(P).fill(0); for (let i = 0; i < N; i++) for (let j = 0; j < P; j++) Xty[j] += basis[i * P + j] * y[i]; const beta = solve(XtX, Xty); const f = new Float64Array(N); if (!beta) { const m = mean(y); f.fill(m); return f; } for (let i = 0; i < N; i++) { let s = 0; for (let j = 0; j < P; j++) s += beta[j] * basis[i * P + j]; f[i] = s; } return f; });
   }
   function voiFromFitted(sim, fitted) { const N = sim.N, K = fitted.length; let s = 0; for (let i = 0; i < N; i++) { let m = -Infinity; for (let k = 0; k < K; k++) if (fitted[k][i] > m) m = fitted[k][i]; s += m; } const now = Math.max(...sim.vals.map(mean)); return Math.max(0, s / N - now); }
-  function evppi(sim, name) { const x = sim.draws[name]; if (!x) return 0; const ref = sim.vals[0]; const ys = sim.vals.map(a => { const d = new Float64Array(a.length); for (let i = 0; i < a.length; i++) d[i] = a[i] - ref[i]; return d; }); const f = fittedOn(x, ys); const base = mean(ref); return voiFromFitted({ N: sim.N, vals: ys }, f); }
-  function evsiMeasure(sim, name, sd, seed) { const x = sim.draws[name]; if (!x) return 0; const u = uniforms(seed, 'noise:' + name, sim.N); const u2 = uniforms(seed, 'noise2:' + name, sim.N); const xo = new Float64Array(sim.N); for (let i = 0; i < sim.N; i++) xo[i] = x[i] + sd * Math.sqrt(-2 * Math.log(u[i])) * Math.cos(2 * Math.PI * u2[i]); const ref = sim.vals[0]; const ys = sim.vals.map(a => { const d = new Float64Array(a.length); for (let i = 0; i < a.length; i++) d[i] = a[i] - ref[i]; return d; }); const f = fittedOn(xo, ys); return voiFromFitted({ N: sim.N, vals: ys }, f); }
+  function evppi(sim, name) { const x = sim.draws[name]; if (!x) return 0; const ref = sim.vals[0]; const ys = sim.vals.map(a => { const d = new Float64Array(a.length); for (let i = 0; i < a.length; i++) d[i] = a[i] - ref[i]; return d; }); const f = fittedOn(x, ys); return voiFromFitted({ N: sim.N, vals: ys }, f); }
 
   // ---------- diagnostic signal on an event (binary preposterior; Pauker-Kassirer) ----------
   // pName: probability input used as the chance of the event. sens = P(good signal | event will happen), spec = P(bad signal | won't).
@@ -550,9 +514,8 @@ const E = (() => {
     }
     return { list: out, bestIdx };
   }
-  function sweepLines(C, name, lo, hi, S = 120) { const pts = []; for (let s = 0; s <= S; s++) { const xv = lo + (hi - lo) * s / S; pts.push({ x: xv, vals: pointValues(C, { [name]: xv }).vals }); } return pts; }
 
-  return { fitBeta, buildGrid, gridQ, gridStats, betaPdf, ibeta, compileExpr, compileModel, pointValues, pointTree, simulate, summarize, pairStats, evppi, evsiMeasure, evsiBinary, pkCurve, breakevens, sweepLines, sweepRange, quantile, mean, zbar, uniforms, FUNCS };
+  return { compileExpr, compileModel, pointValues, pointTree, simulate, summarize, pairStats, evppi, evsiBinary, pkCurve, breakevens, quantile };
 })();
 
 </script><script>(() => {
@@ -758,8 +721,8 @@ function paintNumbers() {
 function renderSideShell() {
   const probNames = R && R.M ? Object.entries(R.M.meta).filter(([k, m]) => m.isProb).map(([k, m]) => [k, m.label]) : [];
   const d = S.diag || {};
-  $('#side').innerHTML = `<button class="side-mini" data-side="show" aria-label="Show the verdict panel"><span class="chev" aria-hidden="true">‹</span><span class="mini-txt">Verdict: <b id="mini-best"></b></span></button>
-  <div class="side-body"><div class="side-head"><h2>Best on your likely values</h2><button class="side-hide" data-side="hide" aria-label="Hide the verdict panel" title="Hide to give the tree more room">Hide ›</button></div><div id="v-head"></div><div id="v-bars"></div><div class="flip" id="v-flip"></div>
+  $('#side').innerHTML = `<button class="side-mini" data-side="show" aria-label="Show the results panel"><span class="chev" aria-hidden="true">‹</span><span class="mini-txt">Leads: <b id="mini-best"></b></span></button>
+  <div class="side-body"><div class="side-head"><h2>Where it stands</h2><button class="side-hide" data-side="hide" aria-label="Hide the results panel" title="Hide to give the tree more room">Hide ›</button></div><div id="v-head"></div><div class="flip" id="v-flip"></div><div id="v-bars"></div>
   <details class="deep" id="deep" ${S.deepOpen ? 'open' : ''}><summary>Go deeper</summary>
     <div id="v-worlds"></div><div id="v-voi"></div>
     <h3>Is a diagnostic month worth it?</h3>
@@ -808,13 +771,24 @@ function histSVG(d, posLab, negLab) {
   g += `<text x="2" y="${H - 6}" fill="var(--muted)">${esc(money(a, true))}</text><text x="${W - 2}" y="${H - 6}" text-anchor="end" fill="var(--muted)">${esc(money(b, true))}</text>`;
   return g + '</svg>';
 }
+// who leads on the likely values, by how much, and how often across plausible worlds
+function leadLine(html) {
+  const v = R.point.vals, k = R.pBest, o2 = R.order[1];
+  const nm = i => html ? esc(S.options[i].label) : S.options[i].label, amt = x => html ? `<b class="num">${esc(money(x))}</b>` : money(x);
+  const lead = html ? `<mark>${nm(k)}</mark>` : nm(k);
+  let s = o2 == null ? `${lead} is the only option.`
+    : Math.round(v[k] - v[o2]) === 0 ? `${lead} and ${nm(o2)} are level on current numbers.`
+    : `${lead} leads on current numbers, ${amt(v[k] - v[o2])} ahead of ${nm(o2)}.`;
+  if (R.hasRanges && o2 != null) s += (html ? '<span class="sub">' : ' ') + `It comes out best in ${pct(R.sum.opts[k].pBest)} of 10,000 plausible worlds.` + (html ? '</span>' : '');
+  return s;
+}
 function meetingNote() {
-  const v = R.point.vals, k = R.pBest, o2 = R.order[1], out = [];
+  const v = R.point.vals, out = [];
   const t = String(S.title || '').trim(); out.push('Decision: ' + (/[.?!]$/.test(t) ? t : t + '.'));
   out.push('Options at our likely values: ' + R.order.map(i => `${S.options[i].label} ${money(v[i])}`).join('; ') + '.');
-  out.push(`Best: ${S.options[k].label}` + (o2 != null ? `, ahead of ${S.options[o2].label} by ${money(v[k] - v[o2])}.` : '.') + (R.hasRanges ? ` Across 10,000 plausible worlds it comes out best in ${pct(R.sum.opts[k].pBest)}.` : ''));
+  out.push(leadLine(false));
   const fl = flips().slice(0, 3); if (fl.length) out.push('What would change our mind:\n' + fl.map(f => `- If ${R.M.meta[f.be.name].label} ${f.dir} ${fmtVar(f.be.name, f.at)} (now ${fmtVar(f.be.name, f.be.point)}), ${S.options[f.win].label} wins${f.inR ? ' (inside our range)' : ''}.`).join('\n'));
-  if (R.hasRanges && R.evppi && R.evppi.length && R.sum.evpi >= 1) out.push(`Most worth finding out: ${R.evppi[0].label} (worth up to ${money(R.evppi[0].v)} to pin down).`);
+  if (R.hasRanges && R.evppi && R.evppi.length && Math.round(R.evppi[0].v) > 0) out.push(`Find out first: ${R.evppi[0].label} (worth at most ${money(R.evppi[0].v)} to pin down).`);
   if (R.diag && !R.diag.error && (S.diag || {}).on) out.push(`A diagnostic month is worth about ${money(R.diag.evsi)} and costs ${money(R.diag.cost)}: ${R.diag.changes && R.diag.evsi > R.diag.cost ? 'run it' : 'not worth running'}.`);
   const used = S.numbers.filter(n => n.name);
   const tagged = used.filter(n => n.evType || n.evStrength), untagged = used.filter(n => !n.evType && !n.evStrength);
@@ -828,22 +802,27 @@ function applySide() { const h = !!S.sideHidden; $('.wrap').classList.toggle('si
 function paintSide() {
   const mb = $('#mini-best'); if (mb) mb.textContent = R && R.pBest >= 0 && S.options[R.pBest] ? S.options[R.pBest].label : '…';
   if (!R.ok) {
-    $('#v-head').innerHTML = `<div class="best-name">${R.pBest >= 0 ? `<mark>${esc(S.options[R.pBest].label)}</mark>` : '…'}</div><p class="best-sub" style="color:var(--ref)">${R.errors.length ? esc(R.errors[0].msg) + (R.errors.length > 1 ? ` (+${R.errors.length - 1} more)` : '') : 'Add an option to begin.'}</p>`;
+    $('#v-head').innerHTML = `<p class="lead-line" style="color:var(--ref)">${R.errors.length ? esc(R.errors[0].msg) + (R.errors.length > 1 ? ` (+${R.errors.length - 1} more)` : '') : 'Add an option to begin.'}</p>`;
     ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; }); return;
   }
   const v = R.point.vals, k = R.pBest, o2 = R.order[1];
-  $('#v-head').innerHTML = `<div class="best-name"><mark>${esc(S.options[k].label)}</mark></div><p class="best-sub">${o2 != null ? `ahead of ${esc(S.options[o2].label)} by <b class="num">${esc(money(v[k] - v[o2]))}</b>` : ''}${R.hasRanges ? ` · best in ${pct(R.sum.opts[k].pBest)} of plausible worlds` : ''}</p>`;
-  $('#v-bars').innerHTML = barsSVG();
+  $('#v-head').innerHTML = `<p class="lead-line">${leadLine(true)}</p>`;
   const fl = flips().slice(0, 3);
   $('#v-flip').innerHTML = `<h3>What would change your mind?</h3>` + (fl.length ? `<ol>${fl.map(f => `<li>If <b>${esc(R.M.meta[f.be.name].label)}</b> ${f.dir} <span class="big num">${esc(fmtVar(f.be.name, f.at))}</span> <span style="color:var(--muted)">(now ${esc(fmtVar(f.be.name, f.be.point))})</span>, <b>${esc(S.options[f.win].label)}</b> wins. ${f.inR ? '<span class="tag">inside your range</span>' : ''}</li>`).join('')}</ol>` : '<p style="margin:0;font-size:.9rem">No single number flips this, even over a wide sweep.</p>');
+  $('#v-bars').innerHTML = `<h3 class="bars-h">Each option on your likely values</h3>` + barsSVG();
   // deeper
   if (R.hasRanges && R.pair) {
     const p = R.pair, A = S.options[p.a].label, B = S.options[p.b].label;
-    $('#v-worlds').innerHTML = `<h3>Across 10,000 plausible worlds</h3><p>${esc(B)} beats ${esc(A)} in <b>${pct(p.pB)}</b> of them.</p>${histSVG(p.d, B, A)}
-      <p>Choosing ${esc(B)} when ${esc(A)} was right costs <b>${esc(money(p.costWrongB))}</b> on average; the reverse mistake costs <b>${esc(money(p.costWrongA))}</b>. So ${esc(B)} is worth choosing only if its chance of being better tops <b>${pct(p.threshold)}</b>, not 50%. It is ${pct(p.pB)}.</p>`;
-    $('#v-voi').innerHTML = `<h3>What is worth finding out?</h3><p>Knowing every range exactly would be worth at most <b>${esc(money(R.sum.evpi))}</b>. Pinning down one at a time:</p>
-      ${R.evppi.map(x => `<div style="display:grid;grid-template-columns:1fr auto;gap:.4rem;font-size:.84rem;margin:.2rem 0"><span>${esc(x.label)}<span style="display:block;height:6px;border-radius:3px;background:var(--dec);width:${Math.max(1, 100 * x.v / (R.evppi[0].v || 1))}%"></span></span><b class="num">${esc(money(x.v))}</b></div>`).join('')}
-      <p class="muted">Ceilings, not the value of a real study. If it costs more than this to find out, don't.</p>`;
+    $('#v-worlds').innerHTML = `<h3>Across 10,000 plausible worlds</h3><p>${esc(B)} beats ${esc(A)} in <b>${pct(p.pB)}</b> of them.</p>${histSVG(p.d, B, A)}`;
+    const matters = R.evppi.filter(x => Math.round(x.v) > 0), idle = R.evppi.filter(x => Math.round(x.v) <= 0);
+    $('#v-voi').innerHTML = `<h3>What is worth finding out?</h3>` + (!matters.length
+      ? (Math.round(R.sum.evpi) > 0
+        ? `<p>No single number is worth pinning down on its own. Knowing every number exactly would be worth at most <b>${esc(money(R.sum.evpi))}</b>.</p>`
+        : `<p>Nothing, before deciding: even knowing every number exactly would not change the choice enough to be worth anything.</p>`)
+      : `<p>Find out first: <b>${esc(matters[0].label)}</b>${matters.length > 1 ? '.' : `, worth at most <b class="num">${esc(money(matters[0].v))}</b>.`}</p>
+      ${matters.length > 1 ? `<ol class="voi">${matters.map(x => `<li><span>${esc(x.label)}<i style="width:${Math.max(1, 100 * x.v / matters[0].v)}%"></i></span><span class="num">at most <b>${esc(money(x.v))}</b></span></li>`).join('')}</ol>` : ''}
+      ${idle.length ? `<p class="muted">Would not change the choice on its own: ${idle.map(x => esc(x.label)).join(', ')}.</p>` : ''}
+      <p class="muted">Each figure is the most that knowing that number exactly could be worth: a ceiling, not the value of a real study. If finding out costs more, don't. Knowing every number exactly: at most ${esc(money(R.sum.evpi))}.</p>`);
   } else { $('#v-worlds').innerHTML = '<p class="muted" style="margin-top:.6rem">Type a range such as <b>25k–37k</b> or <b>20–45% ~30%</b> into any field to see how often the answer holds and what is worth finding out.</p>'; $('#v-voi').innerHTML = ''; }
   const nt = $('#v-note'); if (nt) nt.value = meetingNote();
   const dv = $('#v-diag'); const d = S.diag || {};
