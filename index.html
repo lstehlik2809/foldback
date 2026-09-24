@@ -129,6 +129,7 @@ details.deep summary{cursor:pointer;font-weight:700;color:var(--dec)}
 .deep h3{font-size:.95rem;margin:.9rem 0 .3rem}
 .deep p{font-size:.86rem;margin:.3rem 0}
 .deep .muted{color:var(--muted)}
+.deep .seed{margin-top:1rem;font-size:.8rem}.deep .seed input{width:6.5rem;margin-left:.2rem}.deep .seed input.bad{border-color:var(--ref)}
 .deep select,.deep input{border:1px solid var(--line);background:var(--surface2);border-radius:5px;padding:.2rem .35rem;font-size:.86rem;max-width:100%}
 .kp{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.4rem 0}
 .kp div{background:var(--surface2);border-radius:6px;padding:.35rem .5rem}
@@ -214,16 +215,52 @@ details.why ul{padding-left:1.1rem;margin:.2rem 0}
 .theme svg{width:14px;height:14px}
 @media (max-width:520px){.theme .lbl{display:none}}
 .flip .big,.flip .num,.lead-line b,.kp b{white-space:nowrap}
+/* help window */
+.help-btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:.35rem .7rem;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
+.help-btn:hover{border-color:var(--dec);color:var(--dec)}
+.help-btn .q{display:inline-grid;place-items:center;width:1.15em;height:1.15em;border-radius:50%;background:var(--dec);color:var(--surface);font-weight:700;font-size:.8em;line-height:1}
+dialog.help{width:min(760px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog.help[open]{display:flex;flex-direction:column}
+dialog.help::backdrop{background:rgba(10,16,22,.55)}
+.help-head{display:flex;align-items:center;gap:.7rem;padding:.9rem 1.2rem .7rem;border-bottom:1px solid var(--line2)}
+.help-head h2{font-size:1.3rem;flex:1}
+.help-head .x{border:0;background:transparent;font-size:1.2rem;color:var(--muted);cursor:pointer;border-radius:6px;padding:.1rem .45rem}
+.help-head .x:hover{color:var(--ink);background:var(--surface2)}
+.help-body{overflow-y:auto;padding:.4rem 1.2rem 1rem;font-size:.92rem}
+.help-body h3{font-size:1.02rem;margin:1.1rem 0 .35rem}
+.help-body p{margin:.4rem 0;max-width:68ch}
+.help-body .lede{font-size:1rem}
+.help-body code{background:var(--surface2);border:1px solid var(--line2);border-radius:4px;padding:0 .3rem;font-size:.85em}
+.help-body ol,.help-body ul{padding-left:1.25rem;margin:.3rem 0}
+.help-body li{margin:.4rem 0;max-width:66ch}
+.help-body .num{white-space:nowrap}
+.help-body mark{background:var(--marker);color:#15202B;padding:0 .2em;border-radius:3px;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;margin:.5rem 0;padding:.6rem .8rem;background:var(--surface2);border-radius:8px;font-size:.86rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.legend svg{flex:none}
+.sam-case{border-left:4px solid var(--chance);background:var(--surface2);border-radius:0 8px 8px 0;padding:.5rem .8rem;margin:.5rem 0}
+.help table{border-collapse:collapse;font-size:.86rem;margin:.3rem 0;width:100%}
+.help th,.help td{text-align:left;padding:.25rem .5rem;border-bottom:1px solid var(--line2);vertical-align:top}
+.help th{color:var(--muted);font-weight:600;font-size:.8rem}
+.help td:first-child{width:45%}
+.help td code{overflow-wrap:anywhere}
+.help-foot{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;padding:.7rem 1.2rem;border-top:1px solid var(--line2)}
+.help-foot .muted{margin-right:auto;align-self:center;color:var(--muted);font-size:.8rem}
+.help-foot a{color:var(--dec)}
+.btn.primary{background:var(--dec);border-color:var(--dec);color:var(--surface);font-weight:700}
+.btn.primary:hover{color:var(--surface);filter:brightness(1.08)}
+@media (max-width:520px){.help-btn .lbl{display:none}.help-body{padding:.3rem .9rem .8rem}.help-head,.help-foot{padding-left:.9rem;padding-right:.9rem}}
 </style></head>
 <body>
 <div class="bar">
   <svg class="logo" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="11" width="8" height="8" fill="var(--dec-soft)" stroke="var(--dec)" stroke-width="2"/><path d="M10 15 L15 6 L20 6 M10 15 L15 24 L20 24" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="23" cy="6" r="3.2" fill="var(--chance-soft)" stroke="var(--chance)" stroke-width="1.6"/><path d="M21 21 L27 24 L21 27Z" fill="var(--ink)"/></svg>
   <input class="title" id="title" aria-label="Decision">
   <div class="starts"><button data-start="sam">Load the example</button><button data-start="blank">New blank tree</button></div>
+  <button class="help-btn" data-help="open" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span class="lbl">How it works</span></button>
   <select id="curr" aria-label="Currency"><option>$</option><option>€</option><option>£</option><option value="CHF ">CHF</option><option value="">none</option></select>
   <div class="theme" role="group" aria-label="Colour theme"><button data-theme-set="light" title="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="lbl">Light</span></button><button data-theme-set="dark" title="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl">Dark</span></button><button data-theme-set="auto" title="Follow your device setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span class="lbl">Auto</span></button></div>
 </div>
-<p class="hint">Type straight onto the tree. <b>Certain value</b> is what choosing an option costs (−) or earns (+) for sure; outcomes add their value only if they happen. Costs are negative everywhere, so formulas are plain sums. Any field takes <code>30%</code>, <code>-16k</code>, a range like <code>-37k to -25k</code> (add <code>~-30k</code> for the likely value), or a name from Shared numbers. Press Enter in a name to add the next one. Drag the background to move around.</p>
+<p class="hint">Type straight onto the tree. <b>Certain value</b> is what choosing an option costs (−) or earns (+) for sure; outcomes add their value only if they happen. Costs are negative everywhere, so formulas are plain sums. Measure everything against the same baseline, such as an average performer in the seat; if every option is negative, the best one is the smallest loss. Any field takes <code>30%</code>, <code>-16k</code>, a range like <code>-37k to -25k</code> (add <code>~-30k</code> for the likely value), or a name from Shared numbers. Press Enter in a name to add the next one. Drag the background to move around.</p>
 <div class="wrap">
   <main>
     <div class="panel canvas" id="canvas"></div>
@@ -233,6 +270,69 @@ details.why ul{padding-left:1.1rem;margin:.2rem 0}
 </div>
 <p class="foot">The tree folds back from the right: each circle is worth the chance-weighted average of what follows it. Ranges are simulated across 10,000 plausible worlds, drawn independently, as curves bounded by Low and High and centred on Likely. Values are averages (risk-neutral), with no discounting. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a>. Saved in this browser.</p>
 <div class="toast" id="toast" role="status"></div>
+<dialog class="help" id="help" aria-labelledby="help-title">
+  <div class="help-head"><h2 id="help-title">How Foldback works</h2><button class="x" data-help="close" aria-label="Close">✕</button></div>
+  <div class="help-body">
+    <p class="lede">Foldback turns an argument about a person into a disagreement about a number. You lay out the options, what could happen after each one, and what each path costs or earns. The app works out which option leads, the <b>single number that would change your mind</b>, and what is worth finding out before you decide.</p>
+
+    <h3>Reading the tree</h3>
+    <div class="legend">
+      <span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.5" fill="var(--dec-soft)" stroke="var(--dec)" stroke-width="2"/></svg>Decision: the options you choose between</span>
+      <span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="var(--chance-soft)" stroke="var(--chance)" stroke-width="2"/></svg>Chance: outcomes you don't control, each with a probability</span>
+      <span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2 L14 8 L4 14Z" fill="var(--ink)"/></svg>Result: the total at the end of each path</span>
+    </div>
+    <p>An option's <b>certain value</b> is what choosing it costs (−) or earns (+) for sure. An outcome's <b>value if it happens</b> is added only on that path. Costs are negative everywhere, so every formula is a plain sum. The app then <i>folds the tree back</i> from the right: each chance circle is worth the probability-weighted average of what follows it, and the option worth most is marked <mark>yellow</mark>.</p>
+
+    <h3>Worked example: should we replace Sam?</h3>
+    <div class="sam-case">
+      <p>Sam is underperforming and costs the team about <span class="num">$16k</span> a year compared with an average performer. There are three options:</p>
+      <ul>
+        <li><b>Keep and hope.</b> Carry the gap for three years: <span class="num">3 × −$16k</span> = <span class="num"><b>−$48,000</b></span>.</li>
+        <li><b>Coach for six months.</b> Coaching costs $5k, plus half a year of the gap (−$8k). Then Sam either reaches par (30% chance, nothing more to pay) or doesn't and leaves anyway (70%, exit cost <span class="num">−$30k</span>). On average <span class="num">−$13k + 0.7 × −$30k</span> = <span class="num"><b>−$34,000</b></span>.</li>
+        <li><b>Exit now.</b> Pay the exit cost straight away: <span class="num"><b>−$30,000</b></span>.</li>
+      </ul>
+    </div>
+    <p>Load the example and follow along in the panel on the right:</p>
+    <ol>
+      <li><b>Where it stands.</b> <i>Exit now</i> leads by <span class="num">$4,000</span> on the likely values. Because the key numbers are ranges, the app also plays out 10,000 plausible worlds. Exit comes out best in only about six worlds in ten, so this is far from settled.</li>
+      <li><b>What would change your mind.</b> Read this first. If the <code>chance_coaching_works</code> rises above <span class="num"><b>43.3%</b></span> (now 30%), coaching wins. That value sits inside the range the team gave, so this is the number the discussion should be about. Likewise, if Sam's gap is smaller than about <span class="num">−$10k</span> a year, keeping Sam wins.</li>
+      <li><b>Try it.</b> In <i>Shared numbers</i>, change the Likely value of <code>chance_coaching_works</code> from <code>30%</code> to <code>45%</code>. Coaching takes the lead immediately. Change it back, or press Undo.</li>
+      <li><b>What is worth finding out</b> (under <i>Go deeper</i>). Pinning down Sam's real gap is worth the most, a couple of thousand dollars at most. Pinning down the exit cost is worth almost nothing, so don't spend time arguing about it. (The article ranks the chance coaching works first; its figures differ a little because it treats the ranges differently.)</li>
+      <li><b>Is a diagnostic month worth it?</b> Tick <i>Price one</i>. A month of coaching that reads right 75% of the time is worth about $2,000 as information, but costs about $2,900 (fees plus another month of the gap). Decide now, or find a sharper test.</li>
+      <li><b>Meeting note.</b> Copy a plain-text summary, including what each number rests on, into minutes or an email.</li>
+    </ol>
+
+    <h3>Building your own</h3>
+    <ul>
+      <li>Click <b>New blank tree</b>, type the decision as the title, and name your options. Press <b>Enter</b> in a name to add the next one.</li>
+      <li>Click <b>+ what could happen?</b> on an option to split it into chance outcomes. Leave one outcome's chance empty and it takes the rest (1 minus the others).</li>
+      <li>If an option ends in a hire, the hire is a chance too: will they stay, will they perform? Give it its own outcomes.</li>
+      <li>Put anything you use in more than one place, or want to argue about, in <b>Shared numbers</b>, and type its name in the tree. Fill Low and High to make it a range.</li>
+      <li>Tag each shared number as data, expert judgement or a guess. Tags are a record only and never change a number.</li>
+    </ul>
+
+    <h3>What you can type in a field</h3>
+    <table>
+      <thead><tr><th>You type</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>30%</code>, <code>0.3</code></td><td>a probability</td></tr>
+        <tr><td><code>-16k</code>, <code>2.5m</code></td><td>a value (k = thousand, m = million)</td></tr>
+        <tr><td><code>-37k to -25k</code></td><td>a range, low to high, likely value in the middle</td></tr>
+        <tr><td><code>-37k to -25k ~-30k</code></td><td>a range with the likely value given</td></tr>
+        <tr><td><code>cost_of_exit</code></td><td>a shared number</td></tr>
+        <tr><td><code>cost_of_coaching + sam_vs_average_per_year / 2</code></td><td>a formula (<code>min</code>, <code>max</code>, <code>if</code> and more also work)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Keep in mind</h3>
+    <ul>
+      <li>A confident, narrow, invented range gives a confident, narrow, invented answer. Build the tree <i>with</i> the decision-maker, using their numbers.</li>
+      <li>Ranges are treated as independent, values are averages (risk-neutral), and nothing is discounted over time.</li>
+      <li>The tree prices only what's in it. Fairness, legal exposure and the effect on people and teams count only if you add them.</li>
+    </ul>
+  </div>
+  <div class="help-foot"><span class="muted">Everything runs and is saved in this browser. Nothing is sent anywhere. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a></span><button class="btn" data-help="close">Close</button><button class="btn primary" data-start="sam" data-help="close">Load the example</button></div>
+</dialog>
 <script>// ===== Decision engine (no DOM) =====
 const E = (() => {
   // ---------- RNG ----------
@@ -407,7 +507,7 @@ const E = (() => {
     for (const x of C.inputs) {
       if (x.fit && x.fit.ok) {
         const g = buildGrid(x.fit); x.grid = g;
-        const u = uniforms(seed, 'in:' + x.inp.id, N); const d = new Float64Array(N); for (let i = 0; i < N; i++) d[i] = gridQ(g, u[i]); draws[x.name] = d;
+        const u = uniforms(seed, 'in:' + (x.inp.key || x.inp.id), N); const d = new Float64Array(N); for (let i = 0; i < N; i++) d[i] = gridQ(g, u[i]); draws[x.name] = d;
       }
     }
     const K = C.options.length; const vals = C.options.map(() => new Float64Array(N)); const calcDraws = {}; C.calcs.forEach(c => calcDraws[c.name] = new Float64Array(N));
@@ -535,7 +635,7 @@ const Op = (label, value, branches = []) => ({ id: uid('o'), label, value, branc
 const Br = (label, prob, value, branches = []) => ({ id: uid('b'), label, prob, value, branches });
 const TPL = {
   sam: { t: 'Should you replace Sam?', f: () => ({ title: 'Should we replace Sam?',
-    numbers: [Nm('chance_coaching_works', '30%', '20%', '45%', 'expert', 'low'), Nm('sam_vs_average_per_year', '-16k', '-40k', '10k', 'data', 'low'), Nm('cost_of_exit', '-30k', '-37k', '-25k', 'expert', 'medium'), Nm('cost_of_coaching', '-5k', '', '', 'data', 'high'), Nm('years', '3')],
+    numbers: [Nm('chance_coaching_works', '30%', '5%', '95%', 'expert', 'low'), Nm('sam_vs_average_per_year', '-16k', '-40k', '0', 'data', 'low'), Nm('cost_of_exit', '-30k', '-55k', '-20k', 'expert', 'medium'), Nm('cost_of_coaching', '-5k', '', '', 'data', 'high'), Nm('years', '3')],
     options: [Op('Keep and hope', 'years * sam_vs_average_per_year'),
       Op('Coach for six months', 'cost_of_coaching + sam_vs_average_per_year / 2', [Br('Sam reaches par', 'chance_coaching_works', '0'), Br("Sam doesn't: exit", '', 'cost_of_exit')]),
       Op('Exit now', 'cost_of_exit')] }) },
@@ -543,8 +643,9 @@ const TPL = {
 };
 let S, undoSnap = null;
 const LS = 'foldback2:v1';
+const SEED = 2364; // default random seed: the same tree and seed always give the same results
 const store = { get() { try { return localStorage.getItem(LS); } catch (e) { return null; } }, set(v) { try { localStorage.setItem(LS, v); } catch (e) { } } };
-function load() { const r = store.get(); if (r) { try { S = JSON.parse(r); if (S.cur === 'Kč ') S.cur = '$'; if (S.options) return; } catch (e) { } } S = Object.assign({ cur: '$', tpl: 'sam', diag: { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } }, TPL.sam.f()); }
+function load() { const r = store.get(); if (r) { try { S = JSON.parse(r); if (S.cur === 'Kč ') S.cur = '$'; if (S.seed == null) S.seed = SEED; if (S.options) return; } catch (e) { } } S = Object.assign({ cur: '$', seed: SEED, tpl: 'sam', diag: { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } }, TPL.sam.f()); }
 const snapshot = () => JSON.stringify(S);
 function remember() { undoSnap = snapshot(); }
 
@@ -574,7 +675,7 @@ function buildModel() {
     const isProb = probNames.has(v.name); const lab = v.name.replace(/_/g, ' ');
     const hasR = String(v.low).trim() !== '' || String(v.high).trim() !== '';
     const lk = constVal(v.likely);
-    if (hasR) { const lo = constVal(v.low), hi = constVal(v.high); const md = Number.isFinite(lk) ? lk : (lo + hi) / 2; fixed.push({ id: v.id, name: v.name, label: lab, kind: 'range', low: lo, median: md, high: hi, isProb }); }
+    if (hasR) { const lo = constVal(v.low), hi = constVal(v.high); const md = Number.isFinite(lk) ? lk : (lo + hi) / 2; fixed.push({ id: v.id, key: 'n:' + v.name, name: v.name, label: lab, kind: 'range', low: lo, median: md, high: hi, isProb }); }
     else if (Number.isFinite(lk)) fixed.push({ id: v.id, name: v.name, label: lab, kind: 'fixed', value: lk, isProb });
     else calcs.push({ id: v.id, name: v.name, label: lab, kind: 'calc', expr: v.likely, isProb });
     { const ref = Number.isFinite(lk) ? lk : (constVal(v.low) + constVal(v.high)) / 2; meta[v.name] = { label: lab, isProb, isMoney: !isProb && Math.abs(ref) >= 100, row: v.id }; }
@@ -604,12 +705,28 @@ function compute() {
   R.pBest = pv.vals.length && pv.vals.every(Number.isFinite) ? pv.vals.indexOf(Math.max(...pv.vals)) : -1;
   if (C.errors.length || R.pBest < 0) return;
   R.hasRanges = M.inputs.some(x => x.kind === 'range');
-  R.sim = E.simulate(C, 10000, 'foldback'); R.sum = E.summarize(R.sim); R.be = E.breakevens(C); R.ok = true;
+  R.sim = E.simulate(C, 10000, String(S.seed == null ? SEED : S.seed)); R.sum = E.summarize(R.sim); R.be = E.breakevens(C); R.ok = true;
   R.evppi = C.inputs.filter(x => R.sim.draws[x.name]).map(x => ({ label: M.meta[x.name].label, v: E.evppi(R.sim, x.name) })).sort((a, b) => b.v - a.v);
   const order = pv.vals.map((v, i) => i).sort((a, b) => pv.vals[b] - pv.vals[a]); R.order = order;
   if (order.length > 1) R.pair = { a: order[0], b: order[1], ...E.pairStats(R.sim, order[0], order[1]) };
   const d = S.diag || {}; R.diag = null;
-  if (d.on && d.name && M.meta[d.name]) { const acc = constVal(d.acc), cost = 'abs(' + String(d.cost || '0') + ')'; if (acc >= 0.5 && acc <= 1) R.diag = E.evsiBinary(C, R.sim, d.name, acc, acc, cost); }
+  if (d.on && d.name && M.meta[d.name]) { const acc = constVal(d.acc), cost = 'abs(' + String(d.cost || '0') + ')'; if (acc >= 0.5 && acc <= 1) { R.diag = E.evsiBinary(C, R.sim, d.name, acc, acc, cost); if (!R.diag.error) R.diag.pk = E.pkCurve(C, d.name, acc, acc, cost); } }
+  R.surprise = surprise();
+}
+// an option behind on likely values that still wins often across the worlds, and the number that mostly decides it
+function surprise() {
+  if (!R.hasRanges || R.order.length < 3) return null;
+  const cands = R.order.slice(2).filter(i => R.sum.opts[i].pBest >= 0.15); if (!cands.length) return null;
+  const i = cands.reduce((a, b) => R.sum.opts[b].pBest > R.sum.opts[a].pBest ? b : a);
+  const { vals, N } = R.sim, win = new Int32Array(N);
+  for (let w = 0; w < N; w++) { let bk = 0; for (let k = 1; k < vals.length; k++) if (vals[k][w] > vals[bk][w]) bk = k; win[w] = bk; }
+  let driver = null;
+  for (const f of flips().filter(f => f.win === i && R.sim.draws[f.be.name])) {
+    const x = R.sim.draws[f.be.name]; let n = 0, m = 0;
+    for (let w = 0; w < N; w++) if (win[w] === i) { n++; if (f.dir === 'rises above' ? x[w] > f.at : x[w] < f.at) m++; }
+    if (n && m / n >= 0.7) { driver = f; break; }
+  }
+  return { i, last: i === R.order[R.order.length - 1], p: R.sum.opts[i].pBest, driver };
 }
 
 // ---------- formatting ----------
@@ -732,6 +849,7 @@ function renderSideShell() {
       <p>Signals <select id="dg-name">${probNames.map(([k, l]) => `<option value="${esc(k)}" ${d.name === k ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></p>
       <p>Reads right <input id="dg-acc" value="${esc(d.acc || '75%')}" size="5"> of the time. Cost of running it <input id="dg-cost" value="${esc(d.cost || '-1500')}" size="22" title="Negative, like every cost. Can be a formula."></p>
       <div id="v-diag"></div></div>
+    <p class="muted seed"><label>Random seed <input id="seed" value="${esc(S.seed == null ? SEED : S.seed)}" size="7" inputmode="numeric"></label> The same seed always gives the same results. Try another to check the answer doesn't hinge on one set of draws.</p>
   </details>
   <details class="deep" id="notebox" ${S.noteOpen ? 'open' : ''}><summary>Meeting note</summary>
     <p class="muted">A plain summary to paste into minutes or an email, including what each number rests on.</p>
@@ -779,8 +897,22 @@ function leadLine(html) {
   let s = o2 == null ? `${lead} is the only option.`
     : Math.round(v[k] - v[o2]) === 0 ? `${lead} and ${nm(o2)} are level on current numbers.`
     : `${lead} leads on current numbers, ${amt(v[k] - v[o2])} ahead of ${nm(o2)}.`;
-  if (R.hasRanges && o2 != null) s += (html ? '<span class="sub">' : ' ') + `It comes out best in ${pct(R.sum.opts[k].pBest)} of 10,000 plausible worlds.` + (html ? '</span>' : '');
+  if (R.hasRanges && o2 != null) {
+    let w = `It comes out best in ${pct(R.sum.opts[k].pBest)} of 10,000 plausible worlds.`; const sp = R.surprise;
+    if (sp) { const f = sp.driver; w += ` ${nm(sp.i)}, ${sp.last ? 'last' : 'behind'} on likely values, still does in ${pct(sp.p)}` + (f ? `, mostly where ${html ? esc(R.M.meta[f.be.name].label) : R.M.meta[f.be.name].label} is ${f.dir === 'rises above' ? 'above' : 'below'} ${html ? esc(fmtVar(f.be.name, f.at)) : fmtVar(f.be.name, f.at)}.` : '.'); }
+    s += (html ? '<span class="sub">' : ' ') + w + (html ? '</span>' : '');
+  }
   return s;
+}
+// Pauker-Kassirer band: the range of the signalled chance in which the diagnostic pays, at likely values
+function diagBand(html) {
+  const r = R.diag, ws = r && r.pk && r.pk.windows, d = S.diag || {}; if (!ws || ws.length > 1) return '';
+  const lab = R.M.meta[d.name].label, now = (R.C.inputs.find(x => x.name === d.name) || {}).point, nm = i => html ? esc(S.options[i].label) : S.options[i].label, lb = html ? `<b>${esc(lab)}</b>` : lab;
+  if (!ws.length) return `At these values it wouldn't pay whatever ${lb} is.`;
+  const [a, b] = ws[0]; if (a === 0 && b === 1) return `At these values it pays whatever ${lb} is.`;
+  const pts = r.pk.pts, below = a > 0 ? pts[Math.max(0, Math.round(a * (pts.length - 1)) - 1)].noIdx : null, above = b < 1 ? pts[Math.min(pts.length - 1, Math.round(b * (pts.length - 1)) + 1)].noIdx : null;
+  const out = [below != null && `below that, go straight to ${nm(below)}`, above != null && `above it, to ${nm(above)}`].filter(Boolean).join('; ');
+  return `It pays only while ${lb} is between ${pct(a)} and ${pct(b)} (now ${pct(now)})` + (out ? `; ${out}.` : '.');
 }
 function meetingNote() {
   const v = R.point.vals, out = [];
@@ -789,7 +921,7 @@ function meetingNote() {
   out.push(leadLine(false));
   const fl = flips().slice(0, 3); if (fl.length) out.push('What would change our mind:\n' + fl.map(f => `- If ${R.M.meta[f.be.name].label} ${f.dir} ${fmtVar(f.be.name, f.at)} (now ${fmtVar(f.be.name, f.be.point)}), ${S.options[f.win].label} wins${f.inR ? ' (inside our range)' : ''}.`).join('\n'));
   if (R.hasRanges && R.evppi && R.evppi.length && Math.round(R.evppi[0].v) > 0) out.push(`Find out first: ${R.evppi[0].label} (worth at most ${money(R.evppi[0].v)} to pin down).`);
-  if (R.diag && !R.diag.error && (S.diag || {}).on) out.push(`A diagnostic month is worth about ${money(R.diag.evsi)} and costs ${money(R.diag.cost)}: ${R.diag.changes && R.diag.evsi > R.diag.cost ? 'run it' : 'not worth running'}.`);
+  if (R.diag && !R.diag.error && (S.diag || {}).on) out.push(`A diagnostic month is worth about ${money(R.diag.evsi)} and costs ${money(R.diag.cost)}: ${R.diag.changes && R.diag.evsi > R.diag.cost ? 'run it' : 'not worth running'}.` + (diagBand(false) ? ' ' + diagBand(false) : ''));
   const used = S.numbers.filter(n => n.name);
   const tagged = used.filter(n => n.evType || n.evStrength), untagged = used.filter(n => !n.evType && !n.evStrength);
   const val = n => { const lo = constVal(n.low), hi = constVal(n.high), lk = constVal(n.likely); const f = x => fmtVar(n.name, x); return Number.isFinite(lo) && Number.isFinite(hi) ? `${f(lk)}, range ${f(lo)} to ${f(hi)}` : Number.isFinite(lk) ? f(lk) : `= ${n.likely}`; };
@@ -828,7 +960,7 @@ function paintSide() {
   const dv = $('#v-diag'); const d = S.diag || {};
   if (dv) { if (!d.on) dv.innerHTML = ''; else if (!R.diag) dv.innerHTML = '<p class="muted">Pick a chance, and an accuracy between 50% and 100%.</p>'; else if (R.diag.error) dv.innerHTML = `<p style="color:var(--ref)">${esc(R.diag.error)}</p>`; else { const r = R.diag, net = r.evsi - r.cost;
     dv.innerHTML = `<div class="kp"><div><b>${pct(r.postPos)}</b><span>chance after a good month → ${esc(S.options[r.pos.bestIdx].label)}</span></div><div><b>${pct(r.postNeg)}</b><span>after a bad month → ${esc(S.options[r.neg.bestIdx].label)}</span></div><div><b class="num">${esc(money(r.evsi))}</b><span>what the month is worth</span></div><div><b class="num">${esc(money(-r.cost))}</b><span>what it costs</span></div></div>
-    <p class="note">${!r.changes ? 'Whatever it shows, you would do the same thing, so as information it is worth nothing.' : net > 0 ? `Run it: it pays by ${esc(money(net))}.` : `It could change the decision, but not often enough to cover its cost. Decide now or find a sharper test.`}</p>`; } }
+    <p class="note">${!r.changes ? 'Whatever it shows, you would do the same thing, so as information it is worth nothing.' : net > 0 ? `Run it: it pays by ${esc(money(net))}.` : `It could change the decision, but not often enough to cover its cost. Decide now or find a sharper test.`} ${diagBand(true)}</p>`; } }
 }
 function refresh(ms = 220) { clearTimeout(refresh.t); refresh.t = setTimeout(() => { compute(); paintTree(); paintNumbers(); if (!$('#dg-name') || $('#dg-name').options.length !== Object.values(R.M.meta).filter(m => m.isProb).length) { const open = $('#deep') && $('#deep').open; S.deepOpen = open; if ($('#notebox')) S.noteOpen = $('#notebox').open; const f = document.activeElement && document.activeElement.id; renderSideShell(); if (f && $('#' + f)) $('#' + f).focus(); } paintSide(); store.set(snapshot()); }, ms); }
 
@@ -843,6 +975,7 @@ document.addEventListener('input', e => {
   if (t.id === 'title') { S.title = t.value; store.set(snapshot()); return; }
   if (t.dataset.id) { fit(t); layout(); const r = find(t.dataset.id); if (r) { r.n[t.dataset.f] = t.value; if (t.dataset.f !== 'label') refresh(); else { store.set(snapshot()); refresh(400); } } return; }
   if (t.dataset.num && t.dataset.f !== 'name') { const v = S.numbers.find(x => x.id === t.dataset.num); v[t.dataset.f] = t.value; refresh(t.tagName === 'SELECT' ? 0 : undefined); return; }
+  if (t.id === 'seed') { const ok = /^\d{1,9}$/.test(t.value.trim()); t.classList.toggle('bad', !ok); if (ok) { S.seed = +t.value.trim(); refresh(); } return; }
   if (t.id === 'dg-acc' || t.id === 'dg-cost') { S.diag = Object.assign(S.diag || {}, { acc: $('#dg-acc').value, cost: $('#dg-cost').value }); refresh(); }
 });
 document.addEventListener('change', e => {
@@ -870,7 +1003,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
-  if (d.start) { remember(); const key = d.start; S = Object.assign({ cur: cur(), tpl: key }, TPL[key].f()); S.diag = key === 'sam' ? { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } : {}; renderAll(); $('#canvas').scrollLeft = 0; toast(key === 'sam' ? 'Loaded the example' : 'Started a blank tree', true); if (key === 'blank') focusSoon('#title', true); return; }
+  if (d.start) { remember(); const key = d.start; S = Object.assign({ cur: cur(), seed: S.seed == null ? SEED : S.seed, tpl: key }, TPL[key].f()); S.diag = key === 'sam' ? { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } : {}; renderAll(); $('#canvas').scrollLeft = 0; toast(key === 'sam' ? 'Loaded the example' : 'Started a blank tree', true); if (key === 'blank') focusSoon('#title', true); return; }
   if (b.id === 'undo' && undoSnap) { S = JSON.parse(undoSnap); undoSnap = null; renderAll(); $('#toast').classList.remove('on'); return; }
   if (d.addopt) { remember(); const o = Op('', '0'); S.options.push(o); renderTree(); refresh(0); focusSoon(`.nm[data-id="${o.id}"]`); return; }
   if (d.split) { remember(); const r = find(d.split); const n = r.n; n.branches = n.branches || []; let focusId;
@@ -900,9 +1033,16 @@ function applyTheme(mode) {
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-theme-set]'); if (b) applyTheme(b.dataset.themeSet); });
 
+// ---------- help window ----------
+const help = $('#help');
+document.addEventListener('click', e => { const b = e.target.closest('[data-help]'); if (!b) return; if (b.dataset.help === 'open') help.showModal(); else help.close(); });
+help.addEventListener('click', e => { if (e.target === help) help.close(); }); // click on the backdrop
+
 // ---------- boot ----------
+const firstVisit = !store.get();
 load(); applyTheme(themeMode());
 renderAll();
+if (firstVisit) help.showModal();
 })();
 </script>
 </body></html>

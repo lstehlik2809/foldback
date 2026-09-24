@@ -14,16 +14,16 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 - **Build the tree by typing.** Options and outcomes are cards you type into. Press Enter in a name to add the next one, and click **+ what could happen?** to split an option into chance outcomes.
 - **Uncertainty is typed, not configured.** Any field takes a range such as `-37k to -25k ~-30k`, and it's simulated automatically.
-- **Where it stands, updated live.** Which option leads on your likely values, by how much, and how often it comes out best across 10,000 plausible worlds.
+- **Where it stands, updated live.** Which option leads on your likely values, by how much, and how often it comes out best across 10,000 plausible worlds. When an option that is behind on likely values still wins often, it says so, and names the number that mostly decides it.
 - **What would change your mind.** Shown first. For each estimate, the value at which the leading option changes, flagged when it falls inside your own range. This is the number the discussion should be about.
 - **What is worth finding out.** A ranking of which estimate to pin down first, each with the most that knowing it exactly could be worth (EVPPI), plus the estimates that would not change the choice on their own.
-- **Is a diagnostic month worth it?** It prices a trial that signals whether an event will happen, such as whether coaching is taking, against what it costs.
+- **Is a diagnostic month worth it?** It prices a trial that signals whether an event will happen, such as whether coaching is taking, against what it costs, and gives the band of that chance in which the trial pays (below it, and above it, you decide without testing).
 - **Evidence tags.** Each shared number can record whether it comes from data, expert judgement or a guess, and how confident its source is. Tags are a record only and never change a number. The app flags weak evidence sitting on a tight or certain number.
 - **Meeting note.** A plain-text summary to paste into minutes or an email, including what each number rests on.
 
 ## Quick start
 
-1. Open the app. The **Should we replace Sam?** example loads.
+1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header.
 2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right: what would change your mind, then which option leads.
 3. Click **New blank tree** to build your own.
 
@@ -65,7 +65,7 @@ Formulas can also use `min(a, b)`, `max(a, b)` and `if(test, a, b)`, for example
 |---|---|
 | Folding back | Each chance point is worth the probability-weighted average of what follows it. The option with the highest value at the likely values is shown as leading. |
 | Ranges | Each range becomes a Beta curve stretched between Low and High, with its median at Likely. The spread is a PERT-style default (a + b = 6). Low and High are hard limits: nothing outside them is simulated. |
-| Plausible worlds | 10,000 draws per range, taken by inverse-CDF sampling from a fixed random seed per number, so results don't jitter as you type. Each world folds the tree back once. Ranges are drawn independently. |
+| Plausible worlds | 10,000 draws per range, taken by inverse-CDF sampling. Each shared number's draws come from the random seed (2364 by default, changeable under **Go deeper**) and the number's name, so the same tree and seed always give the same results and nothing jitters as you type. Each world folds the tree back once. Ranges are drawn independently. |
 | What would change your mind | Each estimate is swept on its own, holding the others at their likely values, and the switch points are refined by bisection. |
 | What is worth finding out | EVPPI by regressing each option's value on one estimate with a cubic smoother, in the style of Strong, Oakley & Brennan (2014), ranked from largest. Estimates whose EVPPI rounds to zero are listed as not changing the choice on their own. EVPI (knowing everything) comes straight from the simulated worlds. Both are ceilings, not the value of a real study. |
 | Diagnostic month | Exact Bayesian analysis of a yes/no signal on one chance, with the same accuracy for good and bad results. The app computes the value of deciding after the signal and compares it with the cost. |
@@ -77,7 +77,27 @@ At the likely values, the example reproduces the article's point estimates exact
 - Keep and hope −£48,000, coaching −£34,000, exit −£30,000.
 - Coaching beats exit when the chance it works exceeds 43.3%.
 
-The simulated results depend on how you read the article's ranges, which it doesn't fully specify. The example's range for `sam_vs_average_per_year` (−£40k to +£10k) deliberately allows about a 5% chance that Sam is at or above average, more than the article's “under one per cent”. Set High to `3k` to match the article more closely.
+The article's simulated results can't come from its stated limits taken as hard limits (for example, 20–45% can't produce its +£11,700 upper bound). They match if its figures are read as quartiles. In the app, Low and High are hard limits, so the example uses wider ones, chosen so that the quartiles land on the article's numbers:
+
+| Number | Example range | Quartiles in the app | Article |
+|---|---|---|---|
+| `chance_coaching_works` | 5% to 95%, likely 30% | 20% / 30% / 43% | 20% / 30% / 45% |
+| `sam_vs_average_per_year` | −£40k to 0, likely −£16k | −£21.6k / −£16k / −£10.7k | −£22k / −£16k / −£11k |
+| `cost_of_exit` | −£55k to −£20k, likely −£30k | −£35.1k / −£30k / −£25.9k | −£37k / −£30k / −£25k |
+
+With these ranges and the default random seed (2364), the simulation reproduces the article closely:
+
+| | App | Article |
+|---|---|---|
+| Coaching vs exit, average | −£3,357 | −£3,089 |
+| Coaching beats exit | 28.1% | 29.8% |
+| Middle 95% of coaching vs exit | −£14,600 to +£10,600 | −£14,700 to +£11,700 |
+| Keep and hope comes out best | 20.3% | about 1 in 5 |
+| Worth pinning down: chance coaching works | £802 | £984 |
+| Worth pinning down: exit cost | £57 | £112 |
+| Worth pinning down: Sam's gap | £2,311 | £427 |
+
+The one figure that doesn't match is the value of pinning down Sam's gap. The app's estimate agrees with an exact calculation on the same draws (£2,309). It is hard to see how keep and hope could win in one world in five while the gap is worth only £427 to pin down, so the article's figure may come from its 30-bin estimator.
 
 ## Limitations
 
