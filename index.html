@@ -45,7 +45,8 @@ button,input,select{font:inherit;color:inherit}
 @media (max-width:1000px){.side{position:static}}
 
 /* ---------- the tree ---------- */
-.canvas{overflow-x:auto;padding:1.2rem 1rem 1.4rem}
+.canvas{overflow-x:auto;padding:.3rem 1rem 1.4rem}
+.tree-inner{zoom:var(--z,1)}
 .node{display:flex;align-items:center}
 .root{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex:none}
 .sq{width:26px;height:26px;background:var(--dec-soft);border:2.5px solid var(--dec);border-radius:3px}
@@ -143,7 +144,7 @@ details.deep summary{cursor:pointer;font-weight:700;color:var(--dec)}
 .toast button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:5px;padding:.05rem .5rem;cursor:pointer}
 @media (max-width:1000px){
   .wrap main{display:contents}
-  #canvas{order:1}.side{order:2}#numbers{order:3;margin-top:0}
+  .treebox{order:1}.side{order:2}#numbers{order:3;margin-top:0}
   .hint{padding-left:1rem}
   .nt td.nmc{min-width:7.5rem}
 }
@@ -152,6 +153,14 @@ details.deep summary{cursor:pointer;font-weight:700;color:var(--dec)}
 .canvas.grabbing{cursor:grabbing}
 .canvas input,.canvas button{user-select:text;cursor:auto}
 .canvas button{cursor:pointer}
+/* zoom controls */
+.zoom{display:flex;justify-content:flex-end;align-items:center;gap:.25rem;padding:.5rem .6rem 0}
+.zoom button{border:1px solid var(--line);background:var(--surface);border-radius:6px;min-width:2rem;height:2rem;padding:0 .5rem;cursor:pointer;font-size:.86rem;line-height:1}
+.zoom button:hover:not(:disabled){border-color:var(--dec);color:var(--dec)}
+.zoom button:disabled{opacity:.4;cursor:default}
+.zoom .zpct{min-width:2.8rem;text-align:center;font-size:.86rem;color:var(--muted)}
+.zoom .zhint{color:var(--muted);font-size:.78rem;margin-right:auto;padding-left:.4rem}
+@media (hover:none){.zoom .zhint{display:none}}
 .tree-inner{position:relative;display:inline-block;min-width:100%;padding:34px 12px 8px 4px}
 .tree-inner>.node{position:relative;z-index:1}
 .bands{position:absolute;inset:0;z-index:0;pointer-events:none}
@@ -260,10 +269,13 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
   <select id="curr" aria-label="Currency"><option>$</option><option>€</option><option>£</option><option value="CHF ">CHF</option><option value="">none</option></select>
   <div class="theme" role="group" aria-label="Colour theme"><button data-theme-set="light" title="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="lbl">Light</span></button><button data-theme-set="dark" title="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl">Dark</span></button><button data-theme-set="auto" title="Follow your device setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span class="lbl">Auto</span></button></div>
 </div>
-<p class="hint">Type straight onto the tree. <b>Certain value</b> is what choosing an option costs (−) or earns (+) for sure; outcomes add their value only if they happen. Costs are negative everywhere, so formulas are plain sums. Measure everything against the same baseline, such as an average performer in the seat; if every option is negative, the best one is the smallest loss. Any field takes <code>30%</code>, <code>-16k</code>, a range like <code>-37k to -25k</code> (add <code>~-30k</code> for the likely value), or a name from Shared numbers. Press Enter in a name to add the next one. Drag the background to move around.</p>
+<p class="hint">Type straight onto the tree. <b>Certain value</b> is what choosing an option costs (−) or earns (+) for sure; outcomes add their value only if they happen. Costs are negative everywhere, so formulas are plain sums. Measure everything against the same baseline, such as an average performer in the seat; if every option is negative, the best one is the smallest loss. Any field takes <code>30%</code>, <code>-16k</code>, a range like <code>-37k to -25k</code> (add <code>~-30k</code> for the likely value), or a name from Shared numbers. Press Enter in a name to add the next one. Drag the background to move around; Ctrl + scroll or the buttons above the tree zoom it.</p>
 <div class="wrap">
   <main>
-    <div class="panel canvas" id="canvas"></div>
+    <div class="panel treebox">
+      <div class="zoom" role="group" aria-label="Tree zoom"><span class="zhint">Ctrl + scroll to zoom</span><button data-zoom="out" aria-label="Zoom out" title="Zoom out">−</button><span class="zpct num" id="zpct" aria-live="polite">100%</span><button data-zoom="in" aria-label="Zoom in" title="Zoom in">+</button><button data-zoom="reset" title="Back to 100%">Reset</button></div>
+      <div class="canvas" id="canvas"></div>
+    </div>
     <div class="panel nums" id="numbers"></div>
   </main>
   <aside class="panel side" id="side" aria-live="polite"></aside>
@@ -759,7 +771,7 @@ function layout() {
   $$('.lead', inner).forEach(l => l.style.width = '0px');
   const byD = {}; cards.forEach(c => (byD[c.dataset.depth] = byD[c.dataset.depth] || []).push(c));
   Object.values(byD).forEach(list => { const w = Math.max(...list.map(c => c.offsetWidth)); list.forEach(c => c.style.width = w + 'px'); });
-  const box = inner.getBoundingClientRect(); const rel = el => { const r = el.getBoundingClientRect(); return { l: r.left - box.left, r: r.right - box.left }; };
+  const box = inner.getBoundingClientRect(), k = (inner.offsetWidth && box.width / inner.offsetWidth) || 1; const rel = el => { const r = el.getBoundingClientRect(); return { l: (r.left - box.left) / k, r: (r.right - box.left) / k }; };
   const leaves = $$('.node.leaf > .card', inner); const maxR = Math.max(...leaves.map(c => rel(c).r), 0);
   $$('.node.leaf', inner).forEach(n => { const c = n.querySelector('.card'); n.querySelector('.lead').style.width = (maxR - rel(c).r + 18) + 'px'; });
   const cols = []; const root = rel($('.root', inner)); cols.push({ l: 0, r: root.r + 14, t: 'Decision', cls: 'b0' });
@@ -1024,6 +1036,28 @@ document.addEventListener('click', e => {
   const end = () => { if (!drag) return; drag = null; const c = cv(); c && c.classList.remove('grabbing'); };
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end); window.addEventListener('resize', () => layout()); })();
 
+// ---------- zoom ----------
+const treeZoom = (() => { const ZK = 'foldback2:zoom', MIN = 0.4, MAX = 1, STEP = 0.1; const cv = () => $('#canvas');
+  const clamp = z => Math.round(Math.min(MAX, Math.max(MIN, z)) * 100) / 100;
+  let z = 1; try { const v = parseFloat(localStorage.getItem(ZK)); if (v) z = clamp(v); } catch (e) { }
+  // keep the point under (cx, cy) in place while the tree grows or shrinks
+  function set(nz, cx, cy) {
+    nz = clamp(nz); const c = cv(); if (!c) return; const inner = $('#tree-inner');
+    const r = c.getBoundingClientRect(), ax = cx == null ? r.width / 2 : cx - r.left, ay = cy == null ? 0 : Math.max(0, cy - (inner ? inner.getBoundingClientRect().top : r.top));
+    const x = (c.scrollLeft + ax) / z, f = nz / z; z = nz;
+    c.style.setProperty('--z', z); layout(); c.scrollLeft = x * z - ax; if (f !== 1 && ay) window.scrollBy(0, ay * (f - 1));
+    $('#zpct').textContent = Math.round(z * 100) + '%';
+    $('[data-zoom="out"]').disabled = z <= MIN; $('[data-zoom="in"]').disabled = z >= MAX; $('[data-zoom="reset"]').disabled = z === 1;
+    try { z === 1 ? localStorage.removeItem(ZK) : localStorage.setItem(ZK, z); } catch (e) { }
+  }
+  document.addEventListener('click', e => { const b = e.target.closest('[data-zoom]'); if (!b) return; const a = b.dataset.zoom;
+    if (a === 'reset') { set(1); cv().scrollLeft = 0; } else set(z + (a === 'in' ? STEP : -STEP)); });
+  // Ctrl/Cmd + wheel (and trackpad pinch, which arrives as ctrl + wheel) zooms the tree; plain wheel still scrolls the page
+  document.addEventListener('wheel', e => { const c = cv(); if (!(e.ctrlKey || e.metaKey) || !c || !c.contains(e.target)) return; e.preventDefault();
+    set(z * Math.exp(-e.deltaY * (e.deltaMode ? 0.05 : 0.002)), e.clientX, e.clientY); }, { passive: false });
+  return { apply: () => set(z) };
+})();
+
 // ---------- theme ----------
 function themeMode() { try { const t = localStorage.getItem('foldback2:theme'); return t === 'light' || t === 'dark' ? t : 'auto'; } catch (e) { return 'auto'; } }
 function applyTheme(mode) {
@@ -1041,7 +1075,7 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
 // ---------- boot ----------
 const firstVisit = !store.get();
 load(); applyTheme(themeMode());
-renderAll();
+renderAll(); treeZoom.apply();
 if (firstVisit) help.showModal();
 })();
 </script>
