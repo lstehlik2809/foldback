@@ -10,7 +10,7 @@
 <script>try{var t=localStorage.getItem('foldback2:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>:root{
   --paper:#EDF1F3; --surface:#FFFFFF; --surface2:#F5F7F9; --ink:#15202B; --muted:#5B6B7A; --line:#CCD6DE; --line2:#E3E9EE;
-  --dec:#1F5F8B; --dec-soft:#DCEAF4; --chance:#8A3B6B; --chance-soft:#F3E3EC; --marker:#F5D547; --ref:#C0392B; --good:#2E7D5B; --bad-soft:#F8E1DE; --warn:#8A6100; --warn-soft:#FBF1D2;
+  --dec:#1F5F8B; --dec-soft:#DCEAF4; --chance:#8A3B6B; --chance-soft:#F3E3EC; --marker:#F5D547; --ref:#C0392B; --good:#2E7D5B; --bad-soft:#F8E1DE; --warn:#8A6100; --warn-soft:#FBF1D2; --field:#7D8B99; --marker-edge:#8A6100;
   --lift:0 1px 2px rgba(21,32,43,.06),0 8px 24px rgba(21,32,43,.08);
   --font-h:"Bricolage Grotesque","Segoe UI",system-ui,-apple-system,sans-serif; --font-b:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
   /* one scale for everything: five type sizes, three roundings, a 4px spacing grid */
@@ -21,25 +21,26 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#10161E; --surface:#18212C; --surface2:#1F2935; --ink:#E4EAF0; --muted:#9AA9B8; --line:#314050; --line2:#263241;
-  --dec:#7DB6E3; --dec-soft:#1D3345; --chance:#DB93BF; --chance-soft:#3A2233; --marker:#E6C63A; --ref:#EF7B6C; --good:#6CC79C; --bad-soft:#3E2220; --warn:#E6C63A; --warn-soft:#3A3117;
+  --dec:#7DB6E3; --dec-soft:#1D3345; --chance:#DB93BF; --chance-soft:#3A2233; --marker:#E6C63A; --ref:#EF7B6C; --good:#6CC79C; --bad-soft:#3E2220; --warn:#E6C63A; --warn-soft:#3A3117; --field:#6B7E91; --marker-edge:#E6C63A;
   --lift:0 0 0 1px #3E5064,0 8px 24px rgba(0,0,0,.35); color-scheme:dark;}}
 :root[data-theme="dark"]{--paper:#10161E; --surface:#18212C; --surface2:#1F2935; --ink:#E4EAF0; --muted:#9AA9B8; --line:#314050; --line2:#263241;
-  --dec:#7DB6E3; --dec-soft:#1D3345; --chance:#DB93BF; --chance-soft:#3A2233; --marker:#E6C63A; --ref:#EF7B6C; --good:#6CC79C; --bad-soft:#3E2220; --warn:#E6C63A; --warn-soft:#3A3117;
+  --dec:#7DB6E3; --dec-soft:#1D3345; --chance:#DB93BF; --chance-soft:#3A2233; --marker:#E6C63A; --ref:#EF7B6C; --good:#6CC79C; --bad-soft:#3E2220; --warn:#E6C63A; --warn-soft:#3A3117; --field:#6B7E91; --marker-edge:#E6C63A;
   --lift:0 0 0 1px #3E5064,0 8px 24px rgba(0,0,0,.35); color-scheme:dark;}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-b);font-size:var(--fs-3);line-height:1.45}
 h1,h2,h3{font-family:var(--font-h);margin:0;line-height:1.2;font-weight:650}
-button,input,select{font:inherit;color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--dec);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .muted{color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 
 /* header */
 .bar{max-width:1400px;margin:0 auto;padding:var(--s-3) var(--s-4) var(--s-1);display:flex;gap:var(--s-3);align-items:center;flex-wrap:wrap}
 .bar .logo{flex:none}
-.bar .title{flex:1 1 240px;min-width:0;font-family:var(--font-h);font-size:var(--fs-5);font-weight:650;border:1px solid transparent;background:transparent;padding:0 var(--s-1);border-radius:var(--r-1)}
+.bar .title{flex:1 1 240px;min-width:0;font-family:var(--font-h);font-size:var(--fs-5);font-weight:650;line-height:1.25;border:1px solid transparent;background:transparent;padding:0 var(--s-1);border-radius:var(--r-1);resize:none;overflow:hidden;display:block}
 .bar .title:hover,.bar .title:focus{border-color:var(--line);background:var(--surface)}
 .starts{display:flex;gap:var(--s-2)}
 .starts button,.help-btn,.bar select,.theme{height:32px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-2);font-size:var(--fs-2)}
@@ -69,14 +70,14 @@ button,input,select{font:inherit;color:inherit}
 .kid::after{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--ink)}
 .kid:first-child::after{top:50%}.kid:last-child::after{bottom:50%}.kid:only-child::after{display:none}
 .stem{width:24px;border-top:2px solid var(--ink);flex:none}
-.kid.best-path::before{border-top:6px solid var(--marker)}
+.kid.best-path::before{border-top:6px solid var(--marker);box-shadow:0 1px 0 var(--marker-edge),0 -1px 0 var(--marker-edge)}
 .kid.adder::before{border-top-style:dashed;border-color:var(--muted)}
 .junction{position:relative;flex:none;width:56px;height:2px;background:var(--ink)}
 .junction i{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--chance-soft);border:2.5px solid var(--chance)}
 .junction b{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);white-space:nowrap;font-size:var(--fs-2);color:var(--chance);font-weight:700}
 .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-2);padding:var(--s-2) var(--s-3);display:flex;flex-direction:column;gap:var(--s-1);min-width:190px;position:relative;flex:none}
 .card.opt{border-left:5px solid var(--dec)}
-.card.best{box-shadow:0 0 0 3px var(--marker)}
+.card.best{box-shadow:0 0 0 3px var(--marker),0 0 0 4px var(--marker-edge)}
 .card.out{border-left:5px solid var(--chance)}
 .card .nm{border:0;background:transparent;font-weight:700;padding:0 var(--s-1);border-radius:var(--r-1);min-width:14ch;max-width:30ch}
 .card.out .nm{font-weight:600}
@@ -86,7 +87,7 @@ button,input,select{font:inherit;color:inherit}
 .card .fields{flex-direction:column;align-items:flex-start;gap:var(--s-1)}
 .card .fields label{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:center;gap:0 var(--s-2)}
 .card .fields .fl{grid-column:1/-1}
-.fields input{border:1px solid var(--line2);background:var(--surface2);border-radius:var(--r-1);padding:2px var(--s-1);font-size:var(--fs-2);font-variant-numeric:tabular-nums;min-width:6ch;max-width:52ch;width:8ch}
+.fields input{border:1px solid var(--field);background:var(--surface2);border-radius:var(--r-1);padding:2px var(--s-1);font-size:var(--fs-2);font-variant-numeric:tabular-nums;min-width:6ch;max-width:52ch;width:8ch}
 .fields input.capped{text-overflow:ellipsis}
 .fields .eq{font-size:var(--fs-2);color:var(--ink);font-weight:700;white-space:nowrap}
 .fields .eq:empty{display:none}
@@ -139,7 +140,7 @@ button,input,select{font:inherit;color:inherit}
 .nt{width:100%;border-collapse:collapse;min-width:880px}
 .nt th{font-size:var(--fs-1);color:var(--muted);font-weight:600;text-align:left;padding:var(--s-1)}
 .nt td{padding:var(--s-1);vertical-align:middle}
-.nt input{width:100%;border:1px solid var(--line2);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-1) var(--s-2);font-size:var(--fs-2);font-variant-numeric:tabular-nums;min-width:0}
+.nt input{width:100%;border:1px solid var(--field);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-1) var(--s-2);font-size:var(--fs-2);font-variant-numeric:tabular-nums;min-width:0}
 .nt td input{min-width:72px}
 .nt td.nmc{min-width:264px}
 .nt td.nmc input{background:transparent;border-color:transparent}
@@ -154,7 +155,7 @@ button,input,select{font:inherit;color:inherit}
 .nt .msg{font-size:var(--fs-1);color:var(--ref)}
 .nt .msg.hint{color:var(--warn)}
 .nt td.evc{white-space:nowrap}
-.nt td.evc select{border:1px solid var(--line2);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-1);font-size:var(--fs-2);width:88px}
+.nt td.evc select{border:1px solid var(--field);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-1);font-size:var(--fs-2);width:88px}
 .nt td.evc select+select{margin-left:var(--s-1)}
 @media (max-width:640px){.nt td.nmc{min-width:208px}}
 .btn{border:1px solid var(--line);background:var(--surface);padding:var(--s-1) var(--s-3);border-radius:var(--r-2);cursor:pointer;font-size:var(--fs-2)}
@@ -178,6 +179,7 @@ details.why ul{padding-left:var(--s-4);margin:var(--s-1) 0}
 .lead-line .warn-line{color:var(--ink);background:var(--warn-soft);border-left:3px solid var(--warn);padding:var(--s-1) var(--s-2);border-radius:0 var(--r-1) var(--r-1) 0}
 .side svg{display:block;width:100%;height:auto}
 .flip{margin:var(--s-4) 0 0;padding:var(--s-3);border-radius:var(--r-2);background:var(--surface2)}
+.flip:empty{display:none}
 .flip h3{margin:0 0 var(--s-2)}
 .flip ol{margin:0;padding-left:var(--s-4)}
 .flip li{margin:var(--s-2) 0}
@@ -190,7 +192,7 @@ details.deep summary{cursor:pointer;font-weight:700;color:var(--dec)}
 .deep h3{margin:var(--s-4) 0 var(--s-2)}
 .deep p{font-size:var(--fs-2);margin:var(--s-1) 0}
 .deep .seed{margin-top:var(--s-4);font-size:var(--fs-1)}.deep .seed input{width:104px;margin-left:var(--s-1)}.deep .seed input.bad{border-color:var(--ref)}
-.deep select,.deep input{border:1px solid var(--line);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-1);font-size:var(--fs-2);max-width:100%}
+.deep select,.deep input{border:1px solid var(--field);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-1);font-size:var(--fs-2);max-width:100%}
 ol.voi{list-style:none;margin:var(--s-2) 0;padding:0}
 ol.voi li{display:grid;grid-template-columns:1fr auto;gap:var(--s-2);font-size:var(--fs-2);margin:var(--s-2) 0;align-items:end}
 ol.voi i{display:block;height:6px;border-radius:var(--r-1);background:var(--muted);margin-top:var(--s-1)}
@@ -274,7 +276,7 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
 <body>
 <div class="bar">
   <svg class="logo" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="11" width="8" height="8" fill="var(--dec-soft)" stroke="var(--dec)" stroke-width="2"/><path d="M10 15 L15 6 L20 6 M10 15 L15 24 L20 24" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="23" cy="6" r="3.2" fill="var(--chance-soft)" stroke="var(--chance)" stroke-width="1.6"/><path d="M21 21 L27 24 L21 27Z" fill="var(--ink)"/></svg>
-  <input class="title" id="title" aria-label="Decision">
+  <textarea class="title" id="title" rows="1" aria-label="Decision"></textarea>
   <div class="starts"><button data-start="sam">Load the example</button><button data-start="blank">New blank tree</button></div>
   <button class="help-btn" data-help="open" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span class="lbl">How it works</span></button>
   <select id="curr" aria-label="Currency"><option>$</option><option>€</option><option>£</option><option value="CHF ">CHF</option><option value="">none</option></select>
@@ -289,8 +291,9 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
     </div>
     <div class="panel nums" id="numbers"></div>
   </main>
-  <aside class="panel side" id="side" aria-live="polite"></aside>
+  <aside class="panel side" id="side" aria-label="Results"></aside>
 </div>
+<p class="sr-only" id="sr-live" aria-live="polite" aria-atomic="true"></p>
 <p class="foot">Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a>. Everything runs in this browser, and your tree is kept only while this tab is open.</p>
 <div class="toast" id="toast" role="status"></div>
 <dialog class="help" id="help" aria-labelledby="help-title">
@@ -318,7 +321,7 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
     <p>Load the example and follow along in the panel on the right:</p>
     <ol>
       <li><b>Where it stands.</b> <i>Exit now</i> leads by <span class="num">$4,000</span> on the likely values. Because the key numbers are ranges, the app also plays out 10,000 plausible worlds. Exit comes out best in only about six worlds in ten, so this is far from settled. The chart below it shows every option's likely value and how often each comes out best.</li>
-      <li><b>What would change your mind.</b> If the chance coaching works rises above <span class="num"><b>43.3%</b></span> (now 30%), coaching wins. That value sits inside the range the team gave, so this is the number the discussion should be about. Likewise, if Sam's gap is smaller than about <span class="num">−$10k</span> a year, keeping Sam wins.</li>
+      <li><b>What would change your mind.</b> If the chance coaching works rises above <span class="num"><b>43.3%</b></span> (now 30%), coaching wins. That value sits inside the range the team gave, so this is the number the discussion should be about. Likewise, if Sam's gap is less than about <span class="num">$10k</span> a year (now <span class="num">$16k</span>), keeping Sam wins.</li>
       <li><b>Try it.</b> In <i>Shared numbers</i>, change the Likely value of <code>chance_coaching_works</code> from <code>30%</code> to <code>45%</code>. Coaching takes the lead immediately. Change it back, or press Undo.</li>
       <li><b>What is worth finding out</b> (under <i>Go deeper</i>). Pinning down Sam's real gap is worth the most, a couple of thousand dollars at most. Pinning down the exit cost is worth almost nothing, so don't spend time arguing about it. (The article ranks the chance coaching works first; its figures differ a little because it treats the ranges differently.)</li>
       <li><b>Is a diagnostic month worth it?</b> Tick <i>Price one</i>. A month of coaching that reads right 75% of the time is worth about $2,000 as information, but costs about $2,900 (fees plus another month of the gap). Decide now, or find a sharper test.</li>
@@ -501,6 +504,7 @@ const E = (() => {
     for (const c of n.children) { if (c.rest) { restNode = c; ps.push(null); } else { const p = c.prob(v); if (p < -1e-9 || p > 1 + 1e-9 || !Number.isFinite(p)) flags.bad = true; ps.push(p); s += p; } }
     if (s > 1 + 1e-9) flags.bad = true;
     if (!restNode && Math.abs(s - 1) > 1e-6) flags.notOne = true;
+    if ((flags.bad || flags.notOne) && flags.where == null) flags.where = n.label || n.name || '';
     let ev = 0; n.children.forEach((c, i) => { const p = ps[i] == null ? Math.max(0, 1 - s) : ps[i]; if (p !== 0) ev += p * evNode(c, v, flags); });
     return val + ev;
   }
@@ -538,14 +542,16 @@ const E = (() => {
       }
     }
     const K = C.options.length; const vals = C.options.map(() => new Float64Array(N)); const calcDraws = {}; C.calcs.forEach(c => calcDraws[c.name] = new Float64Array(N));
-    const flags = {}; const v = {};
+    const flags = {}; const v = {}; let badWorlds = 0, badWhere = null;
     for (const x of C.inputs) v[x.name] = x.point;
     for (let i = 0; i < N; i++) {
       for (const nm in draws) v[nm] = draws[nm][i];
       for (const c of C.calcs) { v[c.name] = c.fn(v); calcDraws[c.name][i] = v[c.name]; }
-      for (let k = 0; k < K; k++) vals[k][i] = evNode(C.options[k], v, flags);
+      const wf = {}; // a world whose chances don't fit (outside 0-100%, or a group not adding to 100%) is counted
+      for (let k = 0; k < K; k++) vals[k][i] = evNode(C.options[k], v, wf);
+      if (wf.bad || wf.notOne) { badWorlds++; if (badWhere == null) badWhere = wf.where; Object.assign(flags, wf); }
     }
-    return { N, draws, calcDraws, vals, flags };
+    return { N, draws, calcDraws, vals, flags, badWorlds, badWhere };
   }
   function quantile(arr, q) { const s = Float64Array.from(arr).sort(); const pos = (s.length - 1) * q; const lo = Math.floor(pos), hi = Math.ceil(pos); return s[lo] + (s[hi] - s[lo]) * (pos - lo); }
   function mean(a) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s / a.length; }
@@ -627,7 +633,8 @@ const E = (() => {
     for (const x of C.inputs) {
       const [lo, hi] = sweepRange(x); const S = 240; let prevIdx = null, prevX = null; const cross = [];
       for (let s = 0; s <= S; s++) {
-        const xv = lo + (hi - lo) * s / S; const pv = pointValues(C, { [x.name]: xv }).vals; if (!pv.every(Number.isFinite)) { prevIdx = null; continue; } const bi = pv.indexOf(Math.max(...pv));
+        // skip points where the chances stop fitting (a group over 100%): they would give false switch points
+        const xv = lo + (hi - lo) * s / S; const r = pointValues(C, { [x.name]: xv }), pv = r.vals; if (!pv.every(Number.isFinite) || r.flags.bad || r.flags.notOne) { prevIdx = null; continue; } const bi = pv.indexOf(Math.max(...pv));
         if (prevIdx != null && bi !== prevIdx) { // refine crossing between prevIdx and bi
           let a = prevX, b = xv; const f = t => { const q = pointValues(C, { [x.name]: t }).vals; return q[bi] - q[prevIdx]; };
           for (let it = 0; it < 60; it++) { const m = (a + b) / 2; if (f(m) > 0) b = m; else a = m; }
@@ -737,6 +744,7 @@ function compute() {
   C.errors.forEach(e => { if (/^Unexpected|^Expected|^Incomplete/.test(e.msg)) e.msg = 'Can’t read this formula (' + e.msg.toLowerCase() + '). Use numbers, names, + − * / and brackets.'; else if (/^Unknown name/.test(e.msg)) e.msg = e.msg.replace('Unknown name', 'No shared number called') + '. Add it under Shared numbers or fix the spelling.'; });
   R = { C, M, errors: C.errors, ok: false };
   const pv = E.pointValues(C); R.point = pv; R.ptree = E.pointTree(C, pv.v);
+  if (!C.errors.length) C.errors.push(...chanceErrors(C, pv.v));
   R.pBest = pv.vals.length && pv.vals.every(Number.isFinite) ? pv.vals.indexOf(Math.max(...pv.vals)) : -1;
   if (C.errors.length || R.pBest < 0) return;
   R.hasRanges = M.inputs.some(x => x.kind === 'range');
@@ -748,6 +756,29 @@ function compute() {
   const d = S.diag || {}; R.diag = null;
   if (d.on && d.name && M.meta[d.name]) { const acc = constVal(d.acc), cost = 'abs(' + String(d.cost || '0') + ')'; if (acc >= 0.5 && acc <= 1) { R.diag = E.evsiBinary(C, R.sim, d.name, acc, acc, cost); if (!R.diag.error) R.diag.pk = E.pkCurve(C, d.name, acc, acc, cost); } }
   R.surprise = surprise();
+}
+// chances must be real probabilities and each group must add up to 100% (an empty chance takes the rest);
+// otherwise the missing share would silently count as an outcome worth nothing
+function chanceErrors(C, v) {
+  const out = [];
+  // add decimals only when rounding would show a misleading 0% or 100% (a group at 99.99% must not read "100%, not 100%")
+  const share = x => { let d = 0; while (d < 3 && [0, 100].includes(+(x * 100).toFixed(d))) d++; return pct(x, d); };
+  const walk = n => {
+    if (!n.children.length) return;
+    let s = 0, hasRest = false; const ids = [];
+    for (const c of n.children) {
+      if (c.rest) { hasRest = true; continue; }
+      const p = c.prob(v); ids.push(c.id);
+      if (!Number.isFinite(p) || p < -1e-9 || p > 1 + 1e-9) out.push({ where: 'node:' + c.id, field: 'prob', msg: `A chance must be between 0% and 100%${Number.isFinite(p) ? ` (this one comes to ${share(p)})` : ''}.` });
+      else s += p;
+    }
+    const after = `The chances after “${n.label || n.name || 'this card'}”`;
+    if (!hasRest && Math.abs(s - 1) > 1e-6) out.push({ where: 'node:' + n.id, marks: ids, msg: `${after} add up to ${share(s)}, not 100%. Make them add up, or leave one empty to take the rest.` });
+    else if (hasRest && s > 1 + 1e-9) out.push({ where: 'node:' + n.id, marks: ids, msg: `${after} already add up to ${share(s)}, which leaves nothing for the empty one. Bring them down to 100% or less.` });
+    n.children.forEach(walk);
+  };
+  C.options.forEach(walk);
+  return out;
 }
 // an option behind on likely values that still wins often across the worlds, and the number that mostly decides it
 function surprise() {
@@ -794,6 +825,7 @@ function layout() {
   const inner = $('#tree-inner'); if (!inner) return; const bands = $('#bands');
   const cards = $$('.card', inner); cards.forEach(c => c.style.width = '');
   $$('.lead', inner).forEach(l => l.style.width = '0px');
+  $$('.junction', inner).forEach(j => { const b = j.querySelector('b'); j.style.width = Math.max(56, (b ? b.offsetWidth : 0) + 16) + 'px'; });
   const byD = {}; cards.forEach(c => (byD[c.dataset.depth] = byD[c.dataset.depth] || []).push(c));
   Object.values(byD).forEach(list => { const w = Math.max(...list.map(c => c.offsetWidth)); list.forEach(c => c.style.width = w + 'px'); });
   const box = inner.getBoundingClientRect(), k = (inner.offsetWidth && box.width / inner.offsetWidth) || 1; const rel = el => { const r = el.getBoundingClientRect(); return { l: (r.left - box.left) / k, r: (r.right - box.left) / k }; };
@@ -836,7 +868,9 @@ function fit(el) {
   if (!nm) el.classList.toggle('capped', el !== document.activeElement && n > FIELD_CAP);
 }
 function fitAll() { $$('.fields input, .card .nm').forEach(fit); }
-function renderAll() { $('#title').value = S.title; $('#curr').value = cur(); renderTree(); renderNumbers(); renderSideShell(); refresh(0); }
+// the title wraps on narrow screens instead of being cut off; it grows to fit its text
+function sizeTitle() { const t = $('#title'); t.style.height = 'auto'; t.style.height = t.scrollHeight + t.offsetHeight - t.clientHeight + 'px'; }
+function renderAll() { $('#title').value = S.title; sizeTitle(); $('#curr').value = cur(); renderTree(); renderNumbers(); renderSideShell(); refresh(0); }
 
 // ---------- paint after compute ----------
 function paintTree() {
@@ -845,15 +879,19 @@ function paintTree() {
   const at = {}; const idx = n => { at[n.id] = n; n.children.forEach(idx); }; (R.ptree || []).forEach(idx);
   $$('.fields input').forEach(inp => {
     const r = parseRange(inp.value), raw = inp.value.trim(); inp.classList.toggle('ranged', !!r);
-    const bad = !!R.errors.find(e => e.where === 'node:' + inp.dataset.id && e.field === inp.dataset.f); inp.classList.toggle('bad', bad);
+    const bad = !!R.errors.find(e => e.where === 'node:' + inp.dataset.id && e.field === inp.dataset.f);
+    const inGroup = inp.dataset.f === 'prob' && R.errors.some(e => e.marks && e.marks.includes(inp.dataset.id)); // a group whose chances don't add up
+    inp.classList.toggle('bad', bad || inGroup);
     inp.title = r ? `Range ${r.lo.toLocaleString('en-GB')} to ${r.hi.toLocaleString('en-GB')}, likely ${r.mid.toLocaleString('en-GB')}` : raw.length + 2 > FIELD_CAP ? raw : '';
     // a name or formula shows what it comes to at the likely values, so every path can be checked by hand
     const q = $(`#q-${inp.dataset.id}-${inp.dataset.f}`), n = at[inp.dataset.id];
     if (q) q.textContent = !bad && n && raw && !r && !Number.isFinite(constVal(raw)) ? '= ' + (inp.dataset.f === 'prob' ? fmtIn(n.prob, true) : money(n.value)) : '';
   });
+  // a chance point whose chances don't fit (or that sits above one) has no honest value: show a dash, not a number
+  const grp = new Set(R.errors.filter(e => e.marks).map(e => e.where.slice(5))), badProb = new Set(R.errors.filter(e => e.field === 'prob').map(e => e.where.slice(5)));
   const walk = (n, isOpt, k) => {
-    if (n.children.length) { const el = $('#ev-' + n.id); if (el) el.textContent = money(n.ev); n.children.forEach((c, i) => { walk(c, false); const inp = $(`[data-id="${c.id}"][data-f="prob"]`); if (inp && inp.value.trim() === '') { inp.placeholder = 'the rest (' + pct(c.prob) + ')'; fit(inp); } }); }
-    else { const el = $('#t-' + n.id); if (el) el.textContent = money(n.cum); }
+    if (n.children.length) { let off = grp.has(n.id); n.children.forEach((c, i) => { if (walk(c, false) || badProb.has(c.id)) off = true; const inp = $(`[data-id="${c.id}"][data-f="prob"]`); if (inp && inp.value.trim() === '') { inp.placeholder = 'the rest (' + pct(c.prob) + ')'; fit(inp); } }); const el = $('#ev-' + n.id); if (el) el.textContent = off ? '—' : money(n.ev); return off; }
+    else { const el = $('#t-' + n.id); if (el) el.textContent = money(n.cum); return false; }
   };
   (R.ptree || []).forEach((o, k) => walk(o, true, k)); layout();
   $$('.card.best').forEach(c => c.classList.remove('best')); $$('.kid.best-path').forEach(c => c.classList.remove('best-path'));
@@ -938,7 +976,7 @@ function barsSVG() {
     g += `<text x="${pl}" y="${y + 13}" fill="var(--ink)" font-weight="${best ? 700 : 400}">${esc(lab.length > maxL ? lab.slice(0, maxL - 1) + '…' : lab)}</text>`;
     g += `<text x="${xVal}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${esc(money(v))}</text>`;
     if (R.hasRanges) g += `<text x="${xBest}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${pct(s.opts[i].pBest)}</text>`;
-    g += `<rect x="${Math.min(X(0), X(v))}" y="${y + 20}" width="${Math.abs(X(v) - X(0))}" height="12" fill="${best ? 'var(--marker)' : 'var(--line)'}" rx="2"/>`;
+    g += `<rect x="${Math.min(X(0), X(v))}" y="${y + 20}" width="${Math.abs(X(v) - X(0))}" height="12" fill="${best ? 'var(--marker)' : 'var(--line)'}"${best ? ' stroke="var(--marker-edge)"' : ''} rx="2"/>`;
     if (R.hasRanges) { const o = s.opts[i]; g += `<line x1="${X(o.q025)}" x2="${X(o.q975)}" y1="${y + 26}" y2="${y + 26}" stroke="var(--ink)" stroke-width="1.3"/><line x1="${X(o.q025)}" x2="${X(o.q025)}" y1="${y + 22}" y2="${y + 30}" stroke="var(--ink)"/><line x1="${X(o.q975)}" x2="${X(o.q975)}" y1="${y + 22}" y2="${y + 30}" stroke="var(--ink)"/>`; } });
   return g + '</svg>' + `<p class="chart-note">${R.hasRanges ? 'Bar: value at your likely numbers. Whisker: where the middle 95% of plausible worlds land. Best in: how often the option comes out on top.' : 'Add a range anywhere to see how sure this is.'}</p>`;
 }
@@ -948,13 +986,13 @@ function histSVG(d, posLab, negLab) {
   for (const v of d) { const i = Math.floor((v - a) / w); if (i >= 0 && i < nb) cnt[i]++; }
   const W = 340, H = 132, base = 96, m = Math.max(...cnt) || 1, X = v => (v - a) / (b - a) * W;
   let g = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="How much better ${esc(posLab)} is than ${esc(negLab)} across plausible worlds" style="font-family:var(--font-b);font-size:12px">`;
-  cnt.forEach((c, i) => { const x0 = a + i * w, pos = x0 + w / 2 > 0; g += `<rect x="${X(x0) + .5}" y="${base - c / m * 76}" width="${Math.max(.5, X(x0 + w) - X(x0) - 1)}" height="${c / m * 76}" fill="${pos ? 'var(--muted)' : 'var(--marker)'}" opacity="${pos ? .55 : 1}"/>`; });
+  cnt.forEach((c, i) => { const x0 = a + i * w, pos = x0 + w / 2 > 0; g += `<rect x="${X(x0) + .5}" y="${base - c / m * 76}" width="${Math.max(.5, X(x0 + w) - X(x0) - 1)}" height="${c / m * 76}" fill="${pos ? 'var(--muted)' : 'var(--marker)'}" opacity="${pos ? .55 : 1}"${pos ? '' : ' stroke="var(--marker-edge)" stroke-width=".6"'}/>`; });
   g += `<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)"/><line x1="${X(0)}" x2="${X(0)}" y1="14" y2="${base + 4}" stroke="var(--ink)" stroke-width="1.5"/>`;
   const cut = t => t.length > 20 ? t.slice(0, 19) + '…' : t;
   g += `<text x="2" y="11" fill="var(--ink)">← ${esc(cut(negLab))} better</text><text x="${W - 2}" y="11" text-anchor="end" fill="var(--ink)">${esc(cut(posLab))} better →</text>`;
   g += `<text x="2" y="${base + 16}" fill="var(--muted)">${esc(money(a, true))}</text><text x="${W - 2}" y="${base + 16}" text-anchor="end" fill="var(--muted)">${b > 0 ? '+' : ''}${esc(money(b, true))}</text>`;
   if (X(0) > 40 && X(0) < W - 40) g += `<text x="${X(0)}" y="${base + 16}" text-anchor="middle" fill="var(--muted)">0</text>`;
-  g += `<text x="${W / 2}" y="${H - 2}" text-anchor="middle" fill="var(--muted)">difference in value, per plausible world</text>`;
+  g += `<text x="${W / 2}" y="${H - 2}" text-anchor="middle" fill="var(--muted)">difference in value per plausible world (middle 99%)</text>`;
   return g + '</svg>';
 }
 // who leads on the likely values, by how much, and how often across plausible worlds
@@ -967,7 +1005,7 @@ function leadLine(html) {
     : `${lead} leads on current numbers, ${amt(v[k] - v[o2])} ahead of ${nm(o2)}.`;
   if (R.hasRanges && o2 != null) {
     const pb = R.sum.opts[k].pBest;
-    let w = `It comes out best in ${pct(pb)} of 10,000 plausible worlds, so ${pb >= 0.9 ? 'the lead is fairly safe' : pb >= 0.7 ? 'it leads, but not safely' : 'this is far from settled'}.`; const sp = R.surprise;
+    let w = `It comes out best in ${pct(pb)} of 10,000 plausible worlds, so ${safety(pb)}.`; const sp = R.surprise;
     if (sp) { const f = sp.driver; w += ` ${nm(sp.i)}, ${sp.last ? 'last' : 'behind'} on likely values, still comes out best in ${pct(sp.p)}` + (f ? `, mostly where ${html ? esc(R.M.meta[f.be.name].label) : R.M.meta[f.be.name].label} ${html ? esc(whereCond(f)) : whereCond(f)}.` : '.'); }
     s += (html ? '<span class="sub">' : ' ') + w + (html ? '</span>' : '');
     // the likely values and the average over the ranges can rank the options differently when a range leans to one side
@@ -977,7 +1015,16 @@ function leadLine(html) {
       s += html ? `<span class="sub warn-line">${d}</span>` : ' ' + d;
     }
   }
+  const bw = badWorldsLine(html); if (bw) s += html ? `<span class="sub warn-line">${bw}</span>` : ' ' + bw;
   return s;
+}
+// the verdict word is judged on the percentage people see, so "90%" never comes with "not safely"
+function safety(pb) { const p = Math.round(pb * 100); return p >= 90 ? 'the lead is fairly safe' : p >= 70 ? 'it leads, but not safely' : 'this is far from settled'; }
+// ranged chances can fit at the likely values but not in every world; those worlds are counted and disclosed
+function badWorldsLine(html) {
+  const sim = R.sim; if (!sim || !sim.badWorlds) return '';
+  const where = sim.badWhere ? `after “${html ? esc(sim.badWhere) : sim.badWhere}” ` : '';
+  return `In ${pct(sim.badWorlds / sim.N, sim.badWorlds / sim.N < 0.01 ? 1 : 0)} of the plausible worlds the chances ${where}don't add up to 100%, so those worlds are off. Narrow the ranges so the chances always fit, or leave one outcome empty to take the rest.`;
 }
 // Pauker-Kassirer band: the range of the signalled chance in which the diagnostic pays, at likely values
 function diagBand(html) {
@@ -1002,20 +1049,32 @@ function meetingNote() {
   const val = n => { const lo = constVal(n.low), hi = constVal(n.high), lk = constVal(n.likely); const f = x => fmtVar(n.name, x); return Number.isFinite(lo) && Number.isFinite(hi) ? `${f(lk)}, range ${f(lo)} to ${f(hi)}` : Number.isFinite(lk) ? f(lk) : `= ${n.likely}`; };
   if (used.length) out.push('What the numbers rest on:\n' + tagged.map(n => `- ${numLabel(n)}: ${val(n)} (${evLabel(n)})`).join('\n') + (untagged.length ? (tagged.length ? '\n' : '') + `- Not tagged: ${untagged.map(numLabel).join(', ')}` : ''));
   const flagged = used.filter(n => evidenceHint(n)); if (flagged.length) out.push('Worth a second look (weak evidence but a tight or certain number): ' + flagged.map(numLabel).join(', ') + '.');
-  out.push('Options are compared at our likely values; the plausible worlds show how that holds up across our ranges. No attitude to risk (averages only) and no discounting. Ranges are treated as independent. Evidence tags are a record and do not change any number.');
+  out.push('Options are compared at our likely values; the plausible worlds show how that holds up across our ranges. Each switch point moves one number on its own, with the others at their likely values. No attitude to risk (averages only) and no discounting. Ranges are treated as independent. Evidence tags are a record and do not change any number.');
   return out.join('\n\n');
+}
+// screen readers hear only the verdict, and only when it changes: which option leads and how safely, or why results are paused
+function announce() {
+  const el = $('#sr-live'); if (!el) return;
+  let t;
+  if (!R.ok) t = R.errors.length ? 'Results paused: ' + R.errors[0].msg : '';
+  else if (R.tie) t = 'No option leads: the top options are level.';
+  else { t = S.options[R.pBest].label + ' leads.'; if (R.hasRanges && R.order.length > 1) t += ' ' + safety(R.sum.opts[R.pBest].pBest).replace(/^./, c => c.toUpperCase()) + '.'; }
+  if (t !== announce.last) { announce.last = t; el.textContent = t; }
 }
 function applySide() { const h = !!S.sideHidden; $('.wrap').classList.toggle('side-hidden', h); $('#side').classList.toggle('mini', h); }
 function paintSide() {
   const mb = $('#mini-best'); if (mb) mb.textContent = R && R.ok && R.tie ? 'none (level)' : R && R.ok && S.options[R.pBest] ? S.options[R.pBest].label : '…';
+  announce();
   if (!R.ok) {
     $('#v-head').innerHTML = `<p class="lead-line bad">${R.errors.length ? esc(R.errors[0].msg) + (R.errors.length > 1 ? ` (+${R.errors.length - 1} more)` : '') : 'Add an option to begin.'}</p>`;
-    ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; }); return;
+    ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; });
+    const nt = $('#v-note'); if (nt) nt.value = 'No note while the tree has a problem: fix it and the note comes back.'; // never leave an old verdict to copy
+    return;
   }
   const v = R.point.vals, k = R.pBest, o2 = R.order[1];
   $('#v-head').innerHTML = `<p class="lead-line">${leadLine(true)}</p>`;
   const fl = flips().slice(0, 3);
-  $('#v-flip').innerHTML = `<h3>What would change your mind?</h3>` + (fl.length ? `<ol>${fl.map(f => `<li>If <b>${esc(R.M.meta[f.be.name].label)}</b> ${flipCond(f, true)}, <b>${esc(S.options[f.win].label)}</b> wins.${f.inR ? ' <span class="tag">inside your range</span>' : ''}</li>`).join('')}</ol>` : R.be.list.length ? '<p>No single number flips this, even over a wide sweep.</p>' : '<p class="muted">Nothing to test yet. Switch points are worked out for shared numbers and ranges: add one under Shared numbers, or type a range such as <b>-20k to -5k</b> into the tree.</p>');
+  $('#v-flip').innerHTML = `<h3>What would change your mind?</h3>` + (fl.length ? `<ol>${fl.map(f => `<li>If <b>${esc(R.M.meta[f.be.name].label)}</b> ${flipCond(f, true)}, <b>${esc(S.options[f.win].label)}</b> wins.${f.inR ? ' <span class="tag">inside your range</span>' : ''}</li>`).join('')}</ol><p class="chart-note">Each number is moved on its own, with the others at their likely values.</p>` :R.be.list.length ? '<p>No single number flips this, even over a wide sweep.</p>' : '<p class="muted">Nothing to test yet. Switch points are worked out for shared numbers and ranges: add one under Shared numbers, or type a range such as <b>-20k to -5k</b> into the tree.</p>');
   $('#v-bars').innerHTML = `<h3>Each option</h3>` + barsSVG();
   // deeper
   if (R.hasRanges && R.pair) {
@@ -1048,7 +1107,7 @@ function toast(msg, undo) { const t = $('#toast'); t.innerHTML = esc(msg) + (und
 // ---------- events ----------
 document.addEventListener('input', e => {
   const t = e.target;
-  if (t.id === 'title') { S.title = t.value; store.set(snapshot()); return; }
+  if (t.id === 'title') { if (/\n/.test(t.value)) t.value = t.value.replace(/\s*\n\s*/g, ' '); S.title = t.value; sizeTitle(); store.set(snapshot()); return; }
   if (t.dataset.id) { fit(t); layout(); const r = find(t.dataset.id); if (r) { r.n[t.dataset.f] = t.value; if (t.dataset.f !== 'label') refresh(); else { store.set(snapshot()); refresh(400); } } return; }
   if (t.dataset.num && t.dataset.f !== 'name') { const v = S.numbers.find(x => x.id === t.dataset.num); v[t.dataset.f] = t.value; refresh(t.tagName === 'SELECT' ? 0 : undefined); return; }
   if (t.id === 'seed') { const ok = /^\d{1,9}$/.test(t.value.trim()); t.classList.toggle('bad', !ok); if (ok) { S.seed = +t.value.trim(); refresh(); } return; }
@@ -1072,7 +1131,8 @@ document.addEventListener('focusin', e => { if (e.target.matches && e.target.mat
 document.addEventListener('focusout', e => { if (e.target.matches && e.target.matches('.fields input')) setTimeout(() => { fit(e.target); layout(); }, 0); });
 document.addEventListener('toggle', e => { const id = e.target.id; if (id === 'deep') S.deepOpen = e.target.open; else if (id === 'notebox') S.noteOpen = e.target.open; else if (id === 'why') S.whyOpen = e.target.open; else return; store.set(snapshot()); }, true);
 document.addEventListener('keydown', e => {
-  const t = e.target; if (e.key !== 'Enter' || !t.classList || !t.classList.contains('nm')) return; e.preventDefault();
+  const t = e.target; if (e.key === 'Enter' && t.id === 'title') { e.preventDefault(); return; }
+  if (e.key !== 'Enter' || !t.classList || !t.classList.contains('nm')) return; e.preventDefault();
   const r = find(t.dataset.id); if (!r) return; remember();
   // Enter on a name adds a sibling right after it: fast way to list options or outcomes
   const isOpt = r.arr === S.options; const nb = isOpt ? Op('', '0') : Br('', '', '0'); const idx = r.arr.indexOf(r.n);
@@ -1100,7 +1160,7 @@ document.addEventListener('click', e => {
   document.addEventListener('pointerdown', e => { const c = cv(); if (!c || !c.contains(e.target) || e.pointerType !== 'mouse' || e.button !== 0) return; if (e.target.closest('input,button,select,textarea,label')) return; drag = { x: e.clientX, y: e.clientY, sl: c.scrollLeft, sy: window.scrollY, moved: false }; c.classList.add('grabbing'); e.preventDefault(); });
   document.addEventListener('pointermove', e => { if (!drag) return; const c = cv(); const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true; c.scrollLeft = drag.sl - dx; window.scrollTo(window.scrollX, drag.sy - dy); });
   const end = () => { if (!drag) return; drag = null; const c = cv(); c && c.classList.remove('grabbing'); };
-  document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end); window.addEventListener('resize', () => layout()); })();
+  document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end); window.addEventListener('resize', () => { layout(); sizeTitle(); }); })();
 
 // ---------- zoom ----------
 const treeZoom = (() => { const ZK = 'foldback2:zoom', MIN = 0.4, MAX = 1, STEP = 0.1; const cv = () => $('#canvas');
@@ -1153,7 +1213,7 @@ const HK = 'foldback2:help-seen'; // the walkthrough opens once per browser; the
 let helpSeen = true; try { helpSeen = !!localStorage.getItem(HK); localStorage.setItem(HK, '1'); } catch (e) { }
 load(); applyTheme(themeMode());
 renderAll(); treeZoom.auto();
-if (document.fonts) document.fonts.ready.then(() => { layout(); treeZoom.auto(); }); // web fonts widen the cards once they arrive
+if (document.fonts) document.fonts.ready.then(() => { layout(); sizeTitle(); treeZoom.auto(); }); // web fonts widen the cards once they arrive
 if (!helpSeen) help.showModal();
 window.addEventListener('beforeunload', e => { if (edited()) { e.preventDefault(); e.returnValue = ''; } });
 })();
