@@ -752,10 +752,20 @@ function compute() {
   R.evppi = C.inputs.filter(x => R.sim.draws[x.name]).map(x => ({ label: M.meta[x.name].label, v: E.evppi(R.sim, x.name) })).sort((a, b) => b.v - a.v);
   const order = pv.vals.map((v, i) => i).sort((a, b) => pv.vals[b] - pv.vals[a]); R.order = order;
   R.tie = order.length > 1 && Math.round(pv.vals[order[0]] - pv.vals[order[1]]) === 0; // level options: no leader to highlight
-  if (order.length > 1) R.pair = { a: order[0], b: order[1], ...E.pairStats(R.sim, order[0], order[1]) };
+  R.pair = pickPair();
   const d = S.diag || {}; R.diag = null;
   if (d.on && d.name && M.meta[d.name]) { const acc = constVal(d.acc), cost = 'abs(' + String(d.cost || '0') + ')'; if (acc >= 0.5 && acc <= 1) { R.diag = E.evsiBinary(C, R.sim, d.name, acc, acc, cost); if (!R.diag.error) R.diag.pk = E.pkCurve(C, d.name, acc, acc, cost); } }
   R.surprise = surprise();
+}
+// head to head: the leader against one challenger. By default the challenger is the option that beats the leader
+// in the most plausible worlds, which with a lopsided range need not be the runner-up on likely values.
+// A challenger the user picked (S.vsId) is kept while it exists and isn't the leader; otherwise back to the default.
+function pickPair() {
+  const order = R.order; if (order.length < 2) return null;
+  const a = order[0], all = order.slice(1).map(b => ({ b, ...E.pairStats(R.sim, a, b) }));
+  const threat = all.reduce((x, y) => y.pB > x.pB ? y : x); // ties go to the better option on likely values
+  const picked = all.find(p => S.options[p.b].id === S.vsId);
+  return { a, ...(picked || threat), threat: threat.b };
 }
 // chances must be real probabilities and each group must add up to 100% (an empty chance takes the rest);
 // otherwise the missing share would silently count as an outcome worth nothing
@@ -1078,9 +1088,7 @@ function paintSide() {
   $('#v-bars').innerHTML = `<h3>Each option</h3>` + barsSVG();
   // deeper
   if (R.hasRanges && R.pair) {
-    const p = R.pair, A = S.options[p.a].label, B = S.options[p.b].label;
-    const pb = R.sum.opts[p.b].pBest, others = S.options.length > 2;
-    $('#v-worlds').innerHTML = `<h3>Head to head with the runner-up</h3><p>${others ? 'Leaving the other options aside, ' : ''}<b>${esc(B)}</b> beats <b>${esc(A)}</b> in <b>${pct(p.pB)}</b> of plausible worlds.${others && pct(pb) !== pct(p.pB) ? ` That is more than its ${pct(pb)} “best in” above, which counts only the worlds where it beats every option.` : ''}</p>${histSVG(p.d, B, A)}`;
+    paintWorlds();
     const matters = R.evppi.filter(x => Math.round(x.v) > 0), idle = R.evppi.filter(x => Math.round(x.v) <= 0);
     $('#v-voi').innerHTML = `<h3>What is worth finding out?</h3>` + (!matters.length
       ? (Math.round(R.sum.evpi) > 0
@@ -1096,6 +1104,16 @@ function paintSide() {
   if (dv) { if (!d.on) dv.innerHTML = ''; else if (!R.diag) dv.innerHTML = '<p class="muted">Pick a chance, and an accuracy between 50% and 100%.</p>'; else if (R.diag.error) dv.innerHTML = `<p class="bad-text">${esc(R.diag.error)}</p>`; else { const r = R.diag, net = r.evsi - r.cost;
     dv.innerHTML = `<div class="kp"><div><b>${pct(r.postPos)}</b><span>chance after a good month → ${esc(S.options[r.pos.bestIdx].label)}</span></div><div><b>${pct(r.postNeg)}</b><span>after a bad month → ${esc(S.options[r.neg.bestIdx].label)}</span></div><div><b class="num">${esc(money(r.evsi))}</b><span>what the month is worth</span></div><div><b class="num">${esc(money(r.cost))}</b><span>what it costs</span></div></div>
     <p class="note">${!r.changes ? 'Whatever it shows, you would do the same thing, so as information it is worth nothing.' : net > 0 ? `Run it: it pays by ${esc(money(net))}.` : `It could change the decision, but not often enough to cover its cost. Decide now or find a sharper test.`} ${diagBand(true)}</p>`; } }
+}
+// the leader against one challenger, picked in the dropdown; the option marked "beats it most often" is the default
+function paintWorlds() {
+  const p = R.pair, A = S.options[p.a].label, B = S.options[p.b].label;
+  const pb = R.sum.opts[p.b].pBest, others = S.options.length > 2, focused = document.activeElement && document.activeElement.id === 'vs';
+  // picking the default stores nothing, so the default keeps tracking the numbers as they change
+  const pick = others ? `<p><label>Compare <b>${esc(A)}</b> with <select id="vs">${R.order.slice(1).map(i => `<option value="${i === p.threat ? '' : esc(S.options[i].id)}" ${i === p.b ? 'selected' : ''}>${esc(S.options[i].label)}${i === p.threat ? ' (beats it most often)' : ''}</option>`).join('')}</select></label></p>` : '';
+  const why = others && p.b === p.threat && p.b !== R.order[1] ? ` That is more often than <b>${esc(S.options[R.order[1]].label)}</b> manages, though ${esc(S.options[R.order[1]].label)} is closer on likely values.` : '';
+  $('#v-worlds').innerHTML = `<h3>Head to head</h3>${pick}<p>${others ? 'Leaving the other options aside, ' : ''}<b>${esc(B)}</b> beats <b>${esc(A)}</b> in <b>${pct(p.pB)}</b> of plausible worlds.${why}${others && pct(pb) !== pct(p.pB) ? ` That is more than its ${pct(pb)} “best in” above, which counts only the worlds where it beats every option.` : ''}</p>${histSVG(p.d, B, A)}`;
+  if (focused) $('#vs').focus(); // the dropdown is redrawn on every change; keep keyboard users where they were
 }
 function refresh(ms = 220) { clearTimeout(refresh.t); refresh.t = setTimeout(() => { compute(); paintTree(); paintNumbers(); if (!$('#dg-name') || $('#dg-name').options.length !== Object.values(R.M.meta).filter(m => m.isProb).length) { const open = $('#deep') && $('#deep').open; S.deepOpen = open; if ($('#notebox')) S.noteOpen = $('#notebox').open; const f = document.activeElement && document.activeElement.id; renderSideShell(); if (f && $('#' + f)) $('#' + f).focus(); } paintSide(); store.set(snapshot()); }, ms); }
 
@@ -1125,7 +1143,9 @@ document.addEventListener('change', e => {
   }
   if (t.id === 'curr') { S.cur = t.value; refresh(0); return; }
   if (t.id === 'dg-on') { S.diag = Object.assign({ acc: '75%', cost: '-1500' }, S.diag || {}, { on: t.checked }); if (t.checked && (!S.diag.name || !R.M.meta[S.diag.name])) S.diag.name = $('#dg-name') && $('#dg-name').value; $('#dg-form').hidden = !t.checked; refresh(0); return; }
-  if (t.id === 'dg-name') { S.diag = Object.assign(S.diag || {}, { name: t.value }); refresh(0); }
+  if (t.id === 'dg-name') { S.diag = Object.assign(S.diag || {}, { name: t.value }); refresh(0); return; }
+  // the draws don't change, so only the head to head is redone
+  if (t.id === 'vs') { if (t.value) S.vsId = t.value; else delete S.vsId; if (R.ok && R.pair) { R.pair = pickPair(); paintWorlds(); } store.set(snapshot()); }
 });
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('.fields input')) { fit(e.target); layout(); } });
 document.addEventListener('focusout', e => { if (e.target.matches && e.target.matches('.fields input')) setTimeout(() => { fit(e.target); layout(); }, 0); });
