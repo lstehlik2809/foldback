@@ -14,17 +14,18 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 - **Build the tree by typing.** Options and outcomes are cards you type into. Press Enter in a name to add the next one, and click **+ what could happen?** to split an option into chance outcomes.
 - **Uncertainty is typed, not configured.** Any field takes a range such as `-37k to -25k ~-30k`, and it's simulated automatically.
-- **Where it stands, updated live.** Which option leads on your likely values, by how much, and how often it comes out best across 10,000 plausible worlds. When an option that is behind on likely values still wins often, it says so, and names the number that mostly decides it.
-- **What would change your mind.** Shown first. For each estimate, the value at which the leading option changes, flagged when it falls inside your own range. This is the number the discussion should be about.
+- **Where it stands, updated live.** Which option leads on your likely values, by how much, how often it comes out best across 10,000 plausible worlds, and whether that makes the lead safe. A chart shows every option's likely value, its spread and how often it comes out best. When an option that is behind on likely values still wins often, it says so, and names the number that mostly decides it.
+- **What would change your mind.** Right under the verdict. For each estimate, the value at which the leading option changes, flagged when it falls inside your own range. This is the number the discussion should be about.
 - **What is worth finding out.** A ranking of which estimate to pin down first, each with the most that knowing it exactly could be worth (EVPPI), plus the estimates that would not change the choice on their own.
 - **Is a diagnostic month worth it?** It prices a trial that signals whether an event will happen, such as whether coaching is taking, against what it costs, and gives the band of that chance in which the trial pays (below it, and above it, you decide without testing).
+- **Plain descriptions.** Each shared number can carry a description, such as “Sam's yearly gap vs an average performer”, which the results and the meeting note use instead of the variable name.
 - **Evidence tags.** Each shared number can record whether it comes from data, expert judgement or a guess, and how confident its source is. Tags are a record only and never change a number. The app flags weak evidence sitting on a tight or certain number.
 - **Meeting note.** A plain-text summary to paste into minutes or an email, including what each number rests on.
 
 ## Quick start
 
 1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
-2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right: what would change your mind, then which option leads.
+2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right (at the top on a phone): which option leads, then what would change your mind. The tree opens fitted to its panel; **Fit** brings it back after it grows.
 3. Click **New blank tree** to build your own.
 
 ### What you can type in a field
@@ -112,7 +113,7 @@ The one figure that doesn't match is the value of pinning down Sam's gap. The ap
 - Everything runs in the browser. The app makes no network calls apart from loading Google Fonts.
 - Your tree is kept only while its browser tab is open (sessionStorage). It survives a reload, and it's gone when you close the tab, so nothing about a real person stays on the device. Every new visit starts with the Sam example. If you've changed the tree, the browser asks before the tab closes.
 - Nothing is sent anywhere, and trees can't be shared through the app.
-- The browser remembers only your theme, the tree zoom, and that you've seen the **How it works** window.
+- The browser remembers only your theme, a tree zoom you picked yourself, and that you've seen the **How it works** window.
 - Under strict data-protection policies, delete the two Google Fonts lines at the top of `index.html`. The app then uses system fonts, with nothing else lost.
 
 ## Deploy your own copy
