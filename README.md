@@ -15,7 +15,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 - **Build the tree by typing.** Options and outcomes are cards you type into. Press Enter in a name to add the next one, and click **+ what could happen?** to split an option into chance outcomes.
 - **Uncertainty is typed, not configured.** Any field takes a range such as `-37k to -25k ~-30k`, and it's simulated automatically.
 - **Where it stands, updated live.** Which option leads on your likely values, by how much, how often it comes out best across 10,000 plausible worlds, and whether that makes the lead safe. A chart shows every option's likely value, its spread and how often it comes out best. When an option that is behind on likely values still wins often, it says so, and names the number that mostly decides it.
-- **What would change your mind.** Right under the verdict. For each estimate, the value at which the leading option changes, flagged when it falls inside your own range. This is the number the discussion should be about.
+- **What would change your mind.** Right under the verdict. For each estimate, the value at which the leading option changes, flagged when it falls inside your own range. This is the number the discussion should be about. Costs and gaps are stated by size (“if an exit costs more than $43,333”), so nobody has to reason about “rising above a negative number”.
 - **What is worth finding out.** A ranking of which estimate to pin down first, each with the most that knowing it exactly could be worth (EVPPI), plus the estimates that would not change the choice on their own.
 - **Is a diagnostic month worth it?** It prices a trial that signals whether an event will happen, such as whether coaching is taking, against what it costs, and gives the band of that chance in which the trial pays (below it, and above it, you decide without testing).
 - **Plain descriptions.** Each shared number can carry a description, such as “Sam's yearly gap vs an average performer”, which the results and the meeting note use instead of the variable name.
@@ -25,7 +25,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 ## Quick start
 
 1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
-2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right (at the top on a phone): which option leads, then what would change your mind. The tree opens fitted to its panel; **Fit** brings it back after it grows.
+2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right (at the top on a phone): which option leads, then what would change your mind. The tree opens fitted to its panel, but never below 85% so it stays readable; drag to see the rest, and **Fit** shrinks it to fit whatever its size. Any field holding a name or a formula shows what it comes to, such as `= −$13,000`.
 3. Click **New blank tree** to build your own.
 
 ### What you can type in a field
@@ -64,13 +64,13 @@ Formulas can also use `min(a, b)`, `max(a, b)` and `if(test, a, b)`, for example
 
 | Part | How it's computed |
 |---|---|
-| Folding back | Each chance point is worth the probability-weighted average of what follows it. The option with the highest value at the likely values is shown as leading. |
+| Folding back | Each chance point is worth the probability-weighted average of what follows it. The option with the highest value at the likely values is shown as leading. If the average over the plausible worlds would put a different option ahead (a range that leans to one side can do this), the panel says so and calls it a close call. |
 | Ranges | Each range becomes a Beta curve stretched between Low and High, with its median at Likely. The spread is a PERT-style default (a + b = 6). Low and High are hard limits: nothing outside them is simulated. |
 | Plausible worlds | 10,000 draws per range, taken by inverse-CDF sampling. Each shared number's draws come from the random seed (2364 by default, changeable under **Go deeper**) and the number's name, so the same tree and seed always give the same results and nothing jitters as you type. Each world folds the tree back once. Ranges are drawn independently. |
 | What would change your mind | Each estimate is swept on its own, holding the others at their likely values, and the switch points are refined by bisection. |
 | What is worth finding out | EVPPI by regressing each option's value on one estimate with a cubic smoother, in the style of Strong, Oakley & Brennan (2014), ranked from largest. Estimates whose EVPPI rounds to zero are listed as not changing the choice on their own. EVPI (knowing everything) comes straight from the simulated worlds. Both are ceilings, not the value of a real study. |
 | Diagnostic month | Exact Bayesian analysis of a yes/no signal on one chance, with the same accuracy for good and bad results. The app computes the value of deciding after the signal and compares it with the cost. |
-| Values | Averages (risk-neutral), with no discounting. |
+| Values | No attitude to risk (averages only), with no discounting. |
 
 ### Checked against the article
 
