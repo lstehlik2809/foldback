@@ -83,7 +83,13 @@ button,input,select{font:inherit;color:inherit}
 .card .nm:hover,.card .nm:focus{background:var(--surface2)}
 .fields{display:flex;gap:var(--s-2);align-items:center;flex-wrap:wrap}
 .fields label{display:flex;align-items:center;gap:var(--s-1);font-size:var(--fs-1);color:var(--muted)}
+.card .fields{flex-direction:column;align-items:flex-start;gap:var(--s-1)}
+.card .fields label{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:center;gap:0 var(--s-2)}
+.card .fields .fl{grid-column:1/-1}
 .fields input{border:1px solid var(--line2);background:var(--surface2);border-radius:var(--r-1);padding:2px var(--s-1);font-size:var(--fs-2);font-variant-numeric:tabular-nums;min-width:6ch;max-width:52ch;width:8ch}
+.fields input.capped{text-overflow:ellipsis}
+.fields .eq{font-size:var(--fs-2);color:var(--ink);font-weight:700;white-space:nowrap}
+.fields .eq:empty{display:none}
 .fields input.ranged{border-color:var(--chance);background:var(--chance-soft)}
 .fields input.bad{border-color:var(--ref);background:var(--bad-soft)}
 .acts{position:absolute;right:-6px;top:-10px;display:flex;gap:var(--s-1);opacity:0;transition:opacity .12s}
@@ -169,6 +175,7 @@ details.why ul{padding-left:var(--s-4);margin:var(--s-1) 0}
 .lead-line.bad,.bad-text{color:var(--ref)}
 .lead-line mark{background:var(--marker);color:#15202B;padding:0 var(--s-1);border-radius:var(--r-1);font-weight:700}
 .lead-line .sub{display:block;color:var(--muted);font-size:var(--fs-3);line-height:1.45;margin-top:var(--s-2)}
+.lead-line .warn-line{color:var(--ink);background:var(--warn-soft);border-left:3px solid var(--warn);padding:var(--s-1) var(--s-2);border-radius:0 var(--r-1) var(--r-1) 0}
 .side svg{display:block;width:100%;height:auto}
 .flip{margin:var(--s-4) 0 0;padding:var(--s-3);border-radius:var(--r-2);background:var(--surface2)}
 .flip h3{margin:0 0 var(--s-2)}
@@ -345,7 +352,9 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
     <h3>Keep in mind</h3>
     <ul>
       <li>A confident, narrow, invented range gives a confident, narrow, invented answer. Build the tree <i>with</i> the decision-maker, using their numbers.</li>
-      <li>Ranges are treated as independent, values are averages (risk-neutral), and nothing is discounted over time.</li>
+      <li>Options are compared at your likely values. If the average over all the plausible worlds would put a different option ahead, which can happen when a range leans to one side, the panel says so.</li>
+      <li>“Fairly safe” means the leader comes out best in at least 90% of plausible worlds, “leads, but not safely” 70% to 90%, and below that “far from settled”. These cut-offs are rules of thumb, not statistical tests.</li>
+      <li>Ranges are treated as independent, there is no attitude to risk (averages only), and nothing is discounted over time.</li>
       <li>The tree prices only what's in it. Fairness, legal exposure and the effect on people and teams count only if you add them.</li>
     </ul>
   </div>
@@ -734,6 +743,7 @@ function compute() {
   R.sim = E.simulate(C, 10000, String(S.seed == null ? SEED : S.seed)); R.sum = E.summarize(R.sim); R.be = E.breakevens(C); R.ok = true;
   R.evppi = C.inputs.filter(x => R.sim.draws[x.name]).map(x => ({ label: M.meta[x.name].label, v: E.evppi(R.sim, x.name) })).sort((a, b) => b.v - a.v);
   const order = pv.vals.map((v, i) => i).sort((a, b) => pv.vals[b] - pv.vals[a]); R.order = order;
+  R.tie = order.length > 1 && Math.round(pv.vals[order[0]] - pv.vals[order[1]]) === 0; // level options: no leader to highlight
   if (order.length > 1) R.pair = { a: order[0], b: order[1], ...E.pairStats(R.sim, order[0], order[1]) };
   const d = S.diag || {}; R.diag = null;
   if (d.on && d.name && M.meta[d.name]) { const acc = constVal(d.acc), cost = 'abs(' + String(d.cost || '0') + ')'; if (acc >= 0.5 && acc <= 1) { R.diag = E.evsiBinary(C, R.sim, d.name, acc, acc, cost); if (!R.diag.error) R.diag.pk = E.pkCurve(C, d.name, acc, acc, cost); } }
@@ -765,8 +775,9 @@ const fmtVar = (name, x) => { const m = R && R.M && R.M.meta[name]; return m && 
 
 // ---------- tree rendering ----------
 function card(n, isOpt, depth) {
-  const flds = isOpt ? `<label title="What choosing this costs (−) or earns (+) for sure, before anything uncertain happens: fees, severance, recruiting…">certain value <input data-id="${n.id}" data-f="value" value="${esc(n.value)}" placeholder="0"></label>`
-    : `<label>chance <input data-id="${n.id}" data-f="prob" value="${esc(n.prob)}" placeholder="the rest"></label><label title="What this outcome adds (+) or costs (−) if it happens">value if it happens <input data-id="${n.id}" data-f="value" value="${esc(n.value)}" placeholder="0"></label>`;
+  const eq = f => `<span class="eq num" id="q-${n.id}-${f}"></span>`;
+  const flds = isOpt ? `<label title="What choosing this costs (−) or earns (+) for sure, before anything uncertain happens: fees, severance, recruiting…"><span class="fl">certain value</span><input data-id="${n.id}" data-f="value" value="${esc(n.value)}" placeholder="0">${eq('value')}</label>`
+    : `<label><span class="fl">chance</span><input data-id="${n.id}" data-f="prob" value="${esc(n.prob)}" placeholder="the rest">${eq('prob')}</label><label title="What this outcome adds (+) or costs (−) if it happens"><span class="fl">value if it happens</span><input data-id="${n.id}" data-f="value" value="${esc(n.value)}" placeholder="0">${eq('value')}</label>`;
   return `<div class="card ${isOpt ? 'opt' : 'out'}" id="c-${n.id}" data-depth="${depth}">
     <input class="nm" data-id="${n.id}" data-f="label" value="${esc(n.label)}" placeholder="${isOpt ? 'Option' : 'What happens'}" aria-label="${isOpt ? 'Option name' : 'Outcome'}">
     <div class="fields">${flds}</div><div class="err" id="e-${n.id}"></div>
@@ -816,7 +827,14 @@ function renderNumbers() {
   ${S.numbers.map(v => `<tr id="r-${v.id}"><td class="nmc"><input data-num="${v.id}" data-f="name" data-old="${esc(v.name)}" value="${esc(v.name)}" aria-label="Name"><input data-num="${v.id}" data-f="desc" value="${esc(v.desc || '')}" placeholder="Plain description for the results" aria-label="Description"></td><td><input data-num="${v.id}" data-f="likely" value="${esc(v.likely)}" aria-label="Likely"></td><td><input data-num="${v.id}" data-f="low" value="${esc(v.low)}" placeholder="—" aria-label="Low"></td><td><input data-num="${v.id}" data-f="high" value="${esc(v.high)}" placeholder="—" aria-label="High"></td><td class="spark" id="sp-${v.id}"></td><td class="evc"><select data-num="${v.id}" data-f="evType" aria-label="Evidence type">${EV_TYPES.map(([k, t]) => `<option value="${k}" ${(v.evType || '') === k ? 'selected' : ''}>${t}</option>`).join('')}</select></td><td class="evc"><select data-num="${v.id}" data-f="evStrength" aria-label="Confidence">${EV_STRENGTH.map(([k, t]) => `<option value="${k}" ${(v.evStrength || '') === k ? 'selected' : ''}>${t}</option>`).join('')}</select></td><td><button class="x" data-delnum="${v.id}" aria-label="Delete">✕</button></td></tr><tr><td colspan="8" class="msg" id="m-${v.id}"></td></tr>`).join('')}
   </tbody></table></div><button class="btn below" data-addnum="1">+ Add a number</button>`;
 }
-function fit(el) { if (el && el.matches('.fields input, .card .nm')) el.style.width = Math.max(el.classList.contains('nm') ? 14 : 6, (el.value || el.placeholder || '').length + 2) + 'ch'; }
+// long formulas are shown capped so the tree stays readable at full size; the field opens up while it is being edited
+const FIELD_CAP = 24;
+function fit(el) {
+  if (!el || !el.matches('.fields input, .card .nm')) return;
+  const nm = el.classList.contains('nm'), n = (el.value || el.placeholder || '').length + 2;
+  el.style.width = Math.max(nm ? 14 : 6, nm || el === document.activeElement ? n : Math.min(n, FIELD_CAP)) + 'ch';
+  if (!nm) el.classList.toggle('capped', el !== document.activeElement && n > FIELD_CAP);
+}
 function fitAll() { $$('.fields input, .card .nm').forEach(fit); }
 function renderAll() { $('#title').value = S.title; $('#curr').value = cur(); renderTree(); renderNumbers(); renderSideShell(); refresh(0); }
 
@@ -824,14 +842,22 @@ function renderAll() { $('#title').value = S.title; $('#curr').value = cur(); re
 function paintTree() {
   const errBy = {}; R.errors.forEach(e => { let id = e.where.split(':')[1]; const m = R.M.meta[id]; if (e.where.startsWith('input:') && m && m.node) id = m.node; (errBy[id] = errBy[id] || []).push(e.msg); });
   $$('.err').forEach(el => el.textContent = (errBy[el.id.slice(2)] || []).join(' '));
-  $$('.fields input').forEach(inp => { const r = parseRange(inp.value); inp.classList.toggle('ranged', !!r); inp.title = r ? `Range ${r.lo.toLocaleString('en-GB')} to ${r.hi.toLocaleString('en-GB')}, likely ${r.mid.toLocaleString('en-GB')}` : ''; inp.classList.toggle('bad', !!R.errors.find(e => e.where === 'node:' + inp.dataset.id && e.field === inp.dataset.f)); });
+  const at = {}; const idx = n => { at[n.id] = n; n.children.forEach(idx); }; (R.ptree || []).forEach(idx);
+  $$('.fields input').forEach(inp => {
+    const r = parseRange(inp.value), raw = inp.value.trim(); inp.classList.toggle('ranged', !!r);
+    const bad = !!R.errors.find(e => e.where === 'node:' + inp.dataset.id && e.field === inp.dataset.f); inp.classList.toggle('bad', bad);
+    inp.title = r ? `Range ${r.lo.toLocaleString('en-GB')} to ${r.hi.toLocaleString('en-GB')}, likely ${r.mid.toLocaleString('en-GB')}` : raw.length + 2 > FIELD_CAP ? raw : '';
+    // a name or formula shows what it comes to at the likely values, so every path can be checked by hand
+    const q = $(`#q-${inp.dataset.id}-${inp.dataset.f}`), n = at[inp.dataset.id];
+    if (q) q.textContent = !bad && n && raw && !r && !Number.isFinite(constVal(raw)) ? '= ' + (inp.dataset.f === 'prob' ? fmtIn(n.prob, true) : money(n.value)) : '';
+  });
   const walk = (n, isOpt, k) => {
     if (n.children.length) { const el = $('#ev-' + n.id); if (el) el.textContent = money(n.ev); n.children.forEach((c, i) => { walk(c, false); const inp = $(`[data-id="${c.id}"][data-f="prob"]`); if (inp && inp.value.trim() === '') { inp.placeholder = 'the rest (' + pct(c.prob) + ')'; fit(inp); } }); }
     else { const el = $('#t-' + n.id); if (el) el.textContent = money(n.cum); }
   };
   (R.ptree || []).forEach((o, k) => walk(o, true, k)); layout();
   $$('.card.best').forEach(c => c.classList.remove('best')); $$('.kid.best-path').forEach(c => c.classList.remove('best-path'));
-  if (R.pBest >= 0 && S.options[R.pBest]) { const id = S.options[R.pBest].id; const c = $('#c-' + id); c && c.classList.add('best'); const k = $('#k-' + id); k && k.classList.add('best-path'); }
+  if (R.ok && !R.tie && R.pBest >= 0 && S.options[R.pBest]) { const id = S.options[R.pBest].id; const c = $('#c-' + id); c && c.classList.add('best'); const k = $('#k-' + id); k && k.classList.add('best-path'); }
 }
 function spark(v) {
   const x = R.C.inputs.find(i => i.inp.id === v.id); if (!x || !x.grid) return '';
@@ -891,14 +917,24 @@ function flips() {
     if (dn && dn.to === k) out.push({ be, dir: 'falls below', at: dn.at, win: dn.from, inR: dn.inRange, dist: (be.point - dn.at) / unit }); });
   return out.sort((a, b) => (b.inR - a.inR) || (b.be.uncertain - a.be.uncertain) || a.dist - b.dist);
 }
+// "rises above −$10,000" makes people flip signs in their heads; when both the number and its switch point are
+// negative (a cost or a gap), say it by size instead: "is less than $10,000 (now $16,000)"
+function flipCond(f, html) {
+  const nm = f.be.name, w = x => html ? `<span class="big num">${esc(fmtVar(nm, x))}</span>` : fmtVar(nm, x), now = x => html ? `<span class="muted">(now ${esc(fmtVar(nm, x))})</span>` : `(now ${fmtVar(nm, x)})`;
+  if (f.be.point < 0 && f.at < 0) return `is ${f.dir === 'rises above' ? 'less' : 'more'} than ${w(-f.at)} ${now(-f.be.point)}`;
+  return `${f.dir} ${w(f.at)} ${now(f.be.point)}`;
+}
+// the same, without the current value: "is less than $10,000" / "is above 43.3%"
+function whereCond(f) { const nm = f.be.name; if (f.be.point < 0 && f.at < 0) return `is ${f.dir === 'rises above' ? 'less' : 'more'} than ${fmtVar(nm, -f.at)}`; return `is ${f.dir === 'rises above' ? 'above' : 'below'} ${fmtVar(nm, f.at)}`; }
 function barsSVG() {
   const K = S.options.length, W = 340, rowH = 44, pl = 8, top = R.hasRanges ? 20 : 4, H = top + K * rowH + 16; const vals = R.point.vals, s = R.sum;
   const all = vals.concat(R.hasRanges ? s.opts.flatMap(o => [o.q025, o.q975]) : []); let a = Math.min(0, ...all), b = Math.max(0, ...all); const pad = (b - a) * .04 || 1; a -= pad; b += pad;
   const X = v => pl + (v - a) / (b - a) * (W - pl * 2), xBest = W - pl, xVal = R.hasRanges ? W - 64 : W - pl, maxL = R.hasRanges ? 26 : 34;
   let g = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Value of each option${R.hasRanges ? ' and how often it comes out best' : ''}" style="font-family:var(--font-b);font-size:13px">`;
   if (R.hasRanges) g += `<text x="${xVal}" y="12" text-anchor="end" fill="var(--muted)" font-size="12">Likely value</text><text x="${xBest}" y="12" text-anchor="end" fill="var(--muted)" font-size="12">Best in</text>`;
-  g += `<line x1="${X(0)}" x2="${X(0)}" y1="${top + 18}" y2="${H - 14}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="${X(0)}" y="${H - 2}" text-anchor="middle" fill="var(--muted)" font-size="12">0</text>`;
-  R.order.forEach((i, r) => { const y = top + r * rowH, best = i === R.pBest; const v = vals[i], lab = S.options[i].label;
+  // the zero line runs only through the bar rows, so it never crosses the numbers above each bar
+  g += R.order.map((i, r) => `<line x1="${X(0)}" x2="${X(0)}" y1="${top + r * rowH + 17}" y2="${top + r * rowH + 35}" stroke="var(--muted)" stroke-dasharray="3 3"/>`).join('') + `<text x="${X(0)}" y="${H - 2}" text-anchor="middle" fill="var(--muted)" font-size="12">0</text>`;
+  R.order.forEach((i, r) => { const y = top + r * rowH, best = i === R.pBest && !R.tie; const v = vals[i], lab = S.options[i].label;
     g += `<text x="${pl}" y="${y + 13}" fill="var(--ink)" font-weight="${best ? 700 : 400}">${esc(lab.length > maxL ? lab.slice(0, maxL - 1) + '…' : lab)}</text>`;
     g += `<text x="${xVal}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${esc(money(v))}</text>`;
     if (R.hasRanges) g += `<text x="${xBest}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${pct(s.opts[i].pBest)}</text>`;
@@ -925,15 +961,21 @@ function histSVG(d, posLab, negLab) {
 function leadLine(html) {
   const v = R.point.vals, k = R.pBest, o2 = R.order[1];
   const nm = i => html ? esc(S.options[i].label) : S.options[i].label, amt = x => html ? `<b class="num">${esc(money(x))}</b>` : money(x);
-  const lead = html ? `<mark>${nm(k)}</mark>` : nm(k);
+  const lead = html && !R.tie ? `<mark>${nm(k)}</mark>` : nm(k);
   let s = o2 == null ? `${lead} is the only option.`
     : Math.round(v[k] - v[o2]) === 0 ? `${lead} and ${nm(o2)} are level on current numbers.`
     : `${lead} leads on current numbers, ${amt(v[k] - v[o2])} ahead of ${nm(o2)}.`;
   if (R.hasRanges && o2 != null) {
     const pb = R.sum.opts[k].pBest;
     let w = `It comes out best in ${pct(pb)} of 10,000 plausible worlds, so ${pb >= 0.9 ? 'the lead is fairly safe' : pb >= 0.7 ? 'it leads, but not safely' : 'this is far from settled'}.`; const sp = R.surprise;
-    if (sp) { const f = sp.driver; w += ` ${nm(sp.i)}, ${sp.last ? 'last' : 'behind'} on likely values, still does in ${pct(sp.p)}` + (f ? `, mostly where ${html ? esc(R.M.meta[f.be.name].label) : R.M.meta[f.be.name].label} is ${f.dir === 'rises above' ? 'above' : 'below'} ${html ? esc(fmtVar(f.be.name, f.at)) : fmtVar(f.be.name, f.at)}.` : '.'); }
+    if (sp) { const f = sp.driver; w += ` ${nm(sp.i)}, ${sp.last ? 'last' : 'behind'} on likely values, still comes out best in ${pct(sp.p)}` + (f ? `, mostly where ${html ? esc(R.M.meta[f.be.name].label) : R.M.meta[f.be.name].label} ${html ? esc(whereCond(f)) : whereCond(f)}.` : '.'); }
     s += (html ? '<span class="sub">' : ' ') + w + (html ? '</span>' : '');
+    // the likely values and the average over the ranges can rank the options differently when a range leans to one side
+    const mk = R.sum.bestIdx, m = R.sum.opts;
+    if (mk !== k && Math.round(m[mk].mean - m[k].mean) > 0) {
+      const d = `Averaged over all the plausible worlds, though, ${nm(mk)} comes out ahead, by ${amt(m[mk].mean - m[k].mean)}. A range that leans to one side pulls the average away from the likely value, so treat this as a close call.`;
+      s += html ? `<span class="sub warn-line">${d}</span>` : ' ' + d;
+    }
   }
   return s;
 }
@@ -952,7 +994,7 @@ function meetingNote() {
   const t = String(S.title || '').trim(); out.push('Decision: ' + (/[.?!]$/.test(t) ? t : t + '.'));
   out.push('Options at our likely values: ' + R.order.map(i => `${S.options[i].label} ${money(v[i])}`).join('; ') + '.');
   out.push(leadLine(false));
-  const fl = flips().slice(0, 3); if (fl.length) out.push('What would change our mind:\n' + fl.map(f => `- If ${R.M.meta[f.be.name].label} ${f.dir} ${fmtVar(f.be.name, f.at)} (now ${fmtVar(f.be.name, f.be.point)}), ${S.options[f.win].label} wins${f.inR ? ' (inside our range)' : ''}.`).join('\n'));
+  const fl = flips().slice(0, 3); if (fl.length) out.push('What would change our mind:\n' + fl.map(f => `- If ${R.M.meta[f.be.name].label} ${flipCond(f, false)}, ${S.options[f.win].label} wins${f.inR ? ' (inside our range)' : ''}.`).join('\n'));
   if (R.hasRanges && R.evppi && R.evppi.length && Math.round(R.evppi[0].v) > 0) out.push(`Find out first: ${R.evppi[0].label} (worth at most ${money(R.evppi[0].v)} to pin down).`);
   if (R.diag && !R.diag.error && (S.diag || {}).on) out.push(`A diagnostic month is worth about ${money(R.diag.evsi)} and costs ${money(R.diag.cost)}: ${R.diag.changes && R.diag.evsi > R.diag.cost ? 'run it' : 'not worth running'}.` + (diagBand(false) ? ' ' + diagBand(false) : ''));
   const used = S.numbers.filter(n => n.name);
@@ -960,12 +1002,12 @@ function meetingNote() {
   const val = n => { const lo = constVal(n.low), hi = constVal(n.high), lk = constVal(n.likely); const f = x => fmtVar(n.name, x); return Number.isFinite(lo) && Number.isFinite(hi) ? `${f(lk)}, range ${f(lo)} to ${f(hi)}` : Number.isFinite(lk) ? f(lk) : `= ${n.likely}`; };
   if (used.length) out.push('What the numbers rest on:\n' + tagged.map(n => `- ${numLabel(n)}: ${val(n)} (${evLabel(n)})`).join('\n') + (untagged.length ? (tagged.length ? '\n' : '') + `- Not tagged: ${untagged.map(numLabel).join(', ')}` : ''));
   const flagged = used.filter(n => evidenceHint(n)); if (flagged.length) out.push('Worth a second look (weak evidence but a tight or certain number): ' + flagged.map(numLabel).join(', ') + '.');
-  out.push('Values are averages (risk-neutral), with no discounting. Ranges are treated as independent. Evidence tags are a record and do not change any number.');
+  out.push('Options are compared at our likely values; the plausible worlds show how that holds up across our ranges. No attitude to risk (averages only) and no discounting. Ranges are treated as independent. Evidence tags are a record and do not change any number.');
   return out.join('\n\n');
 }
 function applySide() { const h = !!S.sideHidden; $('.wrap').classList.toggle('side-hidden', h); $('#side').classList.toggle('mini', h); }
 function paintSide() {
-  const mb = $('#mini-best'); if (mb) mb.textContent = R && R.pBest >= 0 && S.options[R.pBest] ? S.options[R.pBest].label : '…';
+  const mb = $('#mini-best'); if (mb) mb.textContent = R && R.ok && R.tie ? 'none (level)' : R && R.ok && S.options[R.pBest] ? S.options[R.pBest].label : '…';
   if (!R.ok) {
     $('#v-head').innerHTML = `<p class="lead-line bad">${R.errors.length ? esc(R.errors[0].msg) + (R.errors.length > 1 ? ` (+${R.errors.length - 1} more)` : '') : 'Add an option to begin.'}</p>`;
     ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; }); return;
@@ -973,7 +1015,7 @@ function paintSide() {
   const v = R.point.vals, k = R.pBest, o2 = R.order[1];
   $('#v-head').innerHTML = `<p class="lead-line">${leadLine(true)}</p>`;
   const fl = flips().slice(0, 3);
-  $('#v-flip').innerHTML = `<h3>What would change your mind?</h3>` + (fl.length ? `<ol>${fl.map(f => `<li>If <b>${esc(R.M.meta[f.be.name].label)}</b> ${f.dir} <span class="big num">${esc(fmtVar(f.be.name, f.at))}</span> <span class="muted">(now ${esc(fmtVar(f.be.name, f.be.point))})</span>, <b>${esc(S.options[f.win].label)}</b> wins. ${f.inR ? '<span class="tag">inside your range</span>' : ''}</li>`).join('')}</ol>` : '<p>No single number flips this, even over a wide sweep.</p>');
+  $('#v-flip').innerHTML = `<h3>What would change your mind?</h3>` + (fl.length ? `<ol>${fl.map(f => `<li>If <b>${esc(R.M.meta[f.be.name].label)}</b> ${flipCond(f, true)}, <b>${esc(S.options[f.win].label)}</b> wins.${f.inR ? ' <span class="tag">inside your range</span>' : ''}</li>`).join('')}</ol>` : R.be.list.length ? '<p>No single number flips this, even over a wide sweep.</p>' : '<p class="muted">Nothing to test yet. Switch points are worked out for shared numbers and ranges: add one under Shared numbers, or type a range such as <b>-20k to -5k</b> into the tree.</p>');
   $('#v-bars').innerHTML = `<h3>Each option</h3>` + barsSVG();
   // deeper
   if (R.hasRanges && R.pair) {
@@ -993,7 +1035,7 @@ function paintSide() {
   const nt = $('#v-note'); if (nt) nt.value = meetingNote();
   const dv = $('#v-diag'); const d = S.diag || {};
   if (dv) { if (!d.on) dv.innerHTML = ''; else if (!R.diag) dv.innerHTML = '<p class="muted">Pick a chance, and an accuracy between 50% and 100%.</p>'; else if (R.diag.error) dv.innerHTML = `<p class="bad-text">${esc(R.diag.error)}</p>`; else { const r = R.diag, net = r.evsi - r.cost;
-    dv.innerHTML = `<div class="kp"><div><b>${pct(r.postPos)}</b><span>chance after a good month → ${esc(S.options[r.pos.bestIdx].label)}</span></div><div><b>${pct(r.postNeg)}</b><span>after a bad month → ${esc(S.options[r.neg.bestIdx].label)}</span></div><div><b class="num">${esc(money(r.evsi))}</b><span>what the month is worth</span></div><div><b class="num">${esc(money(-r.cost))}</b><span>what it costs</span></div></div>
+    dv.innerHTML = `<div class="kp"><div><b>${pct(r.postPos)}</b><span>chance after a good month → ${esc(S.options[r.pos.bestIdx].label)}</span></div><div><b>${pct(r.postNeg)}</b><span>after a bad month → ${esc(S.options[r.neg.bestIdx].label)}</span></div><div><b class="num">${esc(money(r.evsi))}</b><span>what the month is worth</span></div><div><b class="num">${esc(money(r.cost))}</b><span>what it costs</span></div></div>
     <p class="note">${!r.changes ? 'Whatever it shows, you would do the same thing, so as information it is worth nothing.' : net > 0 ? `Run it: it pays by ${esc(money(net))}.` : `It could change the decision, but not often enough to cover its cost. Decide now or find a sharper test.`} ${diagBand(true)}</p>`; } }
 }
 function refresh(ms = 220) { clearTimeout(refresh.t); refresh.t = setTimeout(() => { compute(); paintTree(); paintNumbers(); if (!$('#dg-name') || $('#dg-name').options.length !== Object.values(R.M.meta).filter(m => m.isProb).length) { const open = $('#deep') && $('#deep').open; S.deepOpen = open; if ($('#notebox')) S.noteOpen = $('#notebox').open; const f = document.activeElement && document.activeElement.id; renderSideShell(); if (f && $('#' + f)) $('#' + f).focus(); } paintSide(); store.set(snapshot()); }, ms); }
@@ -1026,6 +1068,8 @@ document.addEventListener('change', e => {
   if (t.id === 'dg-on') { S.diag = Object.assign({ acc: '75%', cost: '-1500' }, S.diag || {}, { on: t.checked }); if (t.checked && (!S.diag.name || !R.M.meta[S.diag.name])) S.diag.name = $('#dg-name') && $('#dg-name').value; $('#dg-form').hidden = !t.checked; refresh(0); return; }
   if (t.id === 'dg-name') { S.diag = Object.assign(S.diag || {}, { name: t.value }); refresh(0); }
 });
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('.fields input')) { fit(e.target); layout(); } });
+document.addEventListener('focusout', e => { if (e.target.matches && e.target.matches('.fields input')) setTimeout(() => { fit(e.target); layout(); }, 0); });
 document.addEventListener('toggle', e => { const id = e.target.id; if (id === 'deep') S.deepOpen = e.target.open; else if (id === 'notebox') S.noteOpen = e.target.open; else if (id === 'why') S.whyOpen = e.target.open; else return; store.set(snapshot()); }, true);
 document.addEventListener('keydown', e => {
   const t = e.target; if (e.key !== 'Enter' || !t.classList || !t.classList.contains('nm')) return; e.preventDefault();
@@ -1080,8 +1124,8 @@ const treeZoom = (() => { const ZK = 'foldback2:zoom', MIN = 0.4, MAX = 1, STEP 
     c.style.setProperty('--z', z); return need > avail ? Math.floor(avail / need * 100) / 100 : 1;
   }
   function fit() { set(fitZoom(), null, null, false); cv().scrollLeft = 0; saved = false; try { localStorage.removeItem(ZK); } catch (e) { } }
-  // on load, fit a tree that is a little too wide, unless the person picked a zoom; on phones it would get too small to read
-  function auto() { if (saved) { set(z, null, null, false); return; } const f = fitZoom(); set(window.innerWidth >= 700 ? Math.max(0.65, f) : 1, null, null, false); cv().scrollLeft = 0; }
+  // on load, fit a tree that is a little too wide, but never below 85%, where the text gets too small to read; not on phones
+  function auto() { if (saved) { set(z, null, null, false); return; } const f = fitZoom(); set(window.innerWidth >= 700 ? Math.max(0.85, f) : 1, null, null, false); cv().scrollLeft = 0; }
   document.addEventListener('click', e => { const b = e.target.closest('[data-zoom]'); if (!b) return; const a = b.dataset.zoom;
     if (a === 'reset') { set(1); cv().scrollLeft = 0; } else if (a === 'fit') fit(); else set(z + (a === 'in' ? STEP : -STEP)); });
   // Ctrl/Cmd + wheel (and trackpad pinch, which arrives as ctrl + wheel) zooms the tree; plain wheel still scrolls the page
