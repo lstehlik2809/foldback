@@ -105,6 +105,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .total::before{content:"";border-left:11px solid var(--ink);border-top:7px solid transparent;border-bottom:7px solid transparent}
 .addopt{border:1.5px dashed var(--muted);background:transparent;border-radius:var(--r-2);padding:var(--s-2) var(--s-3);cursor:pointer;color:var(--muted);font-weight:600}
 .addopt:hover{border-color:var(--dec);color:var(--dec)}
+.addout{padding:var(--s-1) var(--s-3);font-size:var(--fs-1)}.addout:hover{border-color:var(--chance);color:var(--chance)}
 .err{color:var(--ref);font-size:var(--fs-1);max-width:230px}
 .err:empty{display:none}
 .lead{flex:none;height:0;border-top:2px dotted var(--muted);margin-left:var(--s-2)}
@@ -332,7 +333,7 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
     <ul>
       <li>Click <b>New blank tree</b>, type the decision as the title, and name your options. Press <b>Enter</b> in a name to add the next one.</li>
       <li>Measure every option against the same baseline, such as an average performer in the seat. If every option comes out negative, the best one is the smallest loss.</li>
-      <li>Click <b>+ what could happen?</b> on an option to split it into chance outcomes. Leave one outcome's chance empty and it takes the rest (1 minus the others).</li>
+      <li>Click <b>+ what could happen?</b> on an option to split it into chance outcomes, and <b>+ Add an outcome</b> below them for more. Any outcome can split again. Leave one outcome's chance empty and it takes the rest (1 minus the others).</li>
       <li>If an option ends in a hire, the hire is a chance too: will they stay, will they perform? Give it its own outcomes.</li>
       <li>Put anything you use in more than one place, or want to argue about, in <b>Shared numbers</b>, and type its name in the tree. Fill Low and High to make it a range. Give it a plain description, such as “Sam's yearly gap vs an average performer”: the results use it instead of the name.</li>
       <li>Tag each shared number as data, expert judgement or a guess. Tags are a record only and never change a number.</li>
@@ -822,13 +823,13 @@ function card(n, isOpt, depth) {
   return `<div class="card ${isOpt ? 'opt' : 'out'}" id="c-${n.id}" data-depth="${depth}">
     <input class="nm" data-id="${n.id}" data-f="label" value="${esc(n.label)}" placeholder="${isOpt ? 'Option' : 'What happens'}" aria-label="${isOpt ? 'Option name' : 'Outcome'}">
     <div class="fields">${flds}</div><div class="err" id="e-${n.id}"></div>
-    <button class="split" data-split="${n.id}">+ ${n.branches && n.branches.length ? 'another outcome' : 'what could happen?'}</button>
+    ${n.branches && n.branches.length ? '' : `<button class="split" data-split="${n.id}">+ what could happen?</button>`}
     <div class="acts"><button class="x" data-del="${n.id}" title="Delete" aria-label="Delete">✕</button></div></div>`;
 }
 function sub(n, isOpt, depth) {
   const kids = n.branches || [];
   if (!kids.length) return `<div class="node leaf">${card(n, isOpt, depth)}<span class="lead"></span><span class="total num" id="t-${n.id}"></span></div>`;
-  return `<div class="node">${card(n, isOpt, depth)}<div class="junction"><i></i><b id="ev-${n.id}"></b></div><div class="kids">${kids.map(k => `<div class="kid">${sub(k, false, depth + 1)}</div>`).join('')}</div></div>`;
+  return `<div class="node">${card(n, isOpt, depth)}<div class="junction"><i></i><b id="ev-${n.id}"></b></div><div class="kids">${kids.map(k => `<div class="kid">${sub(k, false, depth + 1)}</div>`).join('')}<div class="kid adder"><button class="addopt addout" data-split="${n.id}">+ Add an outcome</button></div></div></div>`;
 }
 // columns: equal card widths per depth, endings aligned in one Result column, labelled bands behind
 function layout() {
@@ -1159,6 +1160,8 @@ document.addEventListener('keydown', e => {
   if (!isOpt && String(r.n.prob || '').trim() === '') { r.arr.splice(idx, 0, nb); } else r.arr.splice(idx + 1, 0, nb);
   renderTree(); refresh(0); focusSoon(`.nm[data-id="${nb.id}"]`);
 });
+// the chance an empty outcome takes at the likely values, from the last results; NaN if they are paused
+function restAt(id) { const f = ns => { for (const n of ns || []) { if (n.id === id) return n.prob; const r = f(n.children); if (r != null) return r; } return null; }; const p = R && R.ptree ? f(R.ptree) : null; return p == null ? NaN : p; }
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
   if (d.start) { remember(); const key = d.start; S = fresh(key, cur(), S.seed == null ? SEED : S.seed); renderAll(); treeZoom.auto(); toast(key === 'sam' ? 'Loaded the example' : 'Started a blank tree', true); if (key === 'blank') focusSoon('#title', true); return; }
@@ -1166,7 +1169,11 @@ document.addEventListener('click', e => {
   if (d.addopt) { remember(); const o = Op('', '0'); S.options.push(o); renderTree(); refresh(0); focusSoon(`.nm[data-id="${o.id}"]`); return; }
   if (d.split) { remember(); const r = find(d.split); const n = r.n; n.branches = n.branches || []; let focusId;
     if (!n.branches.length) { const a = Br('', '50%', '0'), c = Br('', '', '0'); n.branches.push(a, c); focusId = a.id; }
-    else { const nb = Br('', '10%', '0'); const ri = n.branches.findIndex(x => String(x.prob || '').trim() === ''); n.branches.splice(ri >= 0 ? ri : n.branches.length, 0, nb); focusId = nb.id; }
+    // with an outcome taking the rest, the new one goes just before it and takes up to 10% of what is left;
+    // without one, the new one takes the rest. Either way a group that adds up now still does after the click.
+    else { const ri = n.branches.findIndex(x => String(x.prob || '').trim() === ''); let p = '';
+      if (ri >= 0) { const rest = restAt(n.branches[ri].id); p = Math.floor(Math.min(0.1, Number.isFinite(rest) ? rest : 0.1) * 100 + 1e-9) + '%'; }
+      const nb = Br('', p, '0'); n.branches.splice(ri >= 0 ? ri : n.branches.length, 0, nb); focusId = nb.id; }
     renderTree(); refresh(0); focusSoon(`.nm[data-id="${focusId}"]`); return; }
   if (d.del) { const r = find(d.del); if (r.arr === S.options && S.options.length <= 1) { toast('A decision needs at least one option'); return; } remember(); r.arr.splice(r.arr.indexOf(r.n), 1); renderTree(); refresh(0); toast('Deleted “' + (r.n.label || 'branch') + '”', true); return; }
   if (b.id === 'copy-note') { const ta = $('#v-note'); const txt = ta.value; const ok = () => toast('Meeting note copied'); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => { ta.select(); document.execCommand('copy'); ok(); }); else { ta.select(); document.execCommand('copy'); ok(); } return; }
