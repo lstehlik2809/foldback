@@ -39,7 +39,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 | `20–45% ~30%` | a probability range |
 | `cost_of_exit` | a shared number |
 | `cost_of_coaching + sam_vs_average_per_year / 2` | a formula |
-| *(empty chance)* | the rest: 1 minus the other outcomes in the group |
+| *(empty chance)* | the rest: 1 minus the other outcomes in the group. Without an empty one, the chances in a group must add up to 100% |
 
 **Sign convention:** costs are negative and gains positive, everywhere. That keeps every formula a plain sum.
 
@@ -67,7 +67,8 @@ Formulas can also use `min(a, b)`, `max(a, b)` and `if(test, a, b)`, for example
 | Folding back | Each chance point is worth the probability-weighted average of what follows it. The option with the highest value at the likely values is shown as leading. If the average over the plausible worlds would put a different option ahead (a range that leans to one side can do this), the panel says so and calls it a close call. |
 | Ranges | Each range becomes a Beta curve stretched between Low and High, with its median at Likely. The spread is a PERT-style default (a + b = 6). Low and High are hard limits: nothing outside them is simulated. |
 | Plausible worlds | 10,000 draws per range, taken by inverse-CDF sampling. Each shared number's draws come from the random seed (2364 by default, changeable under **Go deeper**) and the number's name, so the same tree and seed always give the same results and nothing jitters as you type. Each world folds the tree back once. Ranges are drawn independently. |
-| What would change your mind | Each estimate is swept on its own, holding the others at their likely values, and the switch points are refined by bisection. |
+| What would change your mind | Each estimate is swept on its own, holding the others at their likely values, and the switch points are refined by bisection. The panel says so under the list. |
+| Checking the chances | Every chance must be between 0% and 100%, and each group must add up to 100% (an empty chance takes the rest). At the likely values, a group that doesn't fit pauses the results and is flagged on its card, so a missing share is never counted as an outcome worth nothing. If ranged chances fit at the likely values but not in some plausible worlds, the panel and the meeting note say in what share of worlds, and switch points ignore values where the chances stop fitting. |
 | What is worth finding out | EVPPI by regressing each option's value on one estimate with a cubic smoother, in the style of Strong, Oakley & Brennan (2014), ranked from largest. Estimates whose EVPPI rounds to zero are listed as not changing the choice on their own. EVPI (knowing everything) comes straight from the simulated worlds. Both are ceilings, not the value of a real study. |
 | Diagnostic month | Exact Bayesian analysis of a yes/no signal on one chance, with the same accuracy for good and bad results. The app computes the value of deciding after the signal and compares it with the cost. |
 | Values | No attitude to risk (averages only), with no discounting. |
