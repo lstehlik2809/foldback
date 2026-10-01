@@ -1314,7 +1314,7 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
 // ---------- guided start: "Build it with me" ----------
 // One question per screen, for people new to decision trees. The answers become an ordinary tree with shared
 // numbers, so everything else works on it unchanged. Ranges are asked ends first and the likely value last, which
-// keeps people from anchoring on one figure; chances are asked as "how many out of 10", which people judge better
+// keeps people from anchoring on one figure; chances are asked as "how many out of 100", which people judge better
 // than percentages. Answers live only in memory: closing the window keeps them until the page is reloaded.
 (() => {
   const dlg = $('#wiz'), body = $('#wiz-body'), MAXW = 4;
@@ -1341,13 +1341,13 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
   // ---- reading answers ----
   const AMT = new RegExp(`^(?:${NUM})$`);
   function amount(s) { s = String(s).trim().replace(/−/g, '-').replace(/^[^\d.-]+/, '').replace(/(\d)\s+(?=\d)/g, '$1'); if (!s) return {}; if (s[0] === '-') return { neg: true }; return AMT.test(s) && !/%$/.test(s) ? { v: pnum(s) } : { bad: true }; }
-  // a chance as a count out of 10 (2.5 or 2,5), or a percentage
-  function chance(s) { s = String(s).trim(); if (!s) return {}; const v = /%$/.test(s) && AMT.test(s) ? pnum(s) : /^\d+(?:[.,]\d+)?$/.test(s) ? parseFloat(s.replace(',', '.')) / 10 : NaN; return v >= 0 && v <= 1 ? { v } : { bad: true }; }
+  // a chance as a count out of 100 (30, 2.5 or 2,5), or a percentage
+  function chance(s) { s = String(s).trim(); if (!s) return {}; const v = /%$/.test(s) && AMT.test(s) ? pnum(s) : /^\d+(?:[.,]\d+)?$/.test(s) ? parseFloat(s.replace(',', '.')) / 100 : NaN; return v >= 0 && v <= 1 ? { v } : { bad: true }; }
   // an answer as {lo, hi, ml}, {none} or {err, f}. The engine needs low < likely < high for a range, so that is checked here.
   function read(x, isP) {
     if (!isP && x.kind === 'none') return { none: true };
     if (!isP && !x.kind) return { err: 'Pick one of the three.', f: 'kind' };
-    const get = f => { const r = (isP ? chance : amount)(x[f]); if (r.neg) throw [f, 'Leave out the minus sign: your pick above already says which way it goes.']; if (r.bad) throw [f, isP ? 'Type a number from 0 to 10, or a percentage such as 35%.' : 'Type an amount such as 20k or 20000.']; return r.v == null ? NaN : r.v; };
+    const get = f => { const r = (isP ? chance : amount)(x[f]); if (r.neg) throw [f, 'Leave out the minus sign: your pick above already says which way it goes.']; if (r.bad) throw [f, isP ? 'Type a number from 0 to 100.' : 'Type an amount such as 20k or 20000.']; return r.v == null ? NaN : r.v; };
     try {
       if (x.exact) { const v = get('ml'); if (!Number.isFinite(v)) throw ['ml', 'Fill in the number.']; return { lo: v, hi: v, ml: v, exact: true }; }
       const lo = get('lo'), hi = get('hi'), ml = get('ml');
@@ -1358,24 +1358,24 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
       return { lo, hi, ml: Number.isFinite(ml) ? ml : (lo + hi) / 2 };
     } catch (e) { if (Array.isArray(e)) return { err: e[1], f: e[0] }; throw e; }
   }
-  const tenths = v => numf(Math.round(v * 100) / 10); // a chance as "how many in 10"
+  const in100 = v => numf(Math.round(v * 1000) / 10); // a chance as "how many in 100"
   // plain words for the summary screen
   function say(x, isP) {
     const r = read(x, isP); if (r.err) return '?';
-    if (isP) return r.exact ? `${tenths(r.ml)} cases in 10` : `${tenths(r.lo)} to ${tenths(r.hi)} cases in 10 (most likely ${tenths(r.ml)})`;
+    if (isP) return r.exact ? `${in100(r.ml)} cases in 100` : `${in100(r.lo)} to ${in100(r.hi)} cases in 100 (most likely ${in100(r.ml)})`;
     if (r.none) return null; const verb = x.kind === 'cost' ? 'costs' : 'brings';
     return r.exact ? `${verb} ${money(r.ml)}` : `${verb} ${money(r.lo)} to ${money(r.hi)} (most likely ${money(r.ml)})`;
   }
-  // The last way takes the rest. If the "Most" ends add up to 10 in 10 or less, the chances fit in every simulated
+  // The last way takes the rest. If the "Most" ends add up to 100 in 100 or less, the chances fit in every simulated
   // world, so the tree never shows the warning about chances that don't add up.
   function left(a) {
     const rows = a.ways.slice(0, -1).map(w => read(w.p, true)), last = q(a.ways[a.ways.length - 1].label || 'the last way');
     if (rows.some(r => r.err)) return { html: `The last way, ${last}, takes whatever is left.` };
     const sum = f => rows.reduce((s, r) => s + r[f], 0), hi = sum('hi');
-    if (hi > 1 + 1e-9) return { warn: true, html: `The “Most” column adds up to ${tenths(hi)} in 10. Keep it at 10 or less, so ${last} never drops below zero.` };
+    if (hi > 1 + 1e-9) return { warn: true, html: `The “Most” column adds up to ${in100(hi)} in 100. Keep it at 100 or less, so ${last} never drops below zero.` };
     const L = 1 - hi, U = 1 - sum('lo'), M = 1 - sum('ml');
-    const share = L === U ? `${tenths(L)} in 10` : `${tenths(L)} to ${tenths(U)} in 10`;
-    return { share: L === U ? share : `${share}, most likely ${tenths(M)}`, html: `That leaves ${share} for ${last}${L === U ? '' : ` (most likely ${tenths(M)})`}.` };
+    const share = L === U ? `${in100(L)} in 100` : `${in100(L)} to ${in100(U)} in 100`;
+    return { share: L === U ? share : `${share}, most likely ${in100(M)}`, html: `That leaves ${share} for ${last}${L === U ? '' : ` (most likely ${in100(M)})`}.` };
   }
 
   // ---- screens ----
@@ -1412,9 +1412,9 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
         : `<h3 id="wiz-q">What does ${L} cost or bring?</h3><p class="wiz-note">Compared with ${yard()}${per()}.</p>${money3(P + '.sure', a.sure, 'Nothing: it comes out even')}`;
       case 'chances': { const many = a.ways.length > 2, rows = a.ways.slice(0, -1);
         return `<h3 id="wiz-q">If you choose ${L}, how likely is ${many ? 'each way' : q(a.ways[0].label)}?</h3>
-          <p class="wiz-note">Picture 10 cases just like this one. In how many would ${many ? 'each way happen' : q(a.ways[0].label)}? Give the fewest and the most you could believe, then the most likely. A percentage such as 35% works too.</p>
+          <p class="wiz-note">Picture 100 cases just like this one. In how many would ${many ? 'each way happen' : q(a.ways[0].label)}? Give the fewest and the most you could believe, then the most likely. Round numbers are fine: the results show which numbers matter.</p>
           <div class="wiz-ctab"><span class="h0"></span><span class="h">Fewest</span><span class="h">Most</span><span class="h">Most likely <span class="muted">(optional)</span></span>
-          ${rows.map((w, i) => `<span class="wiz-cl">${q(w.label)}</span>${['lo', 'hi', 'ml'].map((f, j) => inp(`${P}.ways.${w.id}.p.${f}`, w.p[f], i ? '' : 'e.g. ' + [1, 5, 3][j], `inputmode="decimal" aria-label="${['Fewest', 'Most', 'Most likely'][j]} in 10 for ${esc(w.label)}"`)).join('')}`).join('')}</div>
+          ${rows.map((w, i) => `<span class="wiz-cl">${q(w.label)}</span>${['lo', 'hi', 'ml'].map((f, j) => inp(`${P}.ways.${w.id}.p.${f}`, w.p[f], i ? '' : 'e.g. ' + [10, 50, 30][j], `inputmode="decimal" aria-label="${['Fewest', 'Most', 'Most likely'][j]} in 100 for ${esc(w.label)}"`)).join('')}`).join('')}</div>
           <p class="wiz-left" id="wiz-left" aria-live="polite"></p>
           <p class="wiz-note">Know it exactly? Put the same number in both ends.</p>${evid(P + '.pev', a.pev)}`; }
       case 'way': return `<h3 id="wiz-q">If ${q(s.w.label)}, what does that cost or bring?</h3><p class="wiz-note">Compared with ${yard()}${per()}, on top of anything ${L} costs or brings for sure.</p>${money3(`${P}.ways.${s.w.id}.v`, s.w.v, 'Nothing more')}`;
@@ -1440,7 +1440,7 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
           if (!k) return { msg: 'Name each way, or remove the empty one.', f }; if (seen.has(k)) return { msg: 'Give each way a different name.', f }; seen.add(k); } return null; }
       case 'chances': { const rows = a.ways.slice(0, -1);
         for (const w of rows) { const r = read(w.p, true); if (r.err) return { msg: (rows.length > 1 ? `For ${q(w.label)}: ` : '') + r.err, f: `${P}.ways.${w.id}.p.${r.f}` }; }
-        return left(a).warn ? { msg: 'The “Most” column adds up to more than 10. Lower some of them.', f: `${P}.ways.${rows[0].id}.p.hi` } : null; }
+        return left(a).warn ? { msg: 'The “Most” column adds up to more than 100. Lower some of them.', f: `${P}.ways.${rows[0].id}.p.hi` } : null; }
       case 'sure': { const r = read(a.sure, false); return r.err ? { msg: r.err, f: `${P}.sure.${r.f}` } : null; }
       case 'way': { const r = read(s.w.v, false); return r.err ? { msg: r.err, f: `${P}.ways.${s.w.id}.v.${r.f}` } : null; }
       default: return null;
