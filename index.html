@@ -1312,9 +1312,13 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
 (() => {
   const dlg = $('#wiz'), body = $('#wiz-body');
   const V = () => ({ kind: '', exact: false, lo: '', hi: '', ml: '', ev: '' });
-  const EXAMPLES = ['Keep and hope', 'Coach for six months', 'Exit now'];
+  // placeholder examples from one kind of decision, picked at random each time, so the tool doesn't read as built for one case
+  const EXAMPLES = [
+    { title: 'Should we replace Sam?', opts: ['Keep and hope', 'Coach for six months', 'Exit now'], good: 'Sam reaches par', bad: "Sam doesn't, and leaves", why: 'whether coaching takes' },
+    { title: 'Who should lead the new team?', opts: ['Promote from within', 'Hire from outside', 'Leave the role open'], good: 'The hire works out', bad: 'They leave within a year', why: 'whether a new hire works out' },
+    { title: 'Should we run a mentoring programme?', opts: ['Roll it out to everyone', 'Pilot it with one team', 'Don’t run it'], good: 'Turnover drops', bad: 'Turnover stays the same', why: 'whether turnover drops' }];
   let W = null;
-  const blank = () => ({ step: 0, title: '', base: '', baseText: '', period: '', opts: [0, 1, 2].map(() => ({ id: uid('w'), label: '' })), a: {} });
+  const blank = () => ({ step: 0, ex: EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)], title: '', base: 'now', baseText: '', period: '', opts: [0, 1, 2].map(() => ({ id: uid('w'), label: '' })), a: {} });
   const ans = id => W.a[id] || (W.a[id] = { shape: '', good: '', bad: '', sure: V(), prob: V(), gv: V(), bv: V() });
   const named = () => W.opts.filter(o => o.label.trim());
   function steps() {
@@ -1323,7 +1327,7 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
     return st.concat({ k: 'review' });
   }
   const q = s => `“${esc(String(s).trim())}”`;
-  const yard = () => W.base === 'now' ? 'things as they are today' : W.base === 'other' ? esc(W.baseText.trim()) : 'an average performer in the role';
+  const yard = () => W.base === 'other' ? esc(W.baseText.trim()) : 'things as they are today';
   const per = () => { const p = W.period.trim().replace(/^over\s+/i, ''); return p ? ' over ' + esc(p) : ''; };
 
   // ---- reading answers ----
@@ -1370,17 +1374,17 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
   function screen(s) {
     const o = s.o, a = o && ans(o.id), L = o && q(o.label);
     switch (s.k) {
-      case 'title': return `<h3 id="wiz-q">What are you deciding?</h3><p class="wiz-note">Put it as a choice you will actually make.</p>${inp('title', W.title, 'e.g. Should we replace Sam?')}`;
+      case 'title': return `<h3 id="wiz-q">What are you deciding?</h3><p class="wiz-note">Put it as a choice you will actually make.</p>${inp('title', W.title, 'e.g. ' + W.ex.title)}`;
       case 'opts': return `<h3 id="wiz-q">What could you do?</h3><p class="wiz-note">List the options you are really choosing between. If carrying on as you are is one of them, include it: it is often the one to beat.</p>
-        <ol class="wiz-opts">${W.opts.map((x, i) => `<li><div class="wiz-row">${inp('opt.' + x.id, x.label, EXAMPLES[i] ? 'e.g. ' + EXAMPLES[i] : 'Another option', `aria-label="Option ${i + 1}"`)}${W.opts.length > 2 ? `<button class="wiz-del" data-wdel="${x.id}" aria-label="Remove option ${i + 1}">✕</button>` : ''}</div></li>`).join('')}</ol>
+        <ol class="wiz-opts">${W.opts.map((x, i) => `<li><div class="wiz-row">${inp('opt.' + x.id, x.label, W.ex.opts[i] ? 'e.g. ' + W.ex.opts[i] : 'Another option', `aria-label="Option ${i + 1}"`)}${W.opts.length > 2 ? `<button class="wiz-del" data-wdel="${x.id}" aria-label="Remove option ${i + 1}">✕</button>` : ''}</div></li>`).join('')}</ol>
         ${W.opts.length < 5 ? '<button class="btn" data-wadd>+ Another option</button>' : ''}`;
-      case 'base': return `<h3 id="wiz-q">What are you measuring every option against?</h3><p class="wiz-note">Every cost and gain is counted against the same yardstick, so the options can be compared fairly.</p>
-        ${choice('base', W.base, [['avg', 'An average performer in the role', 'For decisions about one person: their gap in performance counts as a cost.'], ['now', 'Things as they are today', 'When one option is to change nothing, that option then costs nothing.'], ['other', 'Something else', '']])}
-        ${W.base === 'other' ? `<label class="wiz-f"><span>What, in a few words?</span>${inp('baseText', W.baseText, 'e.g. hiring nobody')}</label>` : ''}
+      case 'base': return `<h3 id="wiz-q">What are you measuring every option against?</h3><p class="wiz-note">Every cost and gain is counted against the same yardstick. Which one you pick doesn't change which option wins; it only has to be the same for every option.</p>
+        ${choice('base', W.base, [['now', 'Things as they are today', 'If nothing changes. Doing nothing then comes out at zero.'], ['other', 'Something else', 'Such as an average performer in the role, when the decision is about one person’s performance.']])}
+        ${W.base === 'other' ? `<label class="wiz-f"><span>What, in a few words?</span>${inp('baseText', W.baseText, 'e.g. an average performer in the role')}</label>` : ''}
         <label class="wiz-f" style="margin-top:var(--s-4)"><span>Over what period? <span class="muted">(optional)</span></span>${inp('period', W.period, 'e.g. the next 3 years')}</label><p class="wiz-note">Count every cost and gain over the same stretch of time.</p>`;
       case 'shape': return `<h3 id="wiz-q">Once you choose ${L}, is the result settled, or could it go two ways?</h3>
-        ${choice(`a.${o.id}.shape`, a.shape, [['sure', 'It is settled', 'You know what happens, even if not exactly what it costs.'], ['two', 'It could go two ways', 'Something you do not control decides, such as whether coaching takes.']])}
-        ${a.shape === 'two' ? `<div class="wiz-pair"><label class="wiz-f"><span>The way you hope it goes</span>${inp(`a.${o.id}.good`, a.good, 'e.g. Sam reaches par')}</label><label class="wiz-f"><span>The other way</span>${inp(`a.${o.id}.bad`, a.bad, "e.g. Sam doesn't, and leaves")}</label></div><p class="wiz-note">More than two ways? Pick the two that matter most and add the rest on the tree afterwards.</p>` : ''}`;
+        ${choice(`a.${o.id}.shape`, a.shape, [['sure', 'It is settled', 'You know what happens, even if not exactly what it costs.'], ['two', 'It could go two ways', 'Something you do not control decides, such as ' + W.ex.why + '.']])}
+        ${a.shape === 'two' ? `<div class="wiz-pair"><label class="wiz-f"><span>The way you hope it goes</span>${inp(`a.${o.id}.good`, a.good, 'e.g. ' + W.ex.good)}</label><label class="wiz-f"><span>The other way</span>${inp(`a.${o.id}.bad`, a.bad, 'e.g. ' + W.ex.bad)}</label></div><p class="wiz-note">More than two ways? Pick the two that matter most and add the rest on the tree afterwards.</p>` : ''}`;
       case 'sure': return a.shape === 'two'
         ? `<h3 id="wiz-q">Whichever way it goes, what does ${L} cost or bring for sure?</h3><p class="wiz-note">Compared with ${yard()}${per()}. Count only what happens either way, such as fees or time spent. What depends on how it goes comes next.</p>${money3(`a.${o.id}.sure`, a.sure, 'Nothing for sure')}`
         : `<h3 id="wiz-q">What does ${L} cost or bring?</h3><p class="wiz-note">Compared with ${yard()}${per()}.</p>${money3(`a.${o.id}.sure`, a.sure, 'Nothing: it comes out even')}`;
