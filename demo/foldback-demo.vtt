@@ -1,0 +1,191 @@
+WEBVTT
+
+00:00.540 --> 00:05.040
+This is Foldback: decision trees for people
+decisions. Should we replace someone?
+
+00:05.040 --> 00:08.262
+How do we respond when a key person gets an
+outside offer?
+
+00:08.513 --> 00:12.847
+It's based on Andrew Marritt's article,
+'Should you replace Sam?', the example on
+screen.
+
+00:12.847 --> 00:17.473
+You lay out your options, what could happen
+after each one, and what each path costs or
+brings.
+
+00:18.416 --> 00:19.955
+Foldback folds the tree back.
+
+00:19.955 --> 00:26.587
+'Where it stands' says which option leads, by
+how much, and how often it comes out best
+across ten thousand plausible worlds.
+
+00:26.837 --> 00:31.024
+'What would change your mind' gives the single
+number at which the leader would change.
+
+00:31.024 --> 00:34.008
+And everything runs in your browser. Nothing
+is sent anywhere.
+
+00:34.510 --> 00:38.204
+Starting from a blank page is hard, so let's
+use 'Build it with me'.
+
+00:38.204 --> 00:39.943
+It asks one question per screen.
+
+00:40.143 --> 00:41.066
+Here's the case.
+
+00:41.066 --> 00:47.121
+Petra, a senior data engineer on seventy
+thousand dollars, has an outside offer for
+twenty per cent more.
+
+00:47.121 --> 00:48.159
+How do we respond?
+
+00:49.798 --> 00:54.392
+Three options: match the pay, promote her to
+tech lead, or let her go and hire someone new.
+
+00:56.527 --> 01:00.833
+Next, the yardstick. I'll keep 'things as they
+are today', over the next two years.
+
+01:00.833 --> 01:03.271
+The yardstick doesn't change which option
+wins.
+
+01:03.271 --> 01:05.554
+It only has to be the same for every option.
+
+01:07.958 --> 01:11.559
+Now each option in turn. A counter-offer could
+go more than one way:
+
+01:11.559 --> 01:16.485
+she accepts and stays, she accepts but leaves
+within a year, or she turns it down and
+leaves.
+
+01:18.276 --> 01:20.806
+Nothing is paid for sure, whichever way it
+goes.
+
+01:22.379 --> 01:25.222
+Chances are asked as how many cases out of a
+hundred.
+
+01:25.222 --> 01:29.943
+You give the fewest and the most you could
+believe first, and only then the most likely.
+
+01:29.943 --> 01:33.162
+Thinking about the ends first curbs anchoring
+on one number.
+
+01:33.364 --> 01:34.957
+There's no row for the last way.
+
+01:34.957 --> 01:38.442
+It takes the rest, and this line shows what's
+left for it as you type.
+
+01:40.834 --> 01:46.120
+Then, what each way costs or brings. You pick
+cost or gain, rather than typing a minus sign.
+
+01:46.120 --> 01:50.314
+And each answer gets an evidence tag: data,
+expert judgement, or a guess.
+
+01:52.263 --> 01:56.251
+If she accepts but leaves within a year, we've
+paid more and still have to replace her.
+
+01:57.769 --> 01:59.848
+If she turns it down, we replace her now.
+
+02:02.729 --> 02:07.586
+The promotion: either she takes it and stays,
+or she leaves anyway. Again, nothing for sure.
+
+02:09.455 --> 02:14.846
+We don't know whether she wants to lead, so
+the chance she takes it is wide, twenty to
+sixty in a hundred.
+
+02:14.846 --> 02:16.168
+And it's honestly a guess.
+
+02:17.694 --> 02:22.205
+The raise that comes with the role is a small
+cost. If she leaves anyway, we replace her.
+
+02:27.642 --> 02:31.549
+Letting her go is settled: one path, the cost
+of hiring a replacement.
+
+02:34.758 --> 02:39.047
+The last screen reads everything back in plain
+words, so you can check it before building.
+
+02:42.128 --> 02:44.315
+And here's the tree, built from those answers.
+
+02:45.627 --> 02:50.711
+Promoting her to tech lead leads, by three
+thousand two hundred dollars over the
+counter-offer.
+
+02:50.711 --> 02:55.367
+But it's best in only sixty-six per cent of
+plausible worlds, so it's far from settled.
+
+02:55.367 --> 02:56.758
+Letting her go comes last.
+
+02:57.260 --> 02:58.743
+What would change your mind?
+
+02:58.743 --> 03:05.363
+If the chance she takes the promotion and
+stays falls below thirty-three per cent,
+against forty now, the counter-offer wins.
+
+03:05.363 --> 03:07.269
+And that's inside the range we gave.
+
+03:07.870 --> 03:13.369
+The chart shows each option's likely value,
+how widely it could land, and how often it
+comes out best.
+
+03:13.870 --> 03:16.252
+Under 'Go deeper': what is worth finding out.
+
+03:16.252 --> 03:20.751
+Pinning down the cost if she leaves anyway is
+worth about a thousand dollars at most.
+
+03:20.751 --> 03:22.339
+Everything else is worth less.
+
+03:23.039 --> 03:26.787
+So the decision hinges on one thing: whether
+Petra really wants to lead.
+
+03:26.787 --> 03:28.922
+That's cheap to find out. Go and ask her.
+
+03:29.424 --> 03:32.082
+Foldback is free to use, at the address on
+screen.

@@ -276,6 +276,13 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
 .help-foot .muted{margin-right:auto;align-self:center;font-size:var(--fs-1)}
 .help-foot a{color:var(--dec)}
 @media (max-width:520px){.help-btn .lbl{display:none}.help-body{padding:var(--s-1) var(--s-4) var(--s-3)}.help-head,.help-foot{padding-left:var(--s-4);padding-right:var(--s-4)}}
+/* demo video */
+.linkish{border:0;background:transparent;padding:0;color:var(--dec);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.linkish:hover{color:var(--ink)}
+dialog.demo{width:min(1000px,calc(100% - 32px))}
+.demo-body{padding:0;background:#000}
+.demo-body video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.demo-cta{display:flex;align-items:center;gap:var(--s-2);margin:var(--s-3) 0 var(--s-1);padding:var(--s-2) var(--s-3);background:var(--dec-soft);border-radius:var(--r-2)}
 /* guided start: one question per screen */
 .starts .wiz-open{background:var(--dec);border-color:var(--dec);color:var(--surface);font-weight:700}
 .starts .wiz-open:hover{color:var(--surface);border-color:var(--dec);filter:brightness(1.08)}
@@ -318,7 +325,7 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
 .wiz-ways{margin:var(--s-1) 0 0;padding-left:var(--s-5)}
 .wiz-ways li{margin:var(--s-1) 0}
 @media (max-width:520px){.wiz-ctab{grid-template-columns:repeat(3,minmax(0,1fr))}.wiz-ctab .h0{display:none}.wiz-cl{grid-column:1/-1;margin-top:var(--s-2)}}
-@media (max-width:520px){.wiz-trio{grid-template-columns:minmax(0,1fr)}.wiz .help-head h2{font-size:var(--fs-4)}}
+@media (max-width:520px){.wiz-trio{grid-template-columns:minmax(0,1fr)}.wiz .help-head h2,.demo .help-head h2{font-size:var(--fs-4)}}
 </style></head>
 <body>
 <div class="bar">
@@ -329,7 +336,7 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
   <select id="curr" aria-label="Currency"><option>$</option><option>€</option><option>£</option><option value="CHF ">CHF</option><option value="">none</option></select>
   <div class="theme" role="group" aria-label="Colour theme"><button data-theme-set="light" title="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="lbl">Light</span></button><button data-theme-set="dark" title="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl">Dark</span></button><button data-theme-set="auto" title="Follow your device setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span class="lbl">Auto</span></button></div>
 </div>
-<p class="hint">Type straight onto the tree: <code>30%</code>, <code>-16k</code>, a range like <code>-37k to -25k</code>, or a name from Shared numbers. Costs are negative and gains positive, everywhere.</p>
+<p class="hint">New here? <button class="linkish" data-demo="open" aria-haspopup="dialog">▶ Watch the 3-minute demo</button>. Type straight onto the tree: <code>30%</code>, <code>-16k</code>, a range like <code>-37k to -25k</code>, or a name from Shared numbers. Costs are negative and gains positive, everywhere.</p>
 <div class="wrap">
   <main>
     <div class="panel treebox">
@@ -347,6 +354,8 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
   <div class="help-head"><h2 id="help-title">How Foldback works</h2><button class="x" data-help="close" aria-label="Close">✕</button></div>
   <div class="help-body">
     <p class="lede">Foldback turns an argument about a person into a disagreement about a number. You lay out the options, what could happen after each one, and what each path costs or earns. The app works out which option leads, the <b>single number that would change your mind</b>, and what is worth finding out before you decide.</p>
+
+    <p class="demo-cta"><button class="linkish" data-demo="open" aria-haspopup="dialog"><b>▶ Watch the 3-minute demo</b></button><span class="muted">: the tool in brief, then “Build it with me” on a real case.</span></p>
 
     <h3>Reading the tree</h3>
     <div class="legend">
@@ -416,6 +425,10 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
   <div class="wiz-prog" aria-hidden="true"><span id="wiz-prog"></span></div>
   <div class="help-body wiz-body" id="wiz-body"></div>
   <div class="help-foot wiz-foot"><button class="btn" data-wiz="back">Back</button><span class="wiz-err" id="wiz-err" role="alert"></span><button class="btn primary" data-wiz="next">Next</button></div>
+</dialog>
+<dialog class="help demo" id="demo" aria-labelledby="demo-title">
+  <div class="help-head"><h2 id="demo-title">Foldback in 3 minutes</h2><button class="x" data-demo="close" aria-label="Close">✕</button></div>
+  <div class="help-body demo-body"><video id="demo-video" controls preload="none" playsinline><source src="demo/foldback-demo.mp4" type="video/mp4"><track kind="captions" src="demo/foldback-demo.vtt" srclang="en" label="English"></video></div>
 </dialog>
 <script>// ===== Decision engine (no DOM) =====
 const E = (() => {
@@ -1310,6 +1323,21 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-them
 const help = $('#help');
 document.addEventListener('click', e => { const b = e.target.closest('[data-help]'); if (!b) return; if (b.dataset.help === 'open') help.showModal(); else help.close(); });
 help.addEventListener('click', e => { if (e.target === help) help.close(); }); // click on the backdrop
+
+// ---------- demo video ----------
+// Served from the same site as the app, so watching it involves no third party. Nothing downloads until the window
+// opens. A copy of the app without the demo folder next to it (a saved file, or a fork) plays it from the live site.
+(() => {
+  const dlg = $('#demo'), v = $('#demo-video'), LIVE = 'https://lstehlik2809.github.io/foldback/';
+  if (!location.href.startsWith(LIVE)) v.addEventListener('error', () => { if (v.dataset.live) return; v.dataset.live = '1'; v.poster = LIVE + 'demo/poster.jpg'; v.src = LIVE + 'demo/foldback-demo.mp4'; v.play().catch(() => { }); }, true);
+  document.addEventListener('click', e => { const b = e.target.closest('[data-demo]'); if (!b) return;
+    if (b.dataset.demo === 'close') { dlg.close(); return; }
+    if (help.open) help.close();
+    if (!v.poster) v.poster = v.dataset.live ? LIVE + 'demo/poster.jpg' : 'demo/poster.jpg';
+    dlg.showModal(); v.play().catch(() => { }); });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); // click on the backdrop
+  dlg.addEventListener('close', () => v.pause());
+})();
 
 // ---------- guided start: "Build it with me" ----------
 // One question per screen, for people new to decision trees. The answers become an ordinary tree with shared

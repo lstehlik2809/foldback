@@ -25,7 +25,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 ## Quick start
 
-1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
+1. Open the app. **▶ Watch the 3-minute demo** (under the header, and in the **How it works** window) introduces the tool and walks through **Build it with me** on a real case. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
 2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right (at the top on a phone): which option leads, then what would change your mind. The tree opens fitted to its panel, but never below 85% so it stays readable; drag to see the rest, and **Fit** shrinks it to fit whatever its size. Any field holding a name or a formula shows what it comes to, such as `= −$13,000`.
 3. Click **Build it with me** to be walked through your own decision one question at a time, or **New blank tree** to build it yourself.
 
@@ -112,7 +112,7 @@ The one figure that doesn't match is the value of pinning down Sam's gap. The ap
 
 ## Privacy and storage
 
-- Everything runs in the browser. The app makes no network calls apart from loading Google Fonts.
+- Everything runs in the browser. The app makes no network calls apart from loading Google Fonts and, only when you open it, the demo video from the same site.
 - Your tree is kept only while its browser tab is open (sessionStorage). It survives a reload, and it's gone when you close the tab, so nothing about a real person stays on the device. Every new visit starts with the Sam example. If you've changed the tree, the browser asks before the tab closes.
 - Nothing is sent anywhere, and trees can't be shared through the app.
 - The browser remembers only your theme, a tree zoom you picked yourself, and that you've seen the **How it works** window.
@@ -120,7 +120,7 @@ The one figure that doesn't match is the value of pinning down Sam's gap. The ap
 
 ## Deploy your own copy
 
-1. Put `index.html` (and this README) in a public repository.
+1. Put `index.html` (and this README) in a public repository. Add the `demo` folder too if you want the demo video served from your copy; without it, the demo plays from the original site.
 2. Go to **Settings → Pages → Build and deployment**, set the source to **Deploy from a branch**, branch `main`, folder `/ (root)`, and save.
 3. After a minute or two the app is live at `https://<your-username>.github.io/<repo-name>/`.
 
