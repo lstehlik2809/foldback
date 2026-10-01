@@ -318,7 +318,7 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
 .wiz-ways{margin:var(--s-1) 0 0;padding-left:var(--s-5)}
 .wiz-ways li{margin:var(--s-1) 0}
 @media (max-width:520px){.wiz-ctab{grid-template-columns:repeat(3,minmax(0,1fr))}.wiz-ctab .h0{display:none}.wiz-cl{grid-column:1/-1;margin-top:var(--s-2)}}
-@media (max-width:520px){.wiz-trio{grid-template-columns:minmax(0,1fr)}.wiz .help-head h2{font-size:var(--fs-4)}.wiz-count .long{display:none}}
+@media (max-width:520px){.wiz-trio{grid-template-columns:minmax(0,1fr)}.wiz .help-head h2{font-size:var(--fs-4)}}
 </style></head>
 <body>
 <div class="bar">
@@ -1482,8 +1482,12 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
     const st = steps(); W.step = Math.min(W.step, st.length - 1); const s = st[W.step];
     const a = document.activeElement, keep = a && dlg.contains(a) && a.dataset.w ? [a.dataset.w, a.type === 'radio' ? a.value : null] : null;
     body.innerHTML = screen(s); paintLeft();
-    $('#wiz-count').innerHTML = s.k === 'review' ? 'Last step' : `<span class="long">Question </span>${W.step + 1} of ${st.length - 1}`;
-    $('#wiz-prog').style.width = Math.round(W.step / (st.length - 1) * 100) + '%';
+    // Where you are, not "question 3 of 7": the number of questions grows as answers add ways, but the number of options
+    // is fixed once they are named. The bar gives the three decision screens a fixed 15% and each option an equal share
+    // of the rest, so it only moves forward.
+    const opts = named(), oi = s.o ? opts.indexOf(s.o) : -1, mine = st.filter(x => x.o && x.o === s.o);
+    $('#wiz-count').textContent = s.k === 'review' ? 'Last step' : oi < 0 ? 'The decision' : `Option ${oi + 1} of ${opts.length}`;
+    $('#wiz-prog').style.width = (s.k === 'review' ? 100 : oi < 0 ? W.step * 5 : 15 + 85 * (oi + mine.indexOf(s) / mine.length) / opts.length).toFixed(1) + '%';
     $('[data-wiz="back"]', dlg).style.visibility = W.step ? 'visible' : 'hidden';
     $('[data-wiz="next"]', dlg).textContent = s.k === 'review' ? 'Build my tree' : 'Next';
     $('[data-wiz="restart"]', dlg).hidden = !W.step;
