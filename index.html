@@ -276,6 +276,16 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
 .help-foot .muted{margin-right:auto;align-self:center;font-size:var(--fs-1)}
 .help-foot a{color:var(--dec)}
 @media (max-width:520px){.help-btn .lbl{display:none}.help-body{padding:var(--s-1) var(--s-4) var(--s-3)}.help-head,.help-foot{padding-left:var(--s-4);padding-right:var(--s-4)}}
+/* welcome: how do you want to start? */
+dialog.welcome{width:min(580px,calc(100% - 32px))}
+.welcome .lede{margin:var(--s-1) 0 var(--s-3);color:var(--muted);font-size:var(--fs-3)}
+.wl-list{display:grid;gap:var(--s-2);margin:0 0 var(--s-2)}
+.wl-choice{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:var(--s-3) var(--s-4);border:1px solid var(--line);border-radius:var(--r-2);background:var(--surface);cursor:pointer}
+.wl-choice:hover{border-color:var(--dec);background:var(--surface2)}
+.wl-choice b{font-size:var(--fs-3)}
+.wl-choice span{font-size:var(--fs-2);color:var(--muted)}
+.wl-choice.rec{border-color:var(--dec);background:var(--dec-soft)}
+.wl-choice .tag{display:inline-block;margin-left:var(--s-2);padding:0 var(--s-2);border-radius:var(--r-pill);background:var(--dec);color:var(--surface);font-size:var(--fs-1);font-weight:700;vertical-align:2px}
 /* demo video */
 .linkish{border:0;background:transparent;padding:0;color:var(--dec);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .linkish:hover{color:var(--ink)}
@@ -425,6 +435,19 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
   <div class="wiz-prog" aria-hidden="true"><span id="wiz-prog"></span></div>
   <div class="help-body wiz-body" id="wiz-body"></div>
   <div class="help-foot wiz-foot"><button class="btn" data-wiz="back">Back</button><span class="wiz-err" id="wiz-err" role="alert"></span><button class="btn primary" data-wiz="next">Next</button></div>
+</dialog>
+<dialog class="help welcome" id="welcome" aria-labelledby="welcome-title">
+  <div class="help-head"><h2 id="welcome-title">Welcome to Foldback</h2><button class="x" data-welcome="example" aria-label="Close and explore the example">✕</button></div>
+  <div class="help-body">
+    <p class="lede">Decision trees for people decisions: lay out your options, what could happen and what it costs, and see which option leads and the one number that would change your mind.</p>
+    <div class="wl-list">
+      <button class="wl-choice rec" data-welcome="build" autofocus><b>Build it with me <span class="tag">Recommended</span></b><span>Answer a few questions about your own decision, one at a time. The tree is built for you.</span></button>
+      <button class="wl-choice" data-welcome="example"><b>Explore an example</b><span>“Should we replace Sam?”, fully worked: change any number and watch the answer move.</span></button>
+      <button class="wl-choice" data-welcome="demo"><b>▶ Watch the 3-minute demo</b><span>The tool in brief, then “Build it with me” on a real case.</span></button>
+      <button class="wl-choice" data-welcome="blank"><b>Start from a blank tree</b><span>For people who already know decision trees.</span></button>
+    </div>
+  </div>
+  <div class="help-foot"><span class="muted">Everything stays in this browser. Your tree is kept only while this tab is open.</span><button class="linkish" data-welcome="help">How it works</button></div>
 </dialog>
 <dialog class="help demo" id="demo" aria-labelledby="demo-title">
   <div class="help-head"><h2 id="demo-title">Foldback in 3 minutes</h2><button class="x" data-demo="close" aria-label="Close">✕</button></div>
@@ -1324,6 +1347,18 @@ const help = $('#help');
 document.addEventListener('click', e => { const b = e.target.closest('[data-help]'); if (!b) return; if (b.dataset.help === 'open') help.showModal(); else help.close(); });
 help.addEventListener('click', e => { if (e.target === help) help.close(); }); // click on the backdrop
 
+// ---------- welcome ----------
+// Shown when the tab has no tree yet, so each visit starts with a choice instead of a full worked example, and a
+// reload mid-work never brings it back. Closing it without choosing keeps the example, so nobody lands on an empty tree.
+const welcome = $('#welcome');
+welcome.addEventListener('click', e => { if (e.target === welcome) welcome.close(); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-welcome]'); if (!b) return; const a = b.dataset.welcome; welcome.close();
+  if (a === 'build') $('[data-wiz="open"]').click();
+  else if (a === 'demo') $('.hint [data-demo="open"]').click();
+  else if (a === 'help') help.showModal();
+  else if (a === 'blank') $('[data-start="blank"]').click();
+  else toast('This is a worked example. Change any number and watch the answer on the right.'); });
+
 // ---------- demo video ----------
 // Served from the same site as the app, so watching it involves no third party. Nothing downloads until the window
 // opens. A copy of the app without the demo folder next to it (a saved file, or a fork) plays it from the live site.
@@ -1572,12 +1607,12 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
 })();
 
 // ---------- boot ----------
-const HK = 'foldback2:help-seen'; // the walkthrough opens once per browser; the ? button reopens it
-let helpSeen = true; try { helpSeen = !!localStorage.getItem(HK); localStorage.setItem(HK, '1'); } catch (e) { }
+const firstInTab = !store.get(); // no tree yet in this tab: offer the ways to start
+try { localStorage.removeItem('foldback2:help-seen'); } catch (e) { } // no longer used
 load(); applyTheme(themeMode());
 renderAll(); treeZoom.auto();
 if (document.fonts) document.fonts.ready.then(() => { layout(); sizeTitle(); treeZoom.auto(); }); // web fonts widen the cards once they arrive
-if (!helpSeen) help.showModal();
+if (firstInTab) welcome.showModal();
 window.addEventListener('beforeunload', e => { if (edited()) { e.preventDefault(); e.returnValue = ''; } });
 })();
 </script>
