@@ -977,21 +977,40 @@ function flipCond(f, html) {
 }
 // the same, without the current value: "is less than $10,000" / "is above 43.3%"
 function whereCond(f) { const nm = f.be.name; if (f.be.point < 0 && f.at < 0) return `is ${f.dir === 'rises above' ? 'less' : 'more'} than ${fmtVar(nm, -f.at)}`; return `is ${f.dir === 'rises above' ? 'above' : 'below'} ${fmtVar(nm, f.at)}`; }
+// 3–6 round axis values from a to b (steps of 1, 2 or 5 × 10ⁿ, never below 1 so money() labels stay exact); 0 is always one of them
+function axisTicks(a, b) {
+  const raw = (b - a) / 4, p = 10 ** Math.floor(Math.log10(raw)), f = raw / p, step = Math.max(1, (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p), out = [];
+  for (let t = Math.ceil(a / step) * step; t <= b; t += step) out.push(Math.round(t / step) * step || 0);
+  return out;
+}
 function barsSVG() {
-  const K = S.options.length, W = 340, rowH = 44, pl = 8, top = R.hasRanges ? 20 : 4, H = top + K * rowH + 16; const vals = R.point.vals, s = R.sum;
-  const all = vals.concat(R.hasRanges ? s.opts.flatMap(o => [o.q025, o.q975]) : []); let a = Math.min(0, ...all), b = Math.max(0, ...all); const pad = (b - a) * .04 || 1; a -= pad; b += pad;
+  const K = S.options.length, W = 340, rowH = 44, pl = 8, top = R.hasRanges ? 20 : 4, yA = top + K * rowH, H = yA + 16; const vals = R.point.vals, s = R.sum;
+  const all = vals.concat(R.hasRanges ? s.opts.flatMap(o => [o.q025, o.q975]) : []); let a = Math.min(0, ...all), b = Math.max(0, ...all); const flat = a === b, pad = (b - a) * .04 || 1; a -= pad; b += pad;
   const X = v => pl + (v - a) / (b - a) * (W - pl * 2), xBest = W - pl, xVal = R.hasRanges ? W - 64 : W - pl, maxL = R.hasRanges ? 26 : 34;
+  const rows = R.order.map((i, r) => { const best = i === R.pBest && !R.tie, lab = S.options[i].label, cw = best ? 8 : 7.4;
+    const t = { lab: lab.length > maxL ? lab.slice(0, maxL - 1) + '…' : lab, val: money(vals[i]), bi: R.hasRanges ? pct(s.opts[i].pBest) : '' };
+    // roughly where this row's text sits, generous on width, so the vertical lines can step around it
+    const spans = [[pl, pl + t.lab.length * cw], [xVal - t.val.length * cw, xVal]].concat(t.bi ? [[xBest - t.bi.length * cw, xBest]] : []);
+    return Object.assign(t, { i, y: top + r * rowH, best, spans }); });
+  // a vertical line from the first bar down to the scale, broken only where it would run through a row's text
+  const vline = (x, attrs) => { let y0 = top + 17, out = ''; const seg = y1 => `<line x1="${x}" x2="${x}" y1="${y0}" y2="${y1}" ${attrs}/>`;
+    rows.forEach((w, r) => { if (r && w.spans.some(([l, h]) => x > l - 4 && x < h + 4)) { out += seg(w.y + 1); y0 = w.y + 17; } });
+    return out + seg(yA); };
   let g = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Value of each option${R.hasRanges ? ' and how often it comes out best' : ''}" style="font-family:var(--font-b);font-size:13px">`;
   if (R.hasRanges) g += `<text x="${xVal}" y="12" text-anchor="end" fill="var(--muted)" font-size="12">Likely value</text><text x="${xBest}" y="12" text-anchor="end" fill="var(--muted)" font-size="12">Best in</text>`;
-  // the zero line runs only through the bar rows, so it never crosses the numbers above each bar
-  g += R.order.map((i, r) => `<line x1="${X(0)}" x2="${X(0)}" y1="${top + r * rowH + 17}" y2="${top + r * rowH + 35}" stroke="var(--muted)" stroke-dasharray="3 3"/>`).join('') + `<text x="${X(0)}" y="${H - 2}" text-anchor="middle" fill="var(--muted)" font-size="12">0</text>`;
-  R.order.forEach((i, r) => { const y = top + r * rowH, best = i === R.pBest && !R.tie; const v = vals[i], lab = S.options[i].label;
-    g += `<text x="${pl}" y="${y + 13}" fill="var(--ink)" font-weight="${best ? 700 : 400}">${esc(lab.length > maxL ? lab.slice(0, maxL - 1) + '…' : lab)}</text>`;
-    g += `<text x="${xVal}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${esc(money(v))}</text>`;
-    if (R.hasRanges) g += `<text x="${xBest}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${pct(s.opts[i].pBest)}</text>`;
+  // a value scale under the bars, so bars that grow left from zero read as costs rather than as floating shapes
+  (flat ? [0] : axisTicks(a, b)).forEach(t => { const x = X(t), anc = x < 30 ? 'start' : x > W - 30 ? 'end' : 'middle';
+    if (t) g += vline(x, 'stroke="var(--line2)"');
+    const lab = Math.abs(t) >= 1e6 ? (t < 0 ? '−' : '') + cur() + +(Math.abs(t) / 1e6).toFixed(2) + 'M' : money(t, true);
+    g += `<text x="${x}" y="${H - 2}" text-anchor="${anc}" fill="var(--muted)" font-size="12" class="num">${esc(lab)}</text>`; });
+  g += vline(X(0), 'stroke="var(--ink)" stroke-width="1.5"');
+  rows.forEach(({ i, y, best, lab, val, bi }) => { const v = vals[i];
+    g += `<text x="${pl}" y="${y + 13}" fill="var(--ink)" font-weight="${best ? 700 : 400}">${esc(lab)}</text>`;
+    g += `<text x="${xVal}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${esc(val)}</text>`;
+    if (R.hasRanges) g += `<text x="${xBest}" y="${y + 13}" text-anchor="end" fill="var(--ink)" font-weight="${best ? 700 : 400}" class="num">${bi}</text>`;
     g += `<rect x="${Math.min(X(0), X(v))}" y="${y + 20}" width="${Math.abs(X(v) - X(0))}" height="12" fill="${best ? 'var(--marker)' : 'var(--line)'}"${best ? ' stroke="var(--marker-edge)"' : ''} rx="2"/>`;
     if (R.hasRanges) { const o = s.opts[i]; g += `<line x1="${X(o.q025)}" x2="${X(o.q975)}" y1="${y + 26}" y2="${y + 26}" stroke="var(--ink)" stroke-width="1.3"/><line x1="${X(o.q025)}" x2="${X(o.q025)}" y1="${y + 22}" y2="${y + 30}" stroke="var(--ink)"/><line x1="${X(o.q975)}" x2="${X(o.q975)}" y1="${y + 22}" y2="${y + 30}" stroke="var(--ink)"/>`; } });
-  return g + '</svg>' + `<p class="chart-note">${R.hasRanges ? 'Bar: value at your likely numbers. Whisker: where the middle 95% of plausible worlds land. Best in: how often the option comes out on top.' : 'Add a range anywhere to see how sure this is.'}</p>`;
+  return g + '</svg>' + `<p class="chart-note">${R.hasRanges ? 'Bar: value at your likely numbers, drawn from zero (left of it is a net cost, right a net gain). Whisker: where the middle 95% of plausible worlds land. Best in: how often the option comes out on top.' : 'Bars are drawn from zero: left of it is a net cost, right a net gain. Add a range anywhere to see how sure this is.'}</p>`;
 }
 // head to head: challenger minus leader in each world; the leader's side is yellow, as everywhere else
 function histSVG(d, posLab, negLab) {
