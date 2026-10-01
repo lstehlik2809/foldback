@@ -12,6 +12,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 ## What it does
 
+- **Build it with me.** A guided start for people new to decision trees. It asks one question per screen: what you are deciding, your options, the yardstick you measure them against, whether each option is settled or could go more than one way (up to four), how likely each way is, and what each costs or brings. Ranges are asked ends first and the most likely value last, which keeps people from anchoring on one figure, and chances are asked as "how many out of 100". The last way takes the rest, and the "Most" ends of the others are kept to 100 in 100 at most, so the chances add up in every simulated world. A summary reads it all back in plain words before it builds an ordinary tree with shared numbers, which you can then change like any other: add more ways, or split any way further, right on the tree.
 - **Build the tree by typing.** Options and outcomes are cards you type into. Press Enter in a name to add the next one, and click **+ what could happen?** to split an option into chance outcomes. **+ Add an outcome**, at the end of each group, adds another, and the ✕ that appears when you hover over a chance circle clears its whole group (and anything below it) in one click, with Undo; any outcome can split again.
 - **Uncertainty is typed, not configured.** Any field takes a range such as `-37k to -25k ~-30k`, and it's simulated automatically.
 - **Where it stands, updated live.** Which option leads on your likely values, by how much, how often it comes out best across 10,000 plausible worlds, and whether that makes the lead safe. A chart shows every option's likely value, its spread and how often it comes out best. When an option that is behind on likely values still wins often, it says so, and names the number that mostly decides it.
@@ -26,7 +27,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 1. Open the app. The **Should we replace Sam?** example loads, and on your first visit a **How it works** window walks through it step by step. Reopen it any time from the **?** button in the header. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
 2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right (at the top on a phone): which option leads, then what would change your mind. The tree opens fitted to its panel, but never below 85% so it stays readable; drag to see the rest, and **Fit** shrinks it to fit whatever its size. Any field holding a name or a formula shows what it comes to, such as `= −$13,000`.
-3. Click **New blank tree** to build your own.
+3. Click **Build it with me** to be walked through your own decision one question at a time, or **New blank tree** to build it yourself.
 
 ### What you can type in a field
 

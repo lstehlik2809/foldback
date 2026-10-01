@@ -42,7 +42,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .bar .logo{flex:none}
 .bar .title{flex:1 1 240px;min-width:0;font-family:var(--font-h);font-size:var(--fs-5);font-weight:650;line-height:1.25;border:1px solid transparent;background:transparent;padding:0 var(--s-1);border-radius:var(--r-1);resize:none;overflow:hidden;display:block}
 .bar .title:hover,.bar .title:focus{border-color:var(--line);background:var(--surface)}
-.starts{display:flex;gap:var(--s-2)}
+.starts{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.starts button{white-space:nowrap}
 .starts button,.help-btn,.bar select,.theme{height:32px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-2);font-size:var(--fs-2)}
 .starts button,.help-btn{padding:0 var(--s-3);cursor:pointer}
 .bar select{padding:0 var(--s-2);max-width:100%}
@@ -275,12 +276,55 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
 .help-foot .muted{margin-right:auto;align-self:center;font-size:var(--fs-1)}
 .help-foot a{color:var(--dec)}
 @media (max-width:520px){.help-btn .lbl{display:none}.help-body{padding:var(--s-1) var(--s-4) var(--s-3)}.help-head,.help-foot{padding-left:var(--s-4);padding-right:var(--s-4)}}
+/* guided start: one question per screen */
+.starts .wiz-open{background:var(--dec);border-color:var(--dec);color:var(--surface);font-weight:700}
+.starts .wiz-open:hover{color:var(--surface);border-color:var(--dec);filter:brightness(1.08)}
+dialog.wiz{width:min(640px,calc(100% - 32px))}
+.wiz .help-body{min-height:min(360px,55dvh)}
+.wiz-count{font-size:var(--fs-1);color:var(--muted);white-space:nowrap}
+.wiz-head-btn{border:0;background:transparent;color:var(--dec);cursor:pointer;font-size:var(--fs-1);padding:0 var(--s-1);text-decoration:underline}
+.wiz-prog{height:3px;background:var(--line2)}
+.wiz-prog span{display:block;height:100%;background:var(--dec);transition:width .2s}
+.wiz-body h3{font-size:var(--fs-4);margin:var(--s-4) 0 var(--s-2)}
+.wiz-in{width:100%;min-width:0;border:1px solid var(--field);background:var(--surface2);border-radius:var(--r-1);padding:var(--s-2);font-size:var(--fs-3)}
+.wiz-in.bad{border-color:var(--ref);box-shadow:0 0 0 1px var(--ref)}
+.wiz-choice{display:grid;gap:var(--s-2);margin:var(--s-3) 0}
+.wiz-choice label{display:flex;gap:var(--s-2);align-items:flex-start;padding:var(--s-2) var(--s-3);border:1px solid var(--line);border-radius:var(--r-2);cursor:pointer}
+.wiz-choice label:has(input:checked){border-color:var(--dec);background:var(--dec-soft)}
+.wiz-choice input{margin-top:4px}
+.wiz-seg{display:flex;flex-wrap:wrap;gap:var(--s-2);margin:var(--s-3) 0}
+.wiz-seg label{display:inline-flex;gap:var(--s-1);align-items:center;padding:var(--s-1) var(--s-3);border:1px solid var(--line);border-radius:var(--r-pill);cursor:pointer;font-size:var(--fs-2)}
+.wiz-seg label:has(input:checked){border-color:var(--dec);background:var(--dec-soft);font-weight:700}
+.wiz-trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3);margin:var(--s-3) 0 var(--s-2)}
+.wiz-trio.one{grid-template-columns:minmax(0,220px)}
+.wiz-f{display:flex;flex-direction:column;gap:var(--s-1);font-size:var(--fs-2)}
+.wiz-check{display:inline-flex;gap:var(--s-2);align-items:center;font-size:var(--fs-2);cursor:pointer}
+.wiz-ev{display:flex;flex-wrap:wrap;gap:var(--s-2);align-items:center;margin:var(--s-3) 0 0;font-size:var(--fs-2)}
+.wiz-ev .wiz-seg{margin:0}
+.wiz-note{font-size:var(--fs-2);color:var(--muted);margin:var(--s-1) 0 var(--s-2)}
+.wiz-opts{padding-left:var(--s-5)}
+.wiz-row{display:flex;gap:var(--s-2);align-items:center}
+.wiz-del{border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:var(--r-1);padding:var(--s-1) var(--s-2);font-size:var(--fs-3)}
+.wiz-del:hover{color:var(--ink);background:var(--surface2)}
+.wiz-review li{margin:var(--s-3) 0}
+.wiz-review .btn{margin-left:var(--s-1);padding:0 var(--s-2);font-size:var(--fs-1)}
+.wiz-foot{justify-content:space-between;align-items:center}
+.wiz-err{flex:1;color:var(--ref);font-size:var(--fs-2);text-align:right}
+.wiz-ctab{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:var(--s-2) var(--s-3);align-items:center;margin:var(--s-3) 0}
+.wiz-ctab .h{font-size:var(--fs-2)}
+.wiz-cl{font-weight:700;overflow-wrap:anywhere}
+.wiz-left{font-size:var(--fs-2);padding:var(--s-2) var(--s-3);background:var(--surface2);border-radius:var(--r-2);margin:var(--s-2) 0}
+.wiz-left.warn{background:var(--warn-soft)}
+.wiz-ways{margin:var(--s-1) 0 0;padding-left:var(--s-5)}
+.wiz-ways li{margin:var(--s-1) 0}
+@media (max-width:520px){.wiz-ctab{grid-template-columns:repeat(3,minmax(0,1fr))}.wiz-ctab .h0{display:none}.wiz-cl{grid-column:1/-1;margin-top:var(--s-2)}}
+@media (max-width:520px){.wiz-trio{grid-template-columns:minmax(0,1fr)}.wiz .help-head h2{font-size:var(--fs-4)}.wiz-count .long{display:none}}
 </style></head>
 <body>
 <div class="bar">
   <svg class="logo" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="11" width="8" height="8" fill="var(--dec-soft)" stroke="var(--dec)" stroke-width="2"/><path d="M10 15 L15 6 L20 6 M10 15 L15 24 L20 24" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="23" cy="6" r="3.2" fill="var(--chance-soft)" stroke="var(--chance)" stroke-width="1.6"/><path d="M21 21 L27 24 L21 27Z" fill="var(--ink)"/></svg>
   <textarea class="title" id="title" rows="1" aria-label="Decision"></textarea>
-  <div class="starts"><button data-start="sam">Load the example</button><button data-start="blank">New blank tree</button></div>
+  <div class="starts"><button class="wiz-open" data-wiz="open" aria-haspopup="dialog">Build it with me</button><button data-start="sam">Load the example</button><button data-start="blank">New blank tree</button></div>
   <button class="help-btn" data-help="open" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span class="lbl">How it works</span></button>
   <select id="curr" aria-label="Currency"><option>$</option><option>€</option><option>£</option><option value="CHF ">CHF</option><option value="">none</option></select>
   <div class="theme" role="group" aria-label="Colour theme"><button data-theme-set="light" title="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="lbl">Light</span></button><button data-theme-set="dark" title="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl">Dark</span></button><button data-theme-set="auto" title="Follow your device setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span class="lbl">Auto</span></button></div>
@@ -333,6 +377,7 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
 
     <h3>Building your own</h3>
     <ul>
+      <li>New to decision trees? Click <b>Build it with me</b>. It asks one question at a time (your options, what could happen, how likely, what each costs or brings) and builds the tree for you. You can change anything on the tree afterwards.</li>
       <li>Click <b>New blank tree</b>, type the decision as the title, and name your options. Press <b>Enter</b> in a name to add the next one.</li>
       <li>Measure every option against the same baseline, such as an average performer in the seat. If every option comes out negative, the best one is the smallest loss.</li>
       <li>Click <b>+ what could happen?</b> on an option to split it into chance outcomes, and <b>+ Add an outcome</b> below them for more. Hover over the round chance circle and click its <b>✕</b> to remove the whole group at once (on a touch screen, tap it twice). Any outcome can split again. Leave one outcome's chance empty and it takes the rest (1 minus the others).</li>
@@ -365,6 +410,12 @@ dialog.help::backdrop{background:rgba(10,16,22,.55)}
     </ul>
   </div>
   <div class="help-foot"><span class="muted">Everything runs in this browser and nothing is sent anywhere. Your tree is kept only while this tab is open. Based on Andrew Marritt, <a href="https://andrewmarritt.substack.com/p/should-you-replace-sam" target="_blank" rel="noopener">“Should you replace Sam?”</a></span><button class="btn" data-help="close">Close</button><button class="btn primary" data-start="sam" data-help="close">Load the example</button></div>
+</dialog>
+<dialog class="help wiz" id="wiz" aria-labelledby="wiz-title">
+  <div class="help-head"><h2 id="wiz-title">Build it with me</h2><button class="wiz-head-btn" data-wiz="restart" hidden>Start over</button><span class="wiz-count" id="wiz-count"></span><button class="x" data-wiz="close" aria-label="Close">✕</button></div>
+  <div class="wiz-prog" aria-hidden="true"><span id="wiz-prog"></span></div>
+  <div class="help-body wiz-body" id="wiz-body"></div>
+  <div class="help-foot wiz-foot"><button class="btn" data-wiz="back">Back</button><span class="wiz-err" id="wiz-err" role="alert"></span><button class="btn primary" data-wiz="next">Next</button></div>
 </dialog>
 <script>// ===== Decision engine (no DOM) =====
 const E = (() => {
@@ -1259,6 +1310,234 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-them
 const help = $('#help');
 document.addEventListener('click', e => { const b = e.target.closest('[data-help]'); if (!b) return; if (b.dataset.help === 'open') help.showModal(); else help.close(); });
 help.addEventListener('click', e => { if (e.target === help) help.close(); }); // click on the backdrop
+
+// ---------- guided start: "Build it with me" ----------
+// One question per screen, for people new to decision trees. The answers become an ordinary tree with shared
+// numbers, so everything else works on it unchanged. Ranges are asked ends first and the likely value last, which
+// keeps people from anchoring on one figure; chances are asked as "how many out of 100", which people judge better
+// than percentages. Answers live only in memory: closing the window keeps them until the page is reloaded.
+(() => {
+  const dlg = $('#wiz'), body = $('#wiz-body'), MAXW = 4;
+  const V = () => ({ kind: '', exact: false, lo: '', hi: '', ml: '', ev: '' });
+  const Way = () => ({ id: uid('y'), label: '', p: V(), v: V() });
+  // placeholder examples from one kind of decision, picked at random each time, so the tool doesn't read as built for one case
+  const EXAMPLES = [
+    { title: 'Should we replace Sam?', opts: ['Keep and hope', 'Coach for six months', 'Exit now'], ways: ['Sam reaches par', "Sam doesn't, and leaves", 'Sam moves to another role'], why: 'whether coaching takes' },
+    { title: 'Who should lead the new team?', opts: ['Promote from within', 'Hire from outside', 'Leave the role open'], ways: ['The hire works out', 'They leave within a year', 'They stay but struggle'], why: 'whether a new hire works out' },
+    { title: 'Should we run a mentoring programme?', opts: ['Roll it out to everyone', 'Pilot it with one team', 'Don’t run it'], ways: ['Turnover drops', 'Turnover stays the same', 'Turnover rises'], why: 'whether turnover drops' }];
+  let W = null;
+  const blank = () => ({ step: 0, ex: EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)], title: '', base: 'now', baseText: '', period: '', opts: [0, 1, 2].map(() => ({ id: uid('w'), label: '' })), a: {} });
+  const ans = id => W.a[id] || (W.a[id] = { shape: '', sure: V(), pev: '', ways: [Way(), Way()] });
+  const named = () => W.opts.filter(o => o.label.trim());
+  function steps() {
+    const st = [{ k: 'title' }, { k: 'opts' }, { k: 'base' }];
+    named().forEach(o => { const a = ans(o.id); st.push({ k: 'shape', o }, { k: 'sure', o }); if (a.shape === 'two') st.push({ k: 'chances', o }, ...a.ways.map(w => ({ k: 'way', o, w }))); });
+    return st.concat({ k: 'review' });
+  }
+  const q = s => `“${esc(String(s).trim())}”`;
+  const yard = () => W.base === 'other' ? esc(W.baseText.trim()) : 'things as they are today';
+  const per = () => { const p = W.period.trim().replace(/^over\s+/i, ''); return p ? ' over ' + esc(p) : ''; };
+
+  // ---- reading answers ----
+  const AMT = new RegExp(`^(?:${NUM})$`);
+  function amount(s) { s = String(s).trim().replace(/−/g, '-').replace(/^[^\d.-]+/, '').replace(/(\d)\s+(?=\d)/g, '$1'); if (!s) return {}; if (s[0] === '-') return { neg: true }; return AMT.test(s) && !/%$/.test(s) ? { v: pnum(s) } : { bad: true }; }
+  // a chance as a count out of 100 (30, 2.5 or 2,5), or a percentage
+  function chance(s) { s = String(s).trim(); if (!s) return {}; const v = /%$/.test(s) && AMT.test(s) ? pnum(s) : /^\d+(?:[.,]\d+)?$/.test(s) ? parseFloat(s.replace(',', '.')) / 100 : NaN; return v >= 0 && v <= 1 ? { v } : { bad: true }; }
+  // an answer as {lo, hi, ml}, {none} or {err, f}. The engine needs low < likely < high for a range, so that is checked here.
+  function read(x, isP) {
+    if (!isP && x.kind === 'none') return { none: true };
+    if (!isP && !x.kind) return { err: 'Pick one of the three.', f: 'kind' };
+    const get = f => { const r = (isP ? chance : amount)(x[f]); if (r.neg) throw [f, 'Leave out the minus sign: your pick above already says which way it goes.']; if (r.bad) throw [f, isP ? 'Type a number from 0 to 100.' : 'Type an amount such as 20k or 20000.']; return r.v == null ? NaN : r.v; };
+    try {
+      if (x.exact) { const v = get('ml'); if (!Number.isFinite(v)) throw ['ml', 'Fill in the number.']; return { lo: v, hi: v, ml: v, exact: true }; }
+      const lo = get('lo'), hi = get('hi'), ml = get('ml');
+      if (!Number.isFinite(lo)) throw ['lo', 'Fill in both ends of the range.']; if (!Number.isFinite(hi)) throw ['hi', 'Fill in both ends of the range.'];
+      if (lo > hi) throw ['hi', 'The second end needs to be bigger than the first.'];
+      if (lo === hi) { if (Number.isFinite(ml) && ml !== lo) throw ['ml', 'With both ends the same, the most likely value is that number too.']; return { lo, hi, ml: lo, exact: true }; }
+      if (Number.isFinite(ml) && !(ml > lo && ml < hi)) throw ['ml', 'Most likely needs to sit between the two ends, not on one. Nudge it in or widen the range.'];
+      return { lo, hi, ml: Number.isFinite(ml) ? ml : (lo + hi) / 2 };
+    } catch (e) { if (Array.isArray(e)) return { err: e[1], f: e[0] }; throw e; }
+  }
+  const in100 = v => numf(Math.round(v * 1000) / 10); // a chance as "how many in 100"
+  // plain words for the summary screen
+  function say(x, isP) {
+    const r = read(x, isP); if (r.err) return '?';
+    if (isP) return r.exact ? `${in100(r.ml)} cases in 100` : `${in100(r.lo)} to ${in100(r.hi)} cases in 100 (most likely ${in100(r.ml)})`;
+    if (r.none) return null; const verb = x.kind === 'cost' ? 'costs' : 'brings';
+    return r.exact ? `${verb} ${money(r.ml)}` : `${verb} ${money(r.lo)} to ${money(r.hi)} (most likely ${money(r.ml)})`;
+  }
+  // The last way takes the rest. If the "Most" ends add up to 100 in 100 or less, the chances fit in every simulated
+  // world, so the tree never shows the warning about chances that don't add up.
+  function left(a) {
+    const rows = a.ways.slice(0, -1).map(w => read(w.p, true)), last = q(a.ways[a.ways.length - 1].label || 'the last way');
+    if (rows.some(r => r.err)) return { html: `The last way, ${last}, takes whatever is left.` };
+    const sum = f => rows.reduce((s, r) => s + r[f], 0), hi = sum('hi');
+    if (hi > 1 + 1e-9) return { warn: true, html: `The “Most” column adds up to ${in100(hi)} in 100. Keep it at 100 or less, so ${last} never drops below zero.` };
+    const L = 1 - hi, U = 1 - sum('lo'), M = 1 - sum('ml');
+    const share = L === U ? `${in100(L)} in 100` : `${in100(L)} to ${in100(U)} in 100`;
+    return { share: L === U ? share : `${share}, most likely ${in100(M)}`, html: `That leaves ${share} for ${last}${L === U ? '' : ` (most likely ${in100(M)})`}.` };
+  }
+
+  // ---- screens ----
+  const inp = (p, v, ph = '', extra = '') => `<input class="wiz-in" data-w="${p}" value="${esc(v)}" placeholder="${esc(ph)}" autocomplete="off" ${extra}>`;
+  const choice = (p, now, list) => `<div class="wiz-choice" role="radiogroup">${list.map(([v, t, sub]) => `<label><input type="radio" name="${p}" data-w="${p}" value="${v}" ${now === v ? 'checked' : ''}><span><b>${t}</b>${sub ? `<br><span class="wiz-note">${sub}</span>` : ''}</span></label>`).join('')}</div>`;
+  const seg = (p, now, list, label) => `<div class="wiz-seg" role="radiogroup" aria-label="${label}">${list.map(([v, t]) => `<label><input type="radio" name="${p}" data-w="${p}" value="${v}" ${now === v ? 'checked' : ''}>${t}</label>`).join('')}</div>`;
+  const evid = (p, now) => `<div class="wiz-ev"><span class="muted">This rests on</span>${seg(p, now, [['data', 'Data'], ['expert', 'Expert judgement'], ['guess', 'A guess']], 'What this rests on')}<span class="muted">(optional)</span></div>`;
+  function range(p, x) {
+    const box = (f, lab, ph) => `<label class="wiz-f"><span>${lab}</span>${inp(p + '.' + f, x[f], ph, 'inputmode="decimal"')}</label>`;
+    const nums = x.exact ? `<div class="wiz-trio one">${box('ml', 'The amount', 'e.g. 30k')}</div>`
+      : `<div class="wiz-trio">${box('lo', 'Smallest', 'e.g. 20k')}${box('hi', 'Largest', 'e.g. 55k')}${box('ml', 'Most likely <span class="muted">(optional)</span>', 'e.g. 30k')}</div><p class="wiz-note">Start with the two ends you could still believe, then the most likely. Thinking about the extremes first keeps the range honest.</p>`;
+    return nums + `<label class="wiz-check"><input type="checkbox" data-w="${p}.exact" ${x.exact ? 'checked' : ''}> I know this one exactly</label>` + evid(p + '.ev', x.ev);
+  }
+  const money3 = (p, x, none) => seg(p + '.kind', x.kind, [['cost', 'A cost'], ['gain', 'A gain'], ['none', none]], 'Cost or gain') + (x.kind && x.kind !== 'none' ? range(p, x) : '');
+  function screen(s) {
+    const o = s.o, a = o && ans(o.id), L = o && q(o.label), P = o && `a.${o.id}`;
+    switch (s.k) {
+      case 'title': return `<h3 id="wiz-q">What are you deciding?</h3><p class="wiz-note">Put it as a choice you will actually make.</p>${inp('title', W.title, 'e.g. ' + W.ex.title)}`;
+      case 'opts': return `<h3 id="wiz-q">What could you do?</h3><p class="wiz-note">List the options you are really choosing between. If carrying on as you are is one of them, include it: it is often the one to beat.</p>
+        <ol class="wiz-opts">${W.opts.map((x, i) => `<li><div class="wiz-row">${inp('opt.' + x.id, x.label, W.ex.opts[i] ? 'e.g. ' + W.ex.opts[i] : 'Another option', `aria-label="Option ${i + 1}"`)}${W.opts.length > 2 ? `<button class="wiz-del" data-wdel="${x.id}" aria-label="Remove option ${i + 1}">✕</button>` : ''}</div></li>`).join('')}</ol>
+        ${W.opts.length < 5 ? '<button class="btn" data-wadd>+ Another option</button>' : ''}`;
+      case 'base': return `<h3 id="wiz-q">What are you measuring every option against?</h3><p class="wiz-note">Every cost and gain is counted against the same yardstick. Which one you pick doesn't change which option wins; it only has to be the same for every option.</p>
+        ${choice('base', W.base, [['now', 'Things as they are today', 'If nothing changes. Doing nothing then comes out at zero.'], ['other', 'Something else', 'Such as an average performer in the role, when the decision is about one person’s performance.']])}
+        ${W.base === 'other' ? `<label class="wiz-f"><span>What, in a few words?</span>${inp('baseText', W.baseText, 'e.g. an average performer in the role')}</label>` : ''}
+        <label class="wiz-f" style="margin-top:var(--s-4)"><span>Over what period? <span class="muted">(optional)</span></span>${inp('period', W.period, 'e.g. the next 3 years')}</label><p class="wiz-note">Count every cost and gain over the same stretch of time.</p>`;
+      case 'shape': return `<h3 id="wiz-q">Once you choose ${L}, is the result settled, or could it go more than one way?</h3>
+        ${choice(P + '.shape', a.shape, [['sure', 'It is settled', 'You know what happens, even if not exactly what it costs.'], ['two', 'It could go more than one way', 'Something you do not control decides, such as ' + W.ex.why + '.']])}
+        ${a.shape === 'two' ? `<p class="wiz-note">Name each way it could go, starting with the one you hope for.</p>
+          <ol class="wiz-opts">${a.ways.map((w, i) => `<li><div class="wiz-row">${inp(`${P}.ways.${w.id}.label`, w.label, W.ex.ways[i] ? 'e.g. ' + W.ex.ways[i] : 'Another way', `aria-label="Way ${i + 1}"`)}${a.ways.length > 2 ? `<button class="wiz-del" data-wwdel="${o.id}:${w.id}" aria-label="Remove way ${i + 1}">✕</button>` : ''}</div></li>`).join('')}</ol>
+          ${a.ways.length < MAXW ? `<button class="btn" data-wwadd="${o.id}">+ Another way</button>` : ''}
+          <p class="wiz-note">Up to ${MAXW} ways here. You can add more on the tree afterwards, and split any way further there too.</p>` : ''}`;
+      case 'sure': return a.shape === 'two'
+        ? `<h3 id="wiz-q">Whichever way it goes, what does ${L} cost or bring for sure?</h3><p class="wiz-note">Compared with ${yard()}${per()}. Count only what happens either way, such as fees or time spent. What depends on how it goes comes next.</p>${money3(P + '.sure', a.sure, 'Nothing for sure')}`
+        : `<h3 id="wiz-q">What does ${L} cost or bring?</h3><p class="wiz-note">Compared with ${yard()}${per()}.</p>${money3(P + '.sure', a.sure, 'Nothing: it comes out even')}`;
+      case 'chances': { const many = a.ways.length > 2, rows = a.ways.slice(0, -1);
+        return `<h3 id="wiz-q">If you choose ${L}, how likely is ${many ? 'each way' : q(a.ways[0].label)}?</h3>
+          <p class="wiz-note">Picture 100 cases just like this one. In how many would ${many ? 'each way happen' : q(a.ways[0].label)}? Give the fewest and the most you could believe, then the most likely. Round numbers are fine: the results show which numbers matter.</p>
+          <div class="wiz-ctab"><span class="h0"></span><span class="h">Fewest</span><span class="h">Most</span><span class="h">Most likely <span class="muted">(optional)</span></span>
+          ${rows.map((w, i) => `<span class="wiz-cl">${q(w.label)}</span>${['lo', 'hi', 'ml'].map((f, j) => inp(`${P}.ways.${w.id}.p.${f}`, w.p[f], i ? '' : 'e.g. ' + [10, 50, 30][j], `inputmode="decimal" aria-label="${['Fewest', 'Most', 'Most likely'][j]} in 100 for ${esc(w.label)}"`)).join('')}`).join('')}</div>
+          <p class="wiz-left" id="wiz-left" aria-live="polite"></p>
+          <p class="wiz-note">Know it exactly? Put the same number in both ends.</p>${evid(P + '.pev', a.pev)}`; }
+      case 'way': return `<h3 id="wiz-q">If ${q(s.w.label)}, what does that cost or bring?</h3><p class="wiz-note">Compared with ${yard()}${per()}, on top of anything ${L} costs or brings for sure.</p>${money3(`${P}.ways.${s.w.id}.v`, s.w.v, 'Nothing more')}`;
+      case 'review': { const st = steps();
+        const line = o => { const a = ans(o.id), at = st.findIndex(s => s.k === 'shape' && s.o === o), sure = say(a.sure);
+          const head = `<b>${esc(o.label.trim())}</b><button class="btn" data-wgo="${at}">Edit</button>`;
+          if (a.shape !== 'two') return `<li>${head}<br>${sure ? 'It ' + sure : 'It comes out even'}.</li>`;
+          const n = a.ways.length - 1;
+          return `<li>${head}<br>${sure ? 'It ' + sure + ' for sure' : 'Nothing for sure'}. Then:<ul class="wiz-ways">${a.ways.map((w, i) => `<li>${q(w.label)} in ${i < n ? say(w.p, true) : `the rest of the cases (${left(a).share})`}, which ${say(w.v) || 'adds nothing more'}.</li>`).join('')}</ul></li>`; };
+        return `<h3 id="wiz-q">${esc(W.title.trim())}</h3><p class="wiz-note">Measured against ${yard()}${per()}. Check that it reads right.</p><ul class="wiz-review">${named().map(line).join('')}</ul>
+          <p class="wiz-note">Building replaces the tree on screen, and Undo brings it back. You can change anything on the tree afterwards, or add more ways things could go.</p>`; }
+    }
+  }
+  function check(s) {
+    const o = s.o, a = o && ans(o.id), P = o && `a.${o.id}`;
+    switch (s.k) {
+      case 'title': return W.title.trim() ? null : { msg: 'Say what you are deciding.', f: 'title' };
+      case 'opts': { const n = named(); if (n.length < 2) return { msg: 'Name at least two options.', f: 'opt.' + W.opts.find(x => !x.label.trim()).id };
+        const seen = new Set(); for (const x of n) { const k = x.label.trim().toLowerCase(); if (seen.has(k)) return { msg: 'Two options have the same name.', f: 'opt.' + x.id }; seen.add(k); } return null; }
+      case 'base': return !W.base ? { msg: 'Pick one.', f: 'base' } : W.base === 'other' && !W.baseText.trim() ? { msg: 'Say what you measure against.', f: 'baseText' } : null;
+      case 'shape': { if (!a.shape) return { msg: 'Pick one.', f: P + '.shape' }; if (a.shape !== 'two') return null;
+        const seen = new Set(); for (const w of a.ways) { const k = w.label.trim().toLowerCase(), f = `${P}.ways.${w.id}.label`;
+          if (!k) return { msg: 'Name each way, or remove the empty one.', f }; if (seen.has(k)) return { msg: 'Give each way a different name.', f }; seen.add(k); } return null; }
+      case 'chances': { const rows = a.ways.slice(0, -1);
+        for (const w of rows) { const r = read(w.p, true); if (r.err) return { msg: (rows.length > 1 ? `For ${q(w.label)}: ` : '') + r.err, f: `${P}.ways.${w.id}.p.${r.f}` }; }
+        return left(a).warn ? { msg: 'The “Most” column adds up to more than 100. Lower some of them.', f: `${P}.ways.${rows[0].id}.p.hi` } : null; }
+      case 'sure': { const r = read(a.sure, false); return r.err ? { msg: r.err, f: `${P}.sure.${r.f}` } : null; }
+      case 'way': { const r = read(s.w.v, false); return r.err ? { msg: r.err, f: `${P}.ways.${s.w.id}.v.${r.f}` } : null; }
+      default: return null;
+    }
+  }
+
+  // ---- the tree ----
+  function build() {
+    const nums = [], taken = new Set();
+    const slug = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+/, '').slice(0, 28).replace(/_+$/, '') || 'item';
+    // shared-number names: plain words, with a prefix only where a name would start with a digit or clash with a formula word
+    const RES = new Set('rest true false min max abs sqrt exp log ln log10 pow round floor ceil if clamp zbar normcdf norminv'.split(' '));
+    const name = base => { if (!/^[a-z]/.test(base) || RES.has(base)) base = 'n_' + base; let k = base, i = 2; while (taken.has(k)) k = base + '_' + i++; taken.add(k); return k; };
+    const fA = x => { const r = Math.round(x * 100) / 100; return Math.abs(r) >= 1000 && r % 1000 === 0 ? r / 1000 + 'k' : String(r); };
+    const fP = p => +(p * 100).toFixed(1) + '%';
+    // one answer becomes a shared number, with the sign set by cost or gain; nothing at all stays a plain 0
+    const num = (x, isP, base, desc, ev = x.ev) => { const r = read(x, isP); if (r.none) return '0';
+      const sg = !isP && x.kind === 'cost' ? -1 : 1, f = isP ? fP : fA; let lo = sg * r.lo, hi = sg * r.hi; if (lo > hi) [lo, hi] = [hi, lo];
+      const v = Nm(name(base), f(sg * r.ml), r.exact ? '' : f(lo), r.exact ? '' : f(hi), ev || '', '', desc); nums.push(v); return v.name; };
+    const what = (x, cost, gain) => x.kind === 'cost' ? cost : gain;
+    // a way named the same under two options ("It works") gets its option added, so the results can tell them apart
+    const seen = {}; named().forEach(o => { const a = ans(o.id); if (a.shape === 'two') a.ways.forEach(w => { const k = w.label.trim().toLowerCase(); seen[k] = (seen[k] || 0) + 1; }); });
+    const options = named().map(o => { const a = ans(o.id), L = o.label.trim(), sl = slug(L);
+      if (a.shape !== 'two') return Op(L, num(a.sure, false, sl, what(a.sure, `the cost of “${L}”`, `the gain from “${L}”`)));
+      const n = a.ways.length - 1, tag = x => seen[x.toLowerCase()] > 1 ? ` (${L})` : '';
+      return Op(L, num(a.sure, false, sl + '_for_sure', what(a.sure, `the sure cost of “${L}”`, `the sure gain from “${L}”`)), a.ways.map((w, i) => { const g = w.label.trim();
+        // the last way takes the rest
+        return Br(g, i < n ? num(w.p, true, 'chance_' + slug(g), `the chance of “${g}”${tag(g)}`, a.pev) : '', num(w.v, false, 'if_' + slug(g), what(w.v, `the cost of “${g}”`, `the gain from “${g}”`) + tag(g))); }));
+    });
+    remember();
+    S = { cur: cur(), seed: S.seed == null ? SEED : S.seed, tpl: 'blank', diag: {}, title: W.title.trim(), numbers: nums, options };
+    W = null; dlg.close(); renderAll(); treeZoom.auto(); toast('Built your tree. Change anything right on it', true);
+  }
+
+  // ---- showing and moving ----
+  const here = () => steps()[W.step];
+  function paintLeft() { const el = $('#wiz-left', body), s = here(); if (!el || s.k !== 'chances') return; const r = left(ans(s.o.id)); el.innerHTML = r.html; el.classList.toggle('warn', !!r.warn); }
+  function paint(focusFirst) {
+    const st = steps(); W.step = Math.min(W.step, st.length - 1); const s = st[W.step];
+    const a = document.activeElement, keep = a && dlg.contains(a) && a.dataset.w ? [a.dataset.w, a.type === 'radio' ? a.value : null] : null;
+    body.innerHTML = screen(s); paintLeft();
+    $('#wiz-count').innerHTML = s.k === 'review' ? 'Last step' : `<span class="long">Question </span>${W.step + 1} of ${st.length - 1}`;
+    $('#wiz-prog').style.width = Math.round(W.step / (st.length - 1) * 100) + '%';
+    $('[data-wiz="back"]', dlg).style.visibility = W.step ? 'visible' : 'hidden';
+    $('[data-wiz="next"]', dlg).textContent = s.k === 'review' ? 'Build my tree' : 'Next';
+    $('[data-wiz="restart"]', dlg).hidden = !W.step;
+    $('#wiz-err').textContent = '';
+    if (focusFirst) { const f = $('input:checked, .wiz-in', body) || $('input', body); if (f && matchMedia('(hover:hover)').matches) f.focus(); body.scrollTop = 0; }
+    else if (keep) { const el = $$('[data-w]', body).find(e => e.dataset.w === keep[0] && (keep[1] == null || e.value === keep[1])); if (el) el.focus(); }
+  }
+  // paths: title, opt.<id>, a.<option>.shape|pev, a.<option>.sure.<field>, a.<option>.ways.<way>.label, a.<option>.ways.<way>.p|v.<field>
+  function set(p, v) {
+    const k = p.split('.');
+    if (k[0] === 'opt') { const o = W.opts.find(x => x.id === k[1]); if (o) o.label = v; }
+    else if (k[0] === 'a') { const a = ans(k[1]);
+      if (k[2] === 'ways') { const w = a.ways.find(x => x.id === k[3]); if (!w) return; if (k[4] === 'label') w.label = v; else w[k[4]][k[5]] = v; }
+      else if (k.length === 3) a[k[2]] = v; else a[k[2]][k[3]] = v; }
+    else W[p] = v;
+  }
+  function next() {
+    const s = here(), e = check(s);
+    if (e) { $('#wiz-err').textContent = e.msg; const el = $$('[data-w]', body).find(x => x.dataset.w === e.f); if (el) { el.closest('.wiz-seg,.wiz-choice') ? el.focus() : (el.classList.add('bad'), el.focus()); } return; }
+    if (s.k === 'review') { build(); return; }
+    W.step++; paint(true);
+  }
+  // a new empty row at the end of a list (options, or the ways one option could go), focused
+  function addRow(list, path) { const r = path === 'opt' ? { id: uid('w'), label: '' } : Way(); list.push(r); paint(); $(`[data-w="${path === 'opt' ? 'opt.' + r.id : `${path}.${r.id}.label`}"]`, body).focus(); }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-wiz],[data-wadd],[data-wdel],[data-wgo],[data-wwadd],[data-wwdel]'); if (!b) { if (e.target === dlg) dlg.close(); return; }
+    const d = b.dataset;
+    if (d.wiz === 'open') { if (!W) W = blank(); dlg.showModal(); paint(true); return; }
+    if (!W) return;
+    if (d.wiz === 'close') dlg.close();
+    else if (d.wiz === 'next') next();
+    else if (d.wiz === 'back') { W.step = Math.max(0, W.step - 1); paint(true); }
+    else if (d.wiz === 'restart') { W = blank(); paint(true); }
+    else if (d.wadd != null) addRow(W.opts, 'opt');
+    else if (d.wdel) { W.opts = W.opts.filter(x => x.id !== d.wdel); delete W.a[d.wdel]; paint(); }
+    else if (d.wwadd) addRow(ans(d.wwadd).ways, `a.${d.wwadd}.ways`);
+    else if (d.wwdel) { const [oid, wid] = d.wwdel.split(':'), a = ans(oid); a.ways = a.ways.filter(x => x.id !== wid); paint(); }
+    else if (d.wgo) { W.step = +d.wgo; paint(true); }
+  });
+  dlg.addEventListener('input', e => { const t = e.target; if (!t.dataset.w || t.type === 'radio' || t.type === 'checkbox') return; set(t.dataset.w, t.value); $$('.bad', body).forEach(x => x.classList.remove('bad')); $('#wiz-err').textContent = ''; paintLeft(); });
+  // a pick can change what the screen asks next, so the screen is redrawn
+  dlg.addEventListener('change', e => { const t = e.target; if (!t.dataset.w || (t.type !== 'radio' && t.type !== 'checkbox')) return; set(t.dataset.w, t.type === 'checkbox' ? t.checked : t.value); paint(); });
+  // Enter moves on; in a list (options, or ways) it goes to the next row, adding one if needed
+  dlg.addEventListener('keydown', e => {
+    const t = e.target; if (e.key !== 'Enter' || !t.dataset || !t.dataset.w || t.tagName === 'BUTTON') return; e.preventDefault();
+    const p = t.dataset.w, wm = /^a\.([^.]+)\.ways\.([^.]+)\.label$/.exec(p);
+    const list = p.startsWith('opt.') ? [W.opts, 'opt', 5, x => 'opt.' + x.id] : wm ? [ans(wm[1]).ways, `a.${wm[1]}.ways`, MAXW, x => `a.${wm[1]}.ways.${x.id}.label`] : null;
+    if (list) { const [rows, path, max, key] = list, i = rows.findIndex(x => key(x) === p);
+      if (i < rows.length - 1) { $(`[data-w="${key(rows[i + 1])}"]`, body).focus(); return; }
+      if (t.value.trim() && rows.length < max) { addRow(rows, path); return; } }
+    if (t.type === 'radio') { t.checked = true; set(t.dataset.w, t.value); }
+    next();
+  });
+})();
 
 // ---------- boot ----------
 const HK = 'foldback2:help-seen'; // the walkthrough opens once per browser; the ? button reopens it
