@@ -4,6 +4,8 @@
 
 Foldback turns an argument about a person into a disagreement about a number. You draw the options, the chances and the values straight onto a tree. The app folds the tree back, shows the single number that would change your mind, says which option leads and by how much, and tells you what, if anything, is worth finding out before you decide.
 
+**Why “Foldback”?** It's named after *folding back*, the classic way to solve a decision tree (Howard Raiffa's “averaging out and folding back”, from *Decision Analysis*, 1968): start at the outcomes on the right, work back to the decision, take the probability-weighted average at each chance node and keep the best option at each decision.
+
 It implements the approach in Andrew Marritt's article [“Should you replace Sam?”](https://andrewmarritt.substack.com/p/should-you-replace-sam), and uses his keep / coach / exit decision as the built-in example.
 
 **Live app:** https://lstehlik2809.github.io/foldback/
@@ -25,7 +27,7 @@ It implements the approach in Andrew Marritt's article [“Should you replace Sa
 
 ## Quick start
 
-1. Open the app. **▶ Watch the 3-minute demo** (under the header, and in the **How it works** window) introduces the tool and walks through **Build it with me** on a real case. A welcome window asks how you want to start: **Build it with me** (recommended for your own decision), **Explore an example** (the worked **Should we replace Sam?** case, which a **How it works** window walks through step by step; reopen it any time from the **?** button in the header), the demo, or a blank tree. Closing the window keeps the example. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
+1. Open the app. **▶ Watch the 4-minute demo** (under the header, and in the **How it works** window) introduces the tool and walks through **Build it with me** on a real case. A welcome window asks how you want to start: **Build it with me** (recommended for your own decision), **Explore an example** (the worked **Should we replace Sam?** case, which a **How it works** window walks through step by step; reopen it any time from the **?** button in the header), the demo, or a blank tree. Closing the window keeps the example. The app starts fresh every time you open it, so your tree is kept only while the tab is open.
 2. Change any number on the tree or in **Shared numbers**, and watch the panel on the right (at the top on a phone): which option leads, then what would change your mind. The tree opens fitted to its panel, but never below 85% so it stays readable; drag to see the rest, and **Fit** shrinks it to fit whatever its size. Any field holding a name or a formula shows what it comes to, such as `= −$13,000`.
 3. Click **Build it with me** to be walked through your own decision one question at a time, or **New blank tree** to build it yourself.
 
