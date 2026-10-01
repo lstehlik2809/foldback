@@ -1,0 +1,170 @@
+[
+ {
+  "id": "i1",
+  "part": "Intro",
+  "text": "This is Foldback: decision trees for people decisions, like whether to replace someone, or how to respond to an outside offer. It starts by asking how you'd like to begin.",
+  "screen": "The \"Welcome to Foldback\" window that every visitor sees first."
+ },
+ {
+  "id": "i1b",
+  "part": "Intro",
+  "text": "Build it with me, which we'll use in a moment. A worked example. A short demo. Or a blank tree. Let's explore the example first.",
+  "screen": "Cursor moves over the four choices, then clicks \"Explore an example\"."
+ },
+ {
+  "id": "i2",
+  "part": "Intro",
+  "text": "It's based on Andrew Marritt's article, 'Should you replace Sam?'. You lay out your options, what could happen after each one, and what each path costs or brings.",
+  "screen": "Cursor moves across the options and the chance outcomes in the tree."
+ },
+ {
+  "id": "i3",
+  "part": "Intro",
+  "text": "Foldback folds the tree back: which option leads, by how much, and how often it comes out best across ten thousand plausible worlds.",
+  "screen": "\"Where it stands\" highlighted."
+ },
+ {
+  "id": "i4",
+  "part": "Intro",
+  "text": "Then the single number that would change your mind. And everything stays in your browser.",
+  "screen": "\"What would change your mind?\" highlighted."
+ },
+ {
+  "id": "w1",
+  "part": "Build it with me",
+  "text": "Starting from a blank page is hard, so let's use 'Build it with me', the recommended choice on the welcome screen. It asks one question per screen.",
+  "screen": "Click \"Build it with me\"; the wizard opens."
+ },
+ {
+  "id": "w2",
+  "part": "Build it with me",
+  "text": "Here's the case. Petra, a senior data engineer on seventy thousand dollars, has an outside offer for twenty per cent more. How do we respond?",
+  "screen": "Typing the decision: \"Petra has an outside offer. How do we respond?\""
+ },
+ {
+  "id": "w3",
+  "part": "Build it with me",
+  "text": "Three options: match the pay, promote her to tech lead, or let her go and hire someone new.",
+  "screen": "Typing the three options."
+ },
+ {
+  "id": "w4",
+  "part": "Build it with me",
+  "text": "Next, the yardstick. I'll keep 'things as they are today', over the next two years. The yardstick doesn't change which option wins. It only has to be the same for every option.",
+  "screen": "Yardstick screen: \"Things as they are today\" kept; period \"the next 2 years\"; the note about the yardstick highlighted."
+ },
+ {
+  "id": "w5",
+  "part": "Build it with me",
+  "text": "Now each option in turn. A counter-offer could go more than one way: she accepts and stays, she accepts but leaves within a year, or she turns it down and leaves.",
+  "screen": "Counter-offer: \"It could go more than one way\", three ways typed."
+ },
+ {
+  "id": "w6",
+  "part": "Build it with me",
+  "text": "Nothing is paid for sure, whichever way it goes.",
+  "screen": "\"Nothing for sure\"."
+ },
+ {
+  "id": "w7",
+  "part": "Build it with me",
+  "text": "Chances are asked as how many cases out of a hundred. You give the fewest and the most you could believe first, and only then the most likely. Thinking about the ends first curbs anchoring on one number.",
+  "screen": "Chances screen (out of 100): 30 / 60 / 45 for \"She accepts and stays\"."
+ },
+ {
+  "id": "w8",
+  "part": "Build it with me",
+  "text": "There's no row for the last way. It takes the rest, and this line shows what's left for it as you type.",
+  "screen": "10 / 30 / 20 for \"She accepts, but leaves within a year\"; the live line \"That leaves 10 to 60 in 100...\" highlighted; \"Expert judgement\"."
+ },
+ {
+  "id": "w9",
+  "part": "Build it with me",
+  "text": "Then, what each way costs or brings. You pick cost or gain, rather than typing a minus sign. And each answer gets an evidence tag: data, expert judgement, or a guess.",
+  "screen": "Cost picked; 24k / 32k / 28k; evidence \"Data\"."
+ },
+ {
+  "id": "w10",
+  "part": "Build it with me",
+  "text": "If she accepts but leaves within a year, we've paid more and still have to replace her.",
+  "screen": "Cost 50k / 95k / 67k, Expert judgement."
+ },
+ {
+  "id": "w11",
+  "part": "Build it with me",
+  "text": "If she turns it down, we replace her now.",
+  "screen": "Cost 40k / 90k / 60k, Expert judgement."
+ },
+ {
+  "id": "w12",
+  "part": "Build it with me",
+  "text": "The promotion: either she takes it and stays, or she leaves anyway. Again, nothing for sure.",
+  "screen": "Promotion: two ways typed; \"Nothing for sure\"."
+ },
+ {
+  "id": "w13",
+  "part": "Build it with me",
+  "text": "We don't know whether she wants to lead, so the chance she takes it is wide, twenty to sixty in a hundred. And it's honestly a guess.",
+  "screen": "Chances 20 / 60 / 40, \"A guess\"."
+ },
+ {
+  "id": "w14",
+  "part": "Build it with me",
+  "text": "The raise that comes with the role is a small cost. If she leaves anyway, we replace her.",
+  "screen": "Costs 10k / 20k / 15k (Data) and 45k / 95k / 63k (Expert judgement)."
+ },
+ {
+  "id": "w15",
+  "part": "Build it with me",
+  "text": "Letting her go is settled: one path, the cost of hiring a replacement.",
+  "screen": "Let her go: \"It is settled\"; cost 40k / 90k / 60k, Expert judgement."
+ },
+ {
+  "id": "w16",
+  "part": "Build it with me",
+  "text": "The last screen reads everything back in plain words, so you can check it before building.",
+  "screen": "Plain-words summary screen, then \"Build my tree\"."
+ },
+ {
+  "id": "r1",
+  "part": "Results",
+  "text": "And here's the tree, built from those answers.",
+  "screen": "The built tree."
+ },
+ {
+  "id": "r2",
+  "part": "Results",
+  "text": "Promoting her to tech lead leads, by three thousand two hundred dollars over the counter-offer. But it's best in only sixty-six per cent of plausible worlds, so it's far from settled. Letting her go comes last.",
+  "screen": "Verdict highlighted: Promote leads by $3,200; best in 66% of plausible worlds."
+ },
+ {
+  "id": "r3",
+  "part": "Results",
+  "text": "What would change your mind? If the chance she takes the promotion and stays falls below thirty-three per cent, against forty now, the counter-offer wins. And that's inside the range we gave.",
+  "screen": "\"What would change your mind?\": the 33.3% switch point highlighted."
+ },
+ {
+  "id": "r4",
+  "part": "Results",
+  "text": "The chart shows each option's likely value, how widely it could land, and how often it comes out best.",
+  "screen": "\"Each option\" chart highlighted."
+ },
+ {
+  "id": "r5",
+  "part": "Results",
+  "text": "Under 'Go deeper': what is worth finding out. Pinning down the cost if she leaves anyway is worth about a thousand dollars at most. Everything else is worth less.",
+  "screen": "\"Go deeper\" opened; \"What is worth finding out?\" highlighted (at most $1,054)."
+ },
+ {
+  "id": "r6",
+  "part": "Results",
+  "text": "So the decision hinges on one thing: whether Petra really wants to lead. That's cheap to find out. Go and ask her.",
+  "screen": "Back on the tree: the \"She takes it and stays\" chance highlighted."
+ },
+ {
+  "id": "r7",
+  "part": "Results",
+  "text": "Foldback is free to use, at the address on screen.",
+  "screen": "End card with the address lstehlik2809.github.io/foldback."
+ }
+]
