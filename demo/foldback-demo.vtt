@@ -1,244 +1,244 @@
 WEBVTT
 
 1
-00:00:00.536 --> 00:00:05.428
+00:00:00.531 --> 00:00:05.423
 This is Foldback: decision trees for people
 decisions, like whether to replace someone,
 
 2
-00:00:05.428 --> 00:00:10.095
+00:00:05.423 --> 00:00:10.090
 or how to respond to an outside offer. It
 starts by asking how you'd like to begin.
 
 3
-00:00:10.248 --> 00:00:14.463
+00:00:10.241 --> 00:00:14.456
 Build it with me, which we'll use in a moment.
 A worked example. A short demo.
 
 4
-00:00:14.463 --> 00:00:17.111
+00:00:14.456 --> 00:00:17.104
 Or a blank tree. Let's explore the example
 first.
 
 5
-00:00:17.613 --> 00:00:20.846
+00:00:17.606 --> 00:00:20.839
 It's based on Andrew Marritt's article,
 'Should you replace Sam?'.
 
 6
-00:00:20.846 --> 00:00:23.736
+00:00:20.839 --> 00:00:23.729
 You lay out your options, what could happen
 after each one,
 
 7
-00:00:23.736 --> 00:00:25.450
+00:00:23.729 --> 00:00:25.443
 and what each path costs or brings.
 
 8
-00:00:26.644 --> 00:00:30.097
+00:00:26.573 --> 00:00:30.026
 Foldback folds the tree back: which option
 leads, by how much,
 
 9
-00:00:30.097 --> 00:00:33.940
+00:00:30.026 --> 00:00:33.869
 and how often it comes out best across ten
 thousand plausible worlds.
 
 10
-00:00:34.191 --> 00:00:38.378
+00:00:34.122 --> 00:00:38.309
 Then the single number that would change your
 mind. And everything stays in your browser.
 
 11
-00:00:39.483 --> 00:00:43.186
+00:00:39.361 --> 00:00:43.064
 Starting from a blank page is hard, so let's
 use 'Build it with me',
 
 12
-00:00:43.186 --> 00:00:47.433
+00:00:43.064 --> 00:00:47.311
 the recommended choice on the welcome screen.
 It asks one question per screen.
 
 13
-00:00:47.634 --> 00:00:51.928
+00:00:47.513 --> 00:00:51.807
 Here's the case. Petra, a senior data engineer
 on seventy thousand dollars,
 
 14
-00:00:51.928 --> 00:00:55.650
+00:00:51.807 --> 00:00:55.529
 has an outside offer for twenty per cent more.
 How do we respond?
 
 15
-00:00:57.279 --> 00:01:01.873
+00:00:57.110 --> 00:01:01.704
 Three options: match the pay, promote her to
 tech lead, or let her go and hire someone new.
 
 16
-00:01:03.943 --> 00:01:08.249
+00:01:03.577 --> 00:01:07.883
 Next, the yardstick. I'll keep 'things as they
 are today', over the next two years.
 
 17
-00:01:08.249 --> 00:01:10.687
+00:01:07.883 --> 00:01:10.321
 The yardstick doesn't change which option
 wins.
 
 18
-00:01:10.687 --> 00:01:12.970
+00:01:10.321 --> 00:01:12.604
 It only has to be the same for every option.
 
 19
-00:01:15.509 --> 00:01:20.329
+00:01:14.941 --> 00:01:19.761
 Now each option in turn. A counter-offer could
 go more than one way: she accepts and stays,
 
 20
-00:01:20.329 --> 00:01:24.036
+00:01:19.761 --> 00:01:23.468
 she accepts but leaves within a year, or she
 turns it down and leaves.
 
 21
-00:01:25.746 --> 00:01:28.276
+00:01:25.173 --> 00:01:27.703
 Nothing is paid for sure, whichever way it
 goes.
 
 22
-00:01:29.817 --> 00:01:32.660
+00:01:29.189 --> 00:01:32.032
 Chances are asked as how many cases out of a
 hundred.
 
 23
-00:01:32.660 --> 00:01:37.381
+00:01:32.032 --> 00:01:36.753
 You give the fewest and the most you could
 believe first, and only then the most likely.
 
 24
-00:01:37.381 --> 00:01:40.600
+00:01:36.753 --> 00:01:39.972
 Thinking about the ends first curbs anchoring
 on one number.
 
 25
-00:01:40.802 --> 00:01:42.395
+00:01:40.174 --> 00:01:41.767
 There's no row for the last way.
 
 26
-00:01:42.395 --> 00:01:45.880
+00:01:41.767 --> 00:01:45.252
 It takes the rest, and this line shows what's
 left for it as you type.
 
 27
-00:01:48.297 --> 00:01:53.583
+00:01:47.538 --> 00:01:52.824
 Then, what each way costs or brings. You pick
 cost or gain, rather than typing a minus sign.
 
 28
-00:01:53.583 --> 00:01:57.777
+00:01:52.824 --> 00:01:57.018
 And each answer gets an evidence tag: data,
 expert judgement, or a guess.
 
 29
-00:01:59.672 --> 00:02:03.660
+00:01:58.905 --> 00:02:02.893
 If she accepts but leaves within a year, we've
 paid more and still have to replace her.
 
 30
-00:02:05.164 --> 00:02:07.243
+00:02:04.390 --> 00:02:06.469
 If she turns it down, we replace her now.
 
 31
-00:02:10.212 --> 00:02:15.069
+00:02:09.224 --> 00:02:14.081
 The promotion: either she takes it and stays,
 or she leaves anyway. Again, nothing for sure.
 
 32
-00:02:17.197 --> 00:02:21.062
+00:02:15.891 --> 00:02:19.756
 We don't know whether she wants to lead, so
 the chance she takes it is wide,
 
 33
-00:02:21.062 --> 00:02:23.910
+00:02:19.756 --> 00:02:22.604
 twenty to sixty in a hundred. And it's
 honestly a guess.
 
 34
-00:02:25.450 --> 00:02:29.961
+00:02:24.087 --> 00:02:28.598
 The raise that comes with the role is a small
 cost. If she leaves anyway, we replace her.
 
 35
-00:02:35.414 --> 00:02:39.321
+00:02:33.587 --> 00:02:37.494
 Letting her go is settled: one path, the cost
 of hiring a replacement.
 
 36
-00:02:42.646 --> 00:02:46.935
+00:02:40.423 --> 00:02:44.712
 The last screen reads everything back in plain
 words, so you can check it before building.
 
 37
-00:02:50.072 --> 00:02:52.259
+00:02:47.803 --> 00:02:49.990
 And here's the tree, built from those answers.
 
 38
-00:02:53.604 --> 00:02:55.379
+00:02:51.335 --> 00:02:53.110
 Promoting her to tech lead leads,
 
 39
-00:02:55.379 --> 00:02:58.659
+00:02:53.110 --> 00:02:56.390
 by three thousand two hundred dollars over the
 counter-offer.
 
 40
-00:02:58.659 --> 00:03:04.735
+00:02:56.390 --> 00:03:02.466
 But it's best in only sixty-six per cent of
 plausible worlds, so it's far from settled.
 Letting her go comes last.
 
 41
-00:03:05.237 --> 00:03:11.062
+00:03:02.967 --> 00:03:08.792
 What would change your mind? If the chance she
 takes the promotion and stays falls below
 thirty-three per cent,
 
 42
-00:03:11.062 --> 00:03:15.246
+00:03:08.792 --> 00:03:12.976
 against forty now, the counter-offer wins. And
 that's inside the range we gave.
 
 43
-00:03:15.848 --> 00:03:19.605
+00:03:13.577 --> 00:03:17.334
 The chart shows each option's likely value,
 how widely it could land,
 
 44
-00:03:19.605 --> 00:03:21.347
+00:03:17.334 --> 00:03:19.076
 and how often it comes out best.
 
 45
-00:03:21.848 --> 00:03:24.230
+00:03:19.593 --> 00:03:21.975
 Under 'Go deeper': what is worth finding out.
 
 46
-00:03:24.230 --> 00:03:28.729
+00:03:21.975 --> 00:03:26.474
 Pinning down the cost if she leaves anyway is
 worth about a thousand dollars at most.
 
 47
-00:03:28.729 --> 00:03:30.317
+00:03:26.474 --> 00:03:28.062
 Everything else is worth less.
 
 48
-00:03:31.019 --> 00:03:34.767
+00:03:28.764 --> 00:03:32.512
 So the decision hinges on one thing: whether
 Petra really wants to lead.
 
 49
-00:03:34.767 --> 00:03:36.902
+00:03:32.512 --> 00:03:34.647
 That's cheap to find out. Go and ask her.
 
 50
-00:03:37.404 --> 00:03:40.062
+00:03:35.148 --> 00:03:37.806
 Foldback is free to use, at the address on
 screen.
 
