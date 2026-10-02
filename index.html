@@ -340,7 +340,7 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
 <body>
 <div class="bar">
   <svg class="logo" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="11" width="8" height="8" fill="var(--dec-soft)" stroke="var(--dec)" stroke-width="2"/><path d="M10 15 L15 6 L20 6 M10 15 L15 24 L20 24" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="23" cy="6" r="3.2" fill="var(--chance-soft)" stroke="var(--chance)" stroke-width="1.6"/><path d="M21 21 L27 24 L21 27Z" fill="var(--ink)"/></svg>
-  <textarea class="title" id="title" rows="1" aria-label="Decision"></textarea>
+  <textarea class="title" id="title" rows="1" aria-label="Decision" placeholder="What are you deciding?"></textarea>
   <div class="starts"><button class="wiz-open" data-wiz="open" aria-haspopup="dialog">Build it with me</button><button data-start="sam">Load the example</button><button data-start="blank">New blank tree</button></div>
   <button class="help-btn" data-help="open" aria-haspopup="dialog"><span class="q" aria-hidden="true">?</span><span class="lbl">How it works</span></button>
   <select id="curr" aria-label="Currency"><option>$</option><option>€</option><option>£</option><option value="CHF ">CHF</option><option value="">none</option></select>
@@ -438,7 +438,7 @@ dialog.wiz{width:min(640px,calc(100% - 32px))}
   <div class="help-foot wiz-foot"><button class="btn" data-wiz="back">Back</button><span class="wiz-err" id="wiz-err" role="alert"></span><button class="btn primary" data-wiz="next">Next</button></div>
 </dialog>
 <dialog class="help welcome" id="welcome" aria-labelledby="welcome-title">
-  <div class="help-head"><h2 id="welcome-title">Welcome to Foldback</h2><button class="x" data-welcome="example" aria-label="Close and explore the example">✕</button></div>
+  <div class="help-head"><h2 id="welcome-title">Welcome to Foldback</h2><button class="x" data-welcome="close" aria-label="Close">✕</button></div>
   <div class="help-body">
     <p class="lede">Decision trees for people decisions: lay out your options, what could happen and what it costs, and see which option leads and the one number that would change your mind.</p>
     <div class="wl-list">
@@ -765,7 +765,7 @@ const TPL = {
     options: [Op('Keep and hope', 'years * sam_vs_average_per_year'),
       Op('Coach for six months', 'cost_of_coaching + sam_vs_average_per_year / 2', [Br('Sam reaches par', 'chance_coaching_works', '0'), Br("Sam doesn't: exit", '', 'cost_of_exit')]),
       Op('Exit now', 'cost_of_exit')] }) },
-  blank: { t: 'Blank tree', f: () => ({ title: 'What are you deciding?', numbers: [], options: [Op('Option A', '0'), Op('Option B', '0')] }) }
+  blank: { t: 'Blank tree', f: () => ({ title: '', numbers: [], options: [Op('', '0'), Op('', '0')] }) }
 };
 let S, undoSnap = null;
 const LS = 'foldback2:v1';
@@ -775,7 +775,7 @@ const SEED = 2364; // default random seed: the same tree and seed always give th
 try { localStorage.removeItem(LS); } catch (e) { }
 const store = { get() { try { return sessionStorage.getItem(LS); } catch (e) { return null; } }, set(v) { try { sessionStorage.setItem(LS, v); } catch (e) { } } };
 function fresh(key, cur = '$', seed = SEED) { const s = Object.assign({ cur, seed, tpl: key }, TPL[key].f()); s.diag = key === 'sam' ? { on: false, name: 'chance_coaching_works', acc: '75%', cost: '-1500 + sam_vs_average_per_year / 12' } : {}; return s; }
-function load() { const r = store.get(); if (r) { try { S = JSON.parse(r); if (S.seed == null) S.seed = SEED; if (S.options) return; } catch (e) { } } S = fresh('sam'); }
+function load() { const r = store.get(); if (r) { try { S = JSON.parse(r); if (S.seed == null) S.seed = SEED; if (S.options) return; } catch (e) { } } S = fresh('blank'); }
 // Edited = the tree differs from the template it started from (ids, currency, seed and panel state aside).
 const content = s => JSON.stringify([s.title, s.numbers, s.options, s.diag], (k, v) => k === 'id' ? undefined : v);
 const edited = () => !!S && content(S) !== content(fresh(TPL[S.tpl] ? S.tpl : 'sam'));
@@ -911,7 +911,7 @@ function card(n, isOpt, depth) {
   const flds = isOpt ? `<label title="What choosing this costs (−) or earns (+) for sure, before anything uncertain happens: fees, severance, recruiting…"><span class="fl">certain value</span><input data-id="${n.id}" data-f="value" value="${esc(n.value)}" placeholder="0">${eq('value')}</label>`
     : `<label><span class="fl">chance</span><input data-id="${n.id}" data-f="prob" value="${esc(n.prob)}" placeholder="the rest">${eq('prob')}</label><label title="What this outcome adds (+) or costs (−) if it happens"><span class="fl">value if it happens</span><input data-id="${n.id}" data-f="value" value="${esc(n.value)}" placeholder="0">${eq('value')}</label>`;
   return `<div class="card ${isOpt ? 'opt' : 'out'}" id="c-${n.id}" data-depth="${depth}">
-    <input class="nm" data-id="${n.id}" data-f="label" value="${esc(n.label)}" placeholder="${isOpt ? 'Option' : 'What happens'}" aria-label="${isOpt ? 'Option name' : 'Outcome'}">
+    <input class="nm" data-id="${n.id}" data-f="label" value="${esc(n.label)}" placeholder="${isOpt ? 'Name an option' : 'What happens'}" aria-label="${isOpt ? 'Option name' : 'Outcome'}">
     <div class="fields">${flds}</div><div class="err" id="e-${n.id}"></div>
     ${n.branches && n.branches.length ? '' : `<button class="split" data-split="${n.id}">+ what could happen?</button>`}
     <div class="acts"><button class="x" data-del="${n.id}" title="Delete" aria-label="Delete">✕</button></div></div>`;
@@ -1173,10 +1173,16 @@ function meetingNote() {
   return out.join('\n\n');
 }
 // screen readers hear only the verdict, and only when it changes: which option leads and how safely, or why results are paused
+// nothing entered yet: a fresh blank tree, so there is no verdict to give
+// an option without a name would leave a gap in every sentence of the results, so they wait until all are named
+const unnamed = () => S.options.some(o => !String(o.label || '').trim());
+const isEmpty = () => !S.numbers.length && S.options.every(o => !String(o.label || '').trim() && /^\s*0?\s*$/.test(String(o.value == null ? '' : o.value)) && !(o.branches || []).length);
 function announce() {
   const el = $('#sr-live'); if (!el) return;
   let t;
-  if (!R.ok) t = R.errors.length ? 'Results paused: ' + R.errors[0].msg : '';
+  if (isEmpty()) t = 'Name your options to start.';
+  else if (unnamed()) t = 'Name each option to see where it stands.';
+  else if (!R.ok) t = R.errors.length ? 'Results paused: ' + R.errors[0].msg : '';
   else if (R.tie) t = 'No option leads: the top options are level.';
   else { t = S.options[R.pBest].label + ' leads.'; if (R.hasRanges && R.order.length > 1) t += ' ' + safety(R.sum.opts[R.pBest].pBest).replace(/^./, c => c.toUpperCase()) + '.'; }
   if (t !== announce.last) { announce.last = t; el.textContent = t; }
@@ -1185,6 +1191,20 @@ function applySide() { const h = !!S.sideHidden; $('.wrap').classList.toggle('si
 function paintSide() {
   const mb = $('#mini-best'); if (mb) mb.textContent = R && R.ok && R.tie ? 'none (level)' : R && R.ok && S.options[R.pBest] ? S.options[R.pBest].label : '…';
   announce();
+  if (isEmpty()) {
+    if (mb) mb.textContent = '…';
+    $('#v-head').innerHTML = `<p class="lead-line">Name your options to start.</p><p class="muted">Type them on the cards, with what each costs or brings. Not sure where to start? <button class="linkish" data-wiz="open">Build it with me</button> asks one question at a time.</p>`;
+    ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; });
+    const nt = $('#v-note'); if (nt) nt.value = 'Nothing to note yet: name your options first.';
+    return;
+  }
+  if (unnamed()) {
+    if (mb) mb.textContent = '…';
+    $('#v-head').innerHTML = `<p class="lead-line">Name each option to see where it stands.</p>`;
+    ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; });
+    const nt = $('#v-note'); if (nt) nt.value = 'Nothing to note yet: name every option first.';
+    return;
+  }
   if (!R.ok) {
     $('#v-head').innerHTML = `<p class="lead-line bad">${R.errors.length ? esc(R.errors[0].msg) + (R.errors.length > 1 ? ` (+${R.errors.length - 1} more)` : '') : 'Add an option to begin.'}</p>`;
     ['#v-bars', '#v-flip', '#v-worlds', '#v-voi', '#v-diag'].forEach(s => { const e = $(s); if (e) e.innerHTML = ''; });
@@ -1350,7 +1370,7 @@ help.addEventListener('click', e => { if (e.target === help) help.close(); }); /
 
 // ---------- welcome ----------
 // Shown when the tab has no tree yet, so each visit starts with a choice instead of a full worked example, and a
-// reload mid-work never brings it back. Closing it without choosing keeps the example, so nobody lands on an empty tree.
+// reload mid-work never brings it back. Behind it is a clean workspace; the example loads only when chosen.
 const welcome = $('#welcome');
 welcome.addEventListener('click', e => { if (e.target === welcome) welcome.close(); });
 document.addEventListener('click', e => { const b = e.target.closest('[data-welcome]'); if (!b) return; const a = b.dataset.welcome; welcome.close();
@@ -1358,7 +1378,7 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-welc
   else if (a === 'demo') $('.hint [data-demo="open"]').click();
   else if (a === 'help') help.showModal();
   else if (a === 'blank') $('[data-start="blank"]').click();
-  else toast('This is a worked example. Change any number and watch the answer on the right.'); });
+  else if (a === 'example') { $('.starts [data-start="sam"]').click(); toast('This is a worked example. Change any number and watch the answer on the right.'); } });
 
 // ---------- demo video ----------
 // Served from the same site as the app, so watching it involves no third party. Nothing downloads until the window
