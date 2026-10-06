@@ -1,0 +1,57 @@
+{
+  "id": "03_sam_replacement_drag",
+  "title": "Sam: the replacement is also a bet (job drag 'e')",
+  "story": "Andrew's second tree. Any route that ends in an exit now ends in a hiring gamble: the new hire leaves in year one 30% of the time (a second search: GBP 10k recruiting + GBP 7.5k lost productivity), and whoever sits in the seat inherits the job's own drag 'e' (GBP 4k a year, here a range from 0 to 8k). With e = 4k the expected cost of the replacement L = 0.3 x 17.5k + 3 x 4k = 17,250, so an exit costs 47,250 and the coaching threshold falls from 43% to 13k / 47.25k = 27.5%.",
+  "source": "Marritt, 'Should you replace Sam?', section 'The replacement is also a bet' (Table 2, Figure 4)",
+  "what_it_tests": [
+    "a nested chance node under both the exit option and the failed-coaching outcome",
+    "the article's threshold with L: cost of trying / (cost of exit + L)",
+    "Table 2: exit wins with no drag, coaching wins at e = 4k, keep and hope wins at e = 6k (two switch points on e)",
+    "switch points on fixed numbers that cross twice"
+  ],
+  "state": {
+    "title": "Should we replace Sam, if the replacement is a bet too?",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "chance_coaching_works", "desc": "the chance coaching works", "likely": "30%", "low": "15%", "high": "50%", "evType": "expert", "evStrength": "low" },
+      { "id": "n2", "name": "sam_vs_average_per_year", "desc": "Sam's yearly gap vs an average performer", "likely": "-16k", "low": "-24k", "high": "-8k", "evType": "data", "evStrength": "low" },
+      { "id": "n3", "name": "job_drag_per_year", "desc": "what the job itself costs whoever holds it, per year (e)", "likely": "-4k", "low": "-8k", "high": "0", "evType": "guess", "evStrength": "low" },
+      { "id": "n4", "name": "cost_of_exit", "desc": "the cost of an exit", "likely": "-30k", "low": "", "high": "", "evType": "expert", "evStrength": "medium" },
+      { "id": "n5", "name": "cost_of_coaching", "desc": "the cost of coaching", "likely": "-5k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n6", "name": "years", "desc": "years in the seat", "likely": "3", "low": "", "high": "", "evType": "", "evStrength": "" },
+      { "id": "n7", "name": "chance_new_hire_leaves_in_year_1", "desc": "the chance a new hire leaves in year one", "likely": "30%", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n8", "name": "cost_of_second_search", "desc": "the cost of a second search", "likely": "-17.5k", "low": "", "high": "", "evType": "expert", "evStrength": "medium" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Keep and hope", "value": "years * sam_vs_average_per_year", "branches": [] },
+      { "id": "o2", "label": "Coach for six months", "value": "cost_of_coaching + sam_vs_average_per_year / 2", "branches": [
+        { "id": "b1", "label": "Sam reaches par", "prob": "chance_coaching_works", "value": "0", "branches": [] },
+        { "id": "b2", "label": "Sam doesn't: exit and replace", "prob": "", "value": "cost_of_exit + years * job_drag_per_year", "branches": [
+          { "id": "b3", "label": "New hire leaves in year one", "prob": "chance_new_hire_leaves_in_year_1", "value": "cost_of_second_search", "branches": [] },
+          { "id": "b4", "label": "New hire stays", "prob": "", "value": "0", "branches": [] }
+        ] }
+      ] },
+      { "id": "o3", "label": "Exit now and replace", "value": "cost_of_exit + years * job_drag_per_year", "branches": [
+        { "id": "b5", "label": "New hire leaves in year one", "prob": "chance_new_hire_leaves_in_year_1", "value": "cost_of_second_search", "branches": [] },
+        { "id": "b6", "label": "New hire stays", "prob": "", "value": "0", "branches": [] }
+      ] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "point:Keep and hope", "expected": -48000, "tol": 0.01, "why": "3 x -16k; e is part of Sam's gap, so keeping is unchanged" },
+    { "metric": "point:Exit now and replace", "expected": -47250, "tol": 0.01, "why": "-30k - L, L = 0.3 x 17.5k + 3 x 4k = 17,250 (article: about 47,000)" },
+    { "metric": "point:Coach for six months", "expected": -46075, "tol": 0.01, "why": "-13k + 0.7 x -47,250" },
+    { "metric": "leader", "expected": "Coach for six months", "why": "article: at e = 4k coaching becomes, narrowly, the best of the three" },
+    { "metric": "switches:chance_coaching_works", "expected": [ { "at": 0.275132275, "from": "Exit now and replace", "to": "Coach for six months", "inRange": true } ], "tol": 1e-6, "why": "13,000 / 47,250 (article: about 28%)" },
+    { "metric": "switches:job_drag_per_year", "expected": [ { "at": -4916.66667, "from": "Keep and hope", "to": "Coach for six months", "inRange": true }, { "at": -2694.44444, "from": "Coach for six months", "to": "Exit now and replace", "inRange": true } ], "tol": 0.01, "why": "coach = -37,675 + 2.1d meets keep (-48k) at d = -4,916.67; exit = -35,250 + 3d meets coach at d = -2,694.44 (Table 2: exit wins at 0, keep wins at -6k)" },
+    { "metric": "switches:sam_vs_average_per_year", "expected": [ { "at": -18350, "from": "Exit now and replace", "to": "Coach for six months", "inRange": true }, { "at": -15230, "from": "Coach for six months", "to": "Keep and hope", "inRange": true } ], "tol": 0.01, "why": "coach = -38,075 + g/2 meets exit (-47,250) at g = -18,350 and keep (3g) at g = -15,230" },
+    { "metric": "switches:cost_of_exit", "expected": [ { "at": -32750, "from": "Keep and hope", "to": "Coach for six months" }, { "at": -26083.3333, "from": "Coach for six months", "to": "Exit now and replace" } ], "tol": 0.01, "why": "coach = -25,075 + 0.7X meets keep at X = -32,750; exit = X - 17,250 meets coach at X = -26,083.33" },
+    { "metric": "switches:cost_of_coaching", "expected": [ { "at": -6175, "from": "Exit now and replace", "to": "Coach for six months" } ], "tol": 0.01, "why": "c - 41,075 = -47,250" },
+    { "metric": "switches:years", "expected": [ { "at": 2.85416667, "from": "Keep and hope", "to": "Coach for six months" } ], "tol": 1e-6, "why": "-16k y = -37,675 - 2.8k y" },
+    { "metric": "switches:chance_new_hire_leaves_in_year_1", "expected": [ { "at": 0.0761904762, "from": "Exit now and replace", "to": "Coach for six months" }, { "at": 0.457142857, "from": "Coach for six months", "to": "Keep and hope" } ], "tol": 1e-6, "why": "exit = -42k - 17.5k q, coach = -42.4k - 12.25k q" },
+    { "metric": "switches:cost_of_second_search", "expected": [ { "at": -26666.6667, "from": "Keep and hope", "to": "Coach for six months" }, { "at": -4444.44444, "from": "Coach for six months", "to": "Exit now and replace" } ], "tol": 0.01, "why": "exit = -42k + 0.3s, coach = -42.4k + 0.21s" }
+  ]
+}

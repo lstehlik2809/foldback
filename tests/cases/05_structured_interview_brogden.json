@@ -1,0 +1,48 @@
+{
+  "id": "05_structured_interview_brogden",
+  "title": "Is a structured interview stage worth it? (Brogden utility as value of information)",
+  "story": "Andrew's 'Pricing an interview' calculation. The current process predicts performance with validity 0.25; adding a structured interview adds about 0.10 to the composite (here a range, 0.03 to 0.20). Output is worth GBP 16k per SD, one hire per five shortlisted (zbar(0.2) = 1.40 SD above the pool mean) and four years of tenure. Four candidates are interviewed per hire, each interview costing about GBP 600 of internal time (range 200 to 3,000).",
+  "source": "Marritt, 'Should you replace Sam?', section 'Pricing an interview'",
+  "what_it_tests": [
+    "formulas with zbar() and numbers defined by formulas of other numbers",
+    "the article's ~GBP 9,000 per hire and ~GBP 2,200 per-interview break-even",
+    "the ceiling: a perfect predictor is worth ~GBP 67,000 per hire",
+    "options with no chance nodes, where all the uncertainty sits in the values",
+    "a sweep that starts on an undefined value (zbar(0)) and must skip it"
+  ],
+  "state": {
+    "title": "Should we add a structured interview?",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "validity_gain", "desc": "validity the interview adds to the composite", "likely": "0.10", "low": "0.03", "high": "0.20", "evType": "data", "evStrength": "medium" },
+      { "id": "n2", "name": "current_validity", "desc": "validity of the current process", "likely": "0.25", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n3", "name": "sdy_per_year", "desc": "value of one SD of performance per year", "likely": "16k", "low": "", "high": "", "evType": "expert", "evStrength": "medium" },
+      { "id": "n4", "name": "selection_ratio", "desc": "share of the shortlist hired", "likely": "0.2", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n5", "name": "tenure_years", "desc": "expected tenure of a hire", "likely": "4", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n6", "name": "interviews_per_hire", "desc": "interviews run per hire", "likely": "4", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n7", "name": "cost_per_interview", "desc": "the cost of one interview", "likely": "-600", "low": "-3000", "high": "-200", "evType": "expert", "evStrength": "low" },
+      { "id": "n8", "name": "value_of_validity_gain_per_hire", "desc": "value per hire of the extra validity", "likely": "validity_gain * sdy_per_year * zbar(selection_ratio) * tenure_years", "low": "", "high": "", "evType": "", "evStrength": "" },
+      { "id": "n9", "name": "value_of_perfect_predictor_per_hire", "desc": "ceiling: value per hire of a perfect predictor", "likely": "(1 - current_validity) * sdy_per_year * zbar(selection_ratio) * tenure_years", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Add a structured interview", "value": "value_of_validity_gain_per_hire + interviews_per_hire * cost_per_interview", "branches": [] },
+      { "id": "o2", "label": "Keep the current process", "value": "0", "branches": [] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "scope:value_of_validity_gain_per_hire", "expected": 8958.78145, "tol": 0.01, "why": "0.10 x 16,000 x zbar(0.2) x 4, zbar(0.2) = phi(0.84162) / 0.2 = 1.39981 (article: roughly 9,000)" },
+    { "metric": "scope:value_of_perfect_predictor_per_hire", "expected": 67190.8609, "tol": 0.01, "why": "0.75 x 16,000 x 1.39981 x 4 (article: about 67,000)" },
+    { "metric": "point:Add a structured interview", "expected": 6558.78145, "tol": 0.01, "why": "8,958.78 - 4 x 600" },
+    { "metric": "point:Keep the current process", "expected": 0, "tol": 0.01, "why": "the baseline" },
+    { "metric": "switches:cost_per_interview", "expected": [ { "at": -2239.69536, "from": "Keep the current process", "to": "Add a structured interview", "inRange": true } ], "tol": 0.01, "why": "8,958.78 / 4 (article: earns its keep at anything under about 2,200 per interview)" },
+    { "metric": "switches:validity_gain", "expected": [ { "at": 0.0267893576, "from": "Keep the current process", "to": "Add a structured interview", "inRange": false } ], "tol": 1e-7, "why": "2,400 / (16,000 x 1.39981 x 4), just below the 0.03 low end" },
+    { "metric": "switches:sdy_per_year", "expected": [ { "at": 4286.29722, "from": "Keep the current process", "to": "Add a structured interview" } ], "tol": 0.01, "why": "2,400 / (0.1 x 1.39981 x 4)" },
+    { "metric": "switches:tenure_years", "expected": [ { "at": 1.0715743, "from": "Keep the current process", "to": "Add a structured interview" } ], "tol": 1e-6, "why": "2,400 / (0.1 x 16,000 x 1.39981)" },
+    { "metric": "switches:selection_ratio", "expected": [], "why": "the interview pays at every selection ratio up to 0.6; at 0 zbar is undefined and that point is skipped" },
+    { "metric": "switches:interviews_per_hire", "expected": [], "why": "it would take 14.9 interviews per hire to use up the 8,958.78" },
+    { "metric": "switches:current_validity", "expected": [], "why": "only feeds the ceiling, not the choice" }
+  ]
+}

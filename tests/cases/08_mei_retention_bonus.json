@@ -1,0 +1,47 @@
+{
+  "id": "08_mei_retention_bonus",
+  "title": "Mei: what to do with a flight-risk score of 0.62",
+  "story": "The attrition model says Mei, a senior platform engineer, has a flight risk of 0.62 (range 0.45 to 0.80). Losing her costs about USD 90k (range 60k to 140k: search, ramp-up, delayed roadmap). A USD 15k retention bonus is thought to cut her chance of leaving by 30% (range 10% to 60%). The article's point: a probability on its own decides nothing until it sits in a tree.",
+  "source": "Marritt, 'Should you replace Sam?': 'An attrition model that outputs \"Sam's flight risk is 0.62\" and stops has delivered a probability with no way of determining how to decide'",
+  "what_it_tests": [
+    "a chance defined by a formula of two ranges (flight_risk x (1 - bonus_effect))",
+    "an empty chance taking the rest in each group",
+    "switch points on a probability, a ranged non-probability and money",
+    "EVPPI when one uncertainty enters two options"
+  ],
+  "state": {
+    "title": "Mei: retention bonus?",
+    "cur": "$",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "flight_risk", "desc": "the chance Mei leaves this year", "likely": "62%", "low": "45%", "high": "80%", "evType": "data", "evStrength": "medium" },
+      { "id": "n2", "name": "bonus_effect", "desc": "how much the bonus cuts her chance of leaving", "likely": "30%", "low": "10%", "high": "60%", "evType": "guess", "evStrength": "low" },
+      { "id": "n3", "name": "cost_of_losing_mei", "desc": "the cost of losing Mei", "likely": "-90k", "low": "-140k", "high": "-60k", "evType": "expert", "evStrength": "medium" },
+      { "id": "n4", "name": "retention_bonus", "desc": "the retention bonus", "likely": "-15k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n5", "name": "chance_leaves_with_bonus", "desc": "the chance Mei leaves anyway", "likely": "flight_risk * (1 - bonus_effect)", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Offer a retention bonus", "value": "retention_bonus", "branches": [
+        { "id": "b1", "label": "Mei leaves anyway", "prob": "chance_leaves_with_bonus", "value": "cost_of_losing_mei", "branches": [] },
+        { "id": "b2", "label": "Mei stays", "prob": "", "value": "0", "branches": [] }
+      ] },
+      { "id": "o2", "label": "Do nothing", "value": "0", "branches": [
+        { "id": "b3", "label": "Mei leaves", "prob": "flight_risk", "value": "cost_of_losing_mei", "branches": [] },
+        { "id": "b4", "label": "Mei stays", "prob": "", "value": "0", "branches": [] }
+      ] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "scope:chance_leaves_with_bonus", "expected": 0.434, "tol": 1e-12, "why": "0.62 x 0.7" },
+    { "metric": "point:Offer a retention bonus", "expected": -54060, "tol": 0.01, "why": "-15k + 0.434 x -90k" },
+    { "metric": "point:Do nothing", "expected": -55800, "tol": 0.01, "why": "0.62 x -90k" },
+    { "metric": "leader", "expected": "Offer a retention bonus", "why": "by 1,740" },
+    { "metric": "switches:flight_risk", "expected": [ { "at": 0.555555556, "from": "Do nothing", "to": "Offer a retention bonus", "inRange": true } ], "tol": 1e-7, "why": "the bonus pays when f x 0.3 x 90k > 15k: f > 0.556" },
+    { "metric": "switches:bonus_effect", "expected": [ { "at": 0.268817204, "from": "Do nothing", "to": "Offer a retention bonus", "inRange": true } ], "tol": 1e-7, "why": "0.62 x e x 90k = 15k" },
+    { "metric": "switches:cost_of_losing_mei", "expected": [ { "at": -80645.1613, "from": "Offer a retention bonus", "to": "Do nothing", "inRange": true } ], "tol": 0.01, "why": "0.62 x 0.3 x X = 15k" },
+    { "metric": "switches:retention_bonus", "expected": [ { "at": -16740, "from": "Do nothing", "to": "Offer a retention bonus" } ], "tol": 0.01, "why": "B - 39,060 = -55,800" },
+    { "metric": "bad_share", "expected": 0, "tol": 0, "why": "the chances always fit: f (1 - e) stays inside 0-100%" }
+  ]
+}

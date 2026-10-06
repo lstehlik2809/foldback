@@ -104,6 +104,10 @@ With these ranges and the default random seed (2364), the simulation reproduces 
 
 The one figure that doesn't match is the value of pinning down Sam's gap. The app's estimate agrees with an exact calculation on the same draws (£2,309). It is hard to see how keep and hope could win in one world in five while the gap is worth only £427 to pin down, so the article's figure may come from its 30-bin estimator.
 
+### Tests
+
+`tests/` holds ten decision cases, from Sam's tree to a payroll-outsourcing call. Each is run through the app in a headless browser and through an independent Python implementation of the method, and the two are compared, along with numbers derived by hand from the article's algebra. Run `python3 tests/run_tests.py` after changing the app; [tests/README.md](tests/README.md) explains what each case covers and what is checked.
+
 ## Limitations
 
 - **Estimates are independent.** If two numbers move together, write one as a formula of the other.

@@ -1,0 +1,56 @@
+{
+  "id": "04_jordan_fix_the_job",
+  "title": "Jordan: the fourth branch, fixing the job",
+  "story": "Jordan, a support team lead, is USD 20k a year below par, and about 8k of that belongs to the role: an unmanageable queue and the accounts nobody else wants. Besides keep, coach and exit (a replacement inherits the drag), the HRBP proposes a USD 15k redesign of the role, which removes the drag with a 75% chance. Three-year view against an average performer.",
+  "source": "Marritt, 'Should you replace Sam?': 'Fixing the job is a fourth branch on the tree, and one nobody in the meeting was arguing for'",
+  "what_it_tests": [
+    "four options, one of them a chance on the job rather than the person",
+    "a close race (fix -57.0k vs coach -57.6k vs keep -60k) where the ranges matter",
+    "switch points that move the lead between three different options on one number",
+    "a crossing just outside the elicited range (flagged as not inside your range)"
+  ],
+  "state": {
+    "title": "What should we do about Jordan?",
+    "cur": "$",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "jordan_vs_average_per_year", "desc": "Jordan's yearly gap vs an average performer", "likely": "-20k", "low": "-30k", "high": "-10k", "evType": "data", "evStrength": "medium" },
+      { "id": "n2", "name": "job_drag_per_year", "desc": "what the role itself costs whoever holds it, per year", "likely": "-8k", "low": "-14k", "high": "-2k", "evType": "expert", "evStrength": "low" },
+      { "id": "n3", "name": "chance_coaching_works", "desc": "the chance coaching works", "likely": "35%", "low": "20%", "high": "50%", "evType": "expert", "evStrength": "low" },
+      { "id": "n4", "name": "cost_of_redesign", "desc": "the cost of redesigning the role", "likely": "-15k", "low": "-25k", "high": "-10k", "evType": "expert", "evStrength": "medium" },
+      { "id": "n5", "name": "chance_redesign_works", "desc": "the chance the redesign removes the drag", "likely": "75%", "low": "", "high": "", "evType": "guess", "evStrength": "low" },
+      { "id": "n6", "name": "cost_of_exit", "desc": "the cost of an exit", "likely": "-40k", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n7", "name": "cost_of_coaching", "desc": "the cost of coaching", "likely": "-6k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n8", "name": "years", "desc": "years in view", "likely": "3", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Keep and hope", "value": "years * jordan_vs_average_per_year", "branches": [] },
+      { "id": "o2", "label": "Coach for six months", "value": "cost_of_coaching + jordan_vs_average_per_year / 2", "branches": [
+        { "id": "b1", "label": "Jordan reaches par", "prob": "chance_coaching_works", "value": "0", "branches": [] },
+        { "id": "b2", "label": "Jordan doesn't: exit, the new hire inherits the role", "prob": "", "value": "cost_of_exit + years * job_drag_per_year", "branches": [] }
+      ] },
+      { "id": "o3", "label": "Exit now", "value": "cost_of_exit + years * job_drag_per_year", "branches": [] },
+      { "id": "o4", "label": "Fix the job", "value": "cost_of_redesign + years * jordan_vs_average_per_year", "branches": [
+        { "id": "b3", "label": "Redesign removes the drag", "prob": "chance_redesign_works", "value": "-years * job_drag_per_year", "branches": [] },
+        { "id": "b4", "label": "It doesn't", "prob": "", "value": "0", "branches": [] }
+      ] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "point:Keep and hope", "expected": -60000, "tol": 0.01, "why": "3 x -20k" },
+    { "metric": "point:Coach for six months", "expected": -57600, "tol": 0.01, "why": "-6k - 10k + 0.65 x (-40k - 24k)" },
+    { "metric": "point:Exit now", "expected": -64000, "tol": 0.01, "why": "-40k + 3 x -8k" },
+    { "metric": "point:Fix the job", "expected": -57000, "tol": 0.01, "why": "-15k - 60k + 0.75 x 24k" },
+    { "metric": "leader", "expected": "Fix the job", "why": "fixing the job edges coaching by 600" },
+    { "metric": "switches:job_drag_per_year", "expected": [ { "at": -7857.14286, "from": "Fix the job", "to": "Coach for six months", "inRange": true }, { "at": -1904.7619, "from": "Coach for six months", "to": "Exit now", "inRange": false } ], "tol": 0.01, "why": "fix = -75k - 2.25d, coach = -42k + 1.95d, exit = -40k + 3d" },
+    { "metric": "switches:jordan_vs_average_per_year", "expected": [ { "at": -32800, "from": "Exit now", "to": "Coach for six months", "inRange": false }, { "at": -20240, "from": "Coach for six months", "to": "Fix the job", "inRange": true } ], "tol": 0.01, "why": "coach = -47.6k + g/2, exit = -64k, fix = 3k + 3g (fix always beats keep by 3k)" },
+    { "metric": "switches:cost_of_exit", "expected": [ { "at": -39076.9231, "from": "Fix the job", "to": "Coach for six months" }, { "at": -21714.2857, "from": "Coach for six months", "to": "Exit now" } ], "tol": 0.01, "why": "coach = -31.6k + 0.65X, exit = X - 24k, fix = -57k" },
+    { "metric": "switches:cost_of_coaching", "expected": [ { "at": -5400, "from": "Fix the job", "to": "Coach for six months" } ], "tol": 0.01, "why": "c - 51.6k = -57k" },
+    { "metric": "switches:chance_coaching_works", "expected": [ { "at": 0.359375, "from": "Fix the job", "to": "Coach for six months", "inRange": true } ], "tol": 1e-6, "why": "-80k + 64k p = -57k" },
+    { "metric": "switches:cost_of_redesign", "expected": [ { "at": -15600, "from": "Coach for six months", "to": "Fix the job", "inRange": true } ], "tol": 0.01, "why": "R - 42k = -57.6k" },
+    { "metric": "switches:chance_redesign_works", "expected": [ { "at": 0.725, "from": "Coach for six months", "to": "Fix the job" } ], "tol": 1e-6, "why": "-75k + 24k r = -57.6k" },
+    { "metric": "switches:years", "expected": [ { "at": 2.5, "from": "Keep and hope", "to": "Fix the job" }, { "at": 3.06818182, "from": "Fix the job", "to": "Coach for six months" } ], "tol": 1e-6, "why": "keep = -20k y, fix = -15k - 14k y, coach = -42k - 5.2k y" }
+  ]
+}

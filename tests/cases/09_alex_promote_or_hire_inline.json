@@ -1,0 +1,50 @@
+{
+  "id": "09_alex_promote_or_hire_inline",
+  "title": "Alex: promote from within or hire outside (ranges typed on the tree)",
+  "story": "A head-of-analytics role. Promoting Alex costs 5k of training; Alex thrives (+40k over three years) with a chance put at 40% to 85%, likely 60%, is fine 25% of the time, and otherwise struggles (-60k). An external hire costs 20k to 50k, likely 35k, all-in; the hire is strong (+100k) 45% of the time, average 30%, and poor (-50k) otherwise, in which case they leave in year one half the time and a second search costs 20k. Leaving the role vacant costs 30k. The ranges are typed straight onto the tree, not as shared numbers.",
+  "source": "Marritt, 'Should you replace Sam?': the replacement as a chance node, and 'A confident, narrow, invented range produces a confident, narrow, invented answer'",
+  "what_it_tests": [
+    "ranges typed into a chance and into an option's value on the tree (anonymous estimates)",
+    "three outcomes in a group, with a nested group under one of them",
+    "worlds whose chances do not fit: when 'Alex thrives' draws above 75%, the group passes 100%; the share of such worlds is known in closed form",
+    "switch-point sweeps that must skip the values where the chances stop fitting"
+  ],
+  "state": {
+    "title": "Promote Alex or hire outside?",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "chance_new_hire_leaves_in_year_1", "desc": "the chance a poor hire leaves in year one", "likely": "50%", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n2", "name": "cost_of_second_search", "desc": "the cost of a second search", "likely": "-20k", "low": "", "high": "", "evType": "data", "evStrength": "medium" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Promote Alex", "value": "-5k", "branches": [
+        { "id": "b1", "label": "Alex thrives", "prob": "40% to 85% ~60%", "value": "40k", "branches": [] },
+        { "id": "b2", "label": "Alex is fine", "prob": "25%", "value": "0", "branches": [] },
+        { "id": "b3", "label": "Alex struggles", "prob": "", "value": "-60k", "branches": [] }
+      ] },
+      { "id": "o2", "label": "Hire externally", "value": "-50k to -15k ~-35k", "branches": [
+        { "id": "b4", "label": "Hire is strong", "prob": "45%", "value": "100k", "branches": [] },
+        { "id": "b5", "label": "Hire is average", "prob": "30%", "value": "0", "branches": [] },
+        { "id": "b6", "label": "Hire is poor", "prob": "", "value": "-50k", "branches": [
+          { "id": "b7", "label": "Leaves in year one", "prob": "chance_new_hire_leaves_in_year_1", "value": "cost_of_second_search", "branches": [] },
+          { "id": "b8", "label": "Stays", "prob": "", "value": "0", "branches": [] }
+        ] }
+      ] },
+      { "id": "o3", "label": "Leave the role vacant", "value": "-30k", "branches": [] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "point:Promote Alex", "expected": 10000, "tol": 0.01, "why": "-5k + 0.6 x 40k + 0.15 x -60k" },
+    { "metric": "point:Hire externally", "expected": -5000, "tol": 0.01, "why": "-35k + 0.45 x 100k + 0.25 x (-50k + 0.5 x -20k)" },
+    { "metric": "point:Leave the role vacant", "expected": -30000, "tol": 0.01, "why": "the vacancy" },
+    { "metric": "leader", "expected": "Promote Alex", "why": "by 15,000" },
+    { "metric": "switches:u_b1_prob", "expected": [ { "at": 0.45, "from": "Hire externally", "to": "Promote Alex", "inRange": true } ], "tol": 1e-7, "why": "promote = -50k + 100k p meets hire (-5k) at p = 0.45; above p = 0.75 the chances stop fitting and are skipped" },
+    { "metric": "switches:u_o2_value", "expected": [ { "at": -20000, "from": "Promote Alex", "to": "Hire externally", "inRange": true } ], "tol": 0.01, "why": "hire = H + 30k meets promote (10k) at H = -20k" },
+    { "metric": "switches:chance_new_hire_leaves_in_year_1", "expected": [], "why": "hire = -2.5k - 5k q never reaches 10k" },
+    { "metric": "switches:cost_of_second_search", "expected": [], "why": "hire = -2.5k + 0.125 s never reaches 10k" },
+    { "metric": "bad_share", "expected": 0.0448351873, "tol": 0.0083, "why": "P(thrives > 75%) = 1 - I_0.778(a, 6 - a) for the Beta fitted to 40%-85% ~60% (a = 2.70); tolerance is 4 Monte Carlo SEs" }
+  ]
+}

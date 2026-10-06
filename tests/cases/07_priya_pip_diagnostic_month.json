@@ -1,0 +1,52 @@
+{
+  "id": "07_priya_pip_diagnostic_month",
+  "title": "Priya: a PIP as a purchase of information (Pauker-Kassirer band)",
+  "story": "Priya, a sales account manager, is GBP 20k a year below par (range 12k to 28k). A six-month PIP costs 6k plus half a year of the gap; the manager and HRBP put the chance it works at 45% (range 25% to 65%); an exit costs 35k (range 28k to 45k). On the likely values exit beats the PIP by only 250: the chance sits right next to its 45.7% threshold. A diagnostic month (structured goals, honest measurement) reads 'it's taking' with 80% accuracy and costs 2k plus a month of the gap.",
+  "source": "Marritt, 'Should you replace Sam?': 'A well-designed PIP is a purchase of information' and the Pauker & Kassirer (1980) threshold approach",
+  "what_it_tests": [
+    "a near tie at the likely values (exit -35,000 vs PIP -35,250)",
+    "the diagnostic month: posteriors after a good or bad month, EVSI against its cost",
+    "the band of the chance in which buying the month pays, derived in closed form",
+    "a switch point just outside its range"
+  ],
+  "state": {
+    "title": "Priya: PIP or exit?",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "chance_pip_works", "desc": "the chance the PIP works", "likely": "45%", "low": "25%", "high": "65%", "evType": "expert", "evStrength": "low" },
+      { "id": "n2", "name": "priya_vs_average_per_year", "desc": "Priya's yearly gap vs an average performer", "likely": "-20k", "low": "-28k", "high": "-12k", "evType": "data", "evStrength": "medium" },
+      { "id": "n3", "name": "cost_of_exit", "desc": "the cost of an exit", "likely": "-35k", "low": "-45k", "high": "-28k", "evType": "expert", "evStrength": "medium" },
+      { "id": "n4", "name": "cost_of_pip", "desc": "the cost of the PIP", "likely": "-6k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n5", "name": "years", "desc": "years in view", "likely": "3", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Keep and hope", "value": "years * priya_vs_average_per_year", "branches": [] },
+      { "id": "o2", "label": "Six-month PIP", "value": "cost_of_pip + priya_vs_average_per_year / 2", "branches": [
+        { "id": "b1", "label": "Priya reaches par", "prob": "chance_pip_works", "value": "0", "branches": [] },
+        { "id": "b2", "label": "Priya doesn't: exit", "prob": "", "value": "cost_of_exit", "branches": [] }
+      ] },
+      { "id": "o3", "label": "Exit now", "value": "cost_of_exit", "branches": [] }
+    ],
+    "diag": { "on": true, "name": "chance_pip_works", "acc": "80%", "cost": "-2000 + priya_vs_average_per_year / 12" }
+  },
+  "hand_checks": [
+    { "metric": "point:Keep and hope", "expected": -60000, "tol": 0.01, "why": "3 x -20k" },
+    { "metric": "point:Six-month PIP", "expected": -35250, "tol": 0.01, "why": "-6k - 10k + 0.55 x -35k" },
+    { "metric": "point:Exit now", "expected": -35000, "tol": 0.01, "why": "the exit" },
+    { "metric": "leader", "expected": "Exit now", "why": "by 250" },
+    { "metric": "switches:chance_pip_works", "expected": [ { "at": 0.457142857, "from": "Exit now", "to": "Six-month PIP", "inRange": true } ], "tol": 1e-7, "why": "16k / 35k" },
+    { "metric": "switches:priya_vs_average_per_year", "expected": [ { "at": -19500, "from": "Exit now", "to": "Six-month PIP", "inRange": true }, { "at": -10100, "from": "Six-month PIP", "to": "Keep and hope", "inRange": false } ], "tol": 0.01, "why": "PIP = -25,250 + g/2 meets exit (-35k) at -19,500 and keep (3g) at -10,100" },
+    { "metric": "switches:cost_of_exit", "expected": [ { "at": -35555.5556, "from": "Six-month PIP", "to": "Exit now", "inRange": true } ], "tol": 0.01, "why": "-16k + 0.55X = X" },
+    { "metric": "switches:cost_of_pip", "expected": [ { "at": -5750, "from": "Exit now", "to": "Six-month PIP" } ], "tol": 0.01, "why": "c - 29,250 = -35k" },
+    { "metric": "switches:years", "expected": [ { "at": 1.75, "from": "Keep and hope", "to": "Exit now" } ], "tol": 1e-7, "why": "-20k y = -35k" },
+    { "metric": "diag:postPos", "expected": 0.765957447, "tol": 1e-8, "why": "0.45 x 0.8 / 0.47" },
+    { "metric": "diag:postNeg", "expected": 0.169811321, "tol": 1e-8, "why": "0.45 x 0.2 / 0.53" },
+    { "metric": "diag:pGood", "expected": 0.47, "tol": 1e-9, "why": "0.45 x 0.8 + 0.55 x 0.2" },
+    { "metric": "diag:pos_best", "expected": "Six-month PIP", "why": "77% clears the 46% threshold" },
+    { "metric": "diag:neg_best", "expected": "Exit now", "why": "17% does not" },
+    { "metric": "diag:cost", "expected": 3666.667, "tol": 15, "why": "2,000 + 20,000 / 12; the app averages it over the worlds (Monte Carlo error about 3)" },
+    { "metric": "pk_window", "expected": [ [ 0.373188406, 0.550200803 ] ], "tol": 1e-6, "why": "inside the band test value = 18.4k p - 38.2k - 3,666.67; it beats exit (-35k) above p = 6,866.67 / 18,400 and beats the PIP (-51k + 35k p) below p = 9,133.33 / 16,600. The app reads it on a 1/201 grid, so its band may be up to 1/201 narrower at each end" }
+  ]
+}

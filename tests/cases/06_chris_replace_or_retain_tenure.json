@@ -1,0 +1,49 @@
+{
+  "id": "06_chris_replace_or_retain_tenure",
+  "title": "Chris: replace or retain, with the tenure asymmetry (Boudreau & Berger)",
+  "story": "Chris is slightly above average (+0.1 SD) and has survived the risky first year, so their expected remaining tenure is 4 years (range 2 to 7). The manager wants to replace Chris with a candidate they rate +0.6 SD (range 0.2 to 1.0). A naive model gives both 3 years and says replace, by 5,000. Correcting the replacement's tenure for the first-year exit hazard (shaving 25%: 3 -> 2.25 years) and using Chris's survivorship-adjusted tenure, retaining wins by 6,000. SDy is 20k a year; replacing costs 25k.",
+  "source": "Marritt, 'Should you replace Sam?': the replace-or-retain condition (r_rep x T_rep - r_inc x T_inc) x SDy > C, after Boudreau & Berger (1985)",
+  "what_it_tests": [
+    "the Boudreau-Berger condition as a two-option tree with formula numbers",
+    "naive vs tenure-corrected answers disagreeing (a calculated number holds the naive answer)",
+    "switch points on fixed and ranged numbers, inside and outside their ranges",
+    "two ranges multiplying each other in one option"
+  ],
+  "note": "Both tenure corrections run against the replacement only because Chris is above average (r_inc > 0). For a below-average incumbent (r_inc < 0) a longer incumbent tenure makes replacing more attractive, not less; the article states the two adjustments 'both run against the replacement' without that condition.",
+  "state": {
+    "title": "Should we replace Chris?",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "incumbent_performance_sd", "desc": "Chris's performance vs average, in SDs", "likely": "0.1", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n2", "name": "replacement_performance_sd", "desc": "the candidate's expected performance vs average, in SDs", "likely": "0.6", "low": "0.2", "high": "1.0", "evType": "guess", "evStrength": "low" },
+      { "id": "n3", "name": "incumbent_remaining_tenure", "desc": "Chris's expected remaining tenure, years", "likely": "4", "low": "2", "high": "7", "evType": "data", "evStrength": "medium" },
+      { "id": "n4", "name": "naive_tenure_years", "desc": "average tenure in the role, years", "likely": "3", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n5", "name": "first_year_tenure_shave", "desc": "first-year hazard correction to a new hire's tenure", "likely": "25%", "low": "", "high": "", "evType": "expert", "evStrength": "medium" },
+      { "id": "n6", "name": "sdy_per_year", "desc": "value of one SD of performance per year", "likely": "20k", "low": "", "high": "", "evType": "expert", "evStrength": "medium" },
+      { "id": "n7", "name": "cost_of_replacing", "desc": "the cost of replacing Chris", "likely": "-25k", "low": "", "high": "", "evType": "data", "evStrength": "medium" },
+      { "id": "n8", "name": "replacement_tenure", "desc": "the new hire's expected tenure, years", "likely": "naive_tenure_years * (1 - first_year_tenure_shave)", "low": "", "high": "", "evType": "", "evStrength": "" },
+      { "id": "n9", "name": "naive_gain_from_replacing", "desc": "what the naive model says replacing is worth", "likely": "(replacement_performance_sd - incumbent_performance_sd) * naive_tenure_years * sdy_per_year + cost_of_replacing", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Retain Chris", "value": "incumbent_performance_sd * incumbent_remaining_tenure * sdy_per_year", "branches": [] },
+      { "id": "o2", "label": "Replace Chris", "value": "cost_of_replacing + replacement_performance_sd * replacement_tenure * sdy_per_year", "branches": [] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "scope:replacement_tenure", "expected": 2.25, "tol": 1e-9, "why": "3 x 0.75 (article: from three years to about 2.25)" },
+    { "metric": "scope:naive_gain_from_replacing", "expected": 5000, "tol": 0.01, "why": "(0.6 - 0.1) x 3 x 20k - 25k: the naive model says replace" },
+    { "metric": "point:Retain Chris", "expected": 8000, "tol": 0.01, "why": "0.1 x 4 x 20k" },
+    { "metric": "point:Replace Chris", "expected": 2000, "tol": 0.01, "why": "-25k + 0.6 x 2.25 x 20k" },
+    { "metric": "leader", "expected": "Retain Chris", "why": "(0.6 x 2.25 - 0.1 x 4) x 20k = 19k < 25k" },
+    { "metric": "switches:replacement_performance_sd", "expected": [ { "at": 0.733333333, "from": "Retain Chris", "to": "Replace Chris", "inRange": true } ], "tol": 1e-7, "why": "-25k + 45k r = 8k: the candidate must be +0.73 SD, not +0.6" },
+    { "metric": "switches:incumbent_remaining_tenure", "expected": [ { "at": 1.0, "from": "Replace Chris", "to": "Retain Chris", "inRange": false } ], "tol": 1e-7, "why": "2k x T = 2k" },
+    { "metric": "switches:incumbent_performance_sd", "expected": [ { "at": 0.025, "from": "Replace Chris", "to": "Retain Chris" } ], "tol": 1e-7, "why": "80k x z = 2k" },
+    { "metric": "switches:naive_tenure_years", "expected": [ { "at": 3.66666667, "from": "Retain Chris", "to": "Replace Chris" } ], "tol": 1e-6, "why": "-25k + 9k n = 8k" },
+    { "metric": "switches:first_year_tenure_shave", "expected": [ { "at": 0.0833333333, "from": "Replace Chris", "to": "Retain Chris" } ], "tol": 1e-7, "why": "-25k + 36k (1 - s) = 8k" },
+    { "metric": "switches:sdy_per_year", "expected": [ { "at": 26315.7895, "from": "Retain Chris", "to": "Replace Chris" } ], "tol": 0.01, "why": "0.4 S = -25k + 1.35 S" },
+    { "metric": "switches:cost_of_replacing", "expected": [ { "at": -19000, "from": "Retain Chris", "to": "Replace Chris" } ], "tol": 0.01, "why": "C + 27k = 8k" }
+  ]
+}

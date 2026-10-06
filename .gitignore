@@ -1,2 +1,4 @@
 supp/
 linkedin/
+tests/output/
+__pycache__/

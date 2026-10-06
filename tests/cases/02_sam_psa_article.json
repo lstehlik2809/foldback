@@ -1,0 +1,68 @@
+{
+  "id": "02_sam_psa_article",
+  "title": "Sam: the article's ranges run as plausible worlds, with a diagnostic month",
+  "story": "The same decision with Andrew's ranges, as the app's built-in example encodes them (wide hard limits chosen so the quartiles land on the article's numbers), run as 10,000 plausible worlds. A one-month diagnostic that reads 'coaching is taking' with 75% accuracy, costing GBP 1,500 plus a month of Sam's gap, is priced.",
+  "source": "Marritt, 'Should you replace Sam?', sections 'When the numbers are shapes' and 'The field that said yes'; README 'Checked against the article'",
+  "what_it_tests": [
+    "probabilistic sensitivity analysis on three elicited ranges (Beta, median at likely, a + b = 6)",
+    "how often each option is best, and the head-to-head of the leader against the option that beats it most often",
+    "EVPI and EVPPI (regression vs near-exact), and their ranking",
+    "the diagnostic month (EVSI of a yes/no signal) and its Pauker-Kassirer band",
+    "that the README's published results for the built-in example still hold"
+  ],
+  "state": {
+    "title": "Should we replace Sam?",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "sam",
+    "numbers": [
+      { "id": "n1", "name": "chance_coaching_works", "desc": "the chance coaching works", "likely": "30%", "low": "5%", "high": "95%", "evType": "expert", "evStrength": "low" },
+      { "id": "n2", "name": "sam_vs_average_per_year", "desc": "Sam's yearly gap vs an average performer", "likely": "-16k", "low": "-40k", "high": "0", "evType": "data", "evStrength": "low" },
+      { "id": "n3", "name": "cost_of_exit", "desc": "the cost of an exit", "likely": "-30k", "low": "-55k", "high": "-20k", "evType": "expert", "evStrength": "medium" },
+      { "id": "n4", "name": "cost_of_coaching", "desc": "the cost of coaching", "likely": "-5k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n5", "name": "years", "desc": "years Sam would stay", "likely": "3", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Keep and hope", "value": "years * sam_vs_average_per_year", "branches": [] },
+      { "id": "o2", "label": "Coach for six months", "value": "cost_of_coaching + sam_vs_average_per_year / 2", "branches": [
+        { "id": "b1", "label": "Sam reaches par", "prob": "chance_coaching_works", "value": "0", "branches": [] },
+        { "id": "b2", "label": "Sam doesn't: exit", "prob": "", "value": "cost_of_exit", "branches": [] }
+      ] },
+      { "id": "o3", "label": "Exit now", "value": "cost_of_exit", "branches": [] }
+    ],
+    "diag": { "on": true, "name": "chance_coaching_works", "acc": "75%", "cost": "-1500 + sam_vs_average_per_year / 12" }
+  },
+  "hand_checks": [
+    { "metric": "point:Keep and hope", "expected": -48000, "tol": 0.01, "why": "likely values are the article's point estimates" },
+    { "metric": "point:Coach for six months", "expected": -34000, "tol": 0.01, "why": "as Figure 1" },
+    { "metric": "point:Exit now", "expected": -30000, "tol": 0.01, "why": "as Figure 1" },
+    { "metric": "switches:chance_coaching_works", "expected": [ { "at": 0.433333333, "from": "Exit now", "to": "Coach for six months", "inRange": true } ], "tol": 1e-6, "why": "13k / 30k, inside the 5%-95% range" },
+    { "metric": "switches:sam_vs_average_per_year", "expected": [ { "at": -10000, "from": "Exit now", "to": "Keep and hope", "inRange": true } ], "tol": 0.01, "why": "3g = -30k" },
+    { "metric": "switches:cost_of_exit", "expected": [ { "at": -50000, "from": "Keep and hope", "to": "Coach for six months", "inRange": true }, { "at": -43333.3333, "from": "Coach for six months", "to": "Exit now", "inRange": true } ], "tol": 0.01, "why": "-13k + 0.7X = -48k, and = X" },
+    { "metric": "diag:postPos", "expected": 0.5625, "tol": 1e-9, "why": "0.3 x 0.75 / (0.3 x 0.75 + 0.7 x 0.25)" },
+    { "metric": "diag:postNeg", "expected": 0.125, "tol": 1e-9, "why": "0.3 x 0.25 / (1 - 0.4)" },
+    { "metric": "diag:pGood", "expected": 0.4, "tol": 1e-9, "why": "0.3 x 0.75 + 0.7 x 0.25" },
+    { "metric": "diag:pos_best", "expected": "Coach for six months", "why": "56% after a good month clears the 43% threshold" },
+    { "metric": "diag:neg_best", "expected": "Exit now", "why": "12.5% after a bad month is far below it" }
+  ],
+  "documented": [
+    { "metric": "pair:meanDiff", "expected": -3357, "tol": 0.5, "why": "README: coaching vs exit, average -3,357" },
+    { "metric": "pair:pB", "expected": 0.281, "tol": 0.00051, "why": "README: coaching beats exit in 28.1% (shown to 0.1%)" },
+    { "metric": "pair:q025", "expected": -14600, "tol": 50, "why": "README: middle 95% from -14,600" },
+    { "metric": "pair:q975", "expected": 10600, "tol": 50, "why": "README: ... to +10,600" },
+    { "metric": "pbest:Keep and hope", "expected": 0.203, "tol": 0.00051, "why": "README: keep and hope comes out best 20.3% (shown to 0.1%)" },
+    { "metric": "evppi:chance_coaching_works", "expected": 802, "tol": 0.5, "why": "README: worth pinning down, chance coaching works" },
+    { "metric": "evppi:cost_of_exit", "expected": 57, "tol": 0.5, "why": "README: exit cost" },
+    { "metric": "evppi:sam_vs_average_per_year", "expected": 2311, "tol": 0.5, "why": "README: Sam's gap" }
+  ],
+  "article": [
+    { "metric": "pair:meanDiff", "value": -3089, "note": "article: exit edges coaching by about 3,000 on average" },
+    { "metric": "pair:pB", "value": 0.298, "note": "article: coaching beats exiting in 29.8% of draws" },
+    { "metric": "pair:q025", "value": -14700, "note": "article: middle 95% from 14,700 against coaching" },
+    { "metric": "pair:q975", "value": 11700, "note": "article: ... to 11,700 in favour" },
+    { "metric": "pbest:Keep and hope", "value": 0.2, "note": "article: keep and hope best in about one draw in five" },
+    { "metric": "evppi:chance_coaching_works", "value": 984, "note": "article Figure 3" },
+    { "metric": "evppi:sam_vs_average_per_year", "value": 427, "note": "article Figure 3" },
+    { "metric": "evppi:cost_of_exit", "value": 112, "note": "article Figure 3" }
+  ]
+}

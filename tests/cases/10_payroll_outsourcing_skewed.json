@@ -1,0 +1,48 @@
+{
+  "id": "10_payroll_outsourcing_skewed",
+  "title": "Outsourcing payroll: a lopsided range, and a hedge that wins on average",
+  "story": "Running payroll in-house costs a known EUR 104k over three years. The vendor quotes EUR 100k, and that is the likely cost, but implementations overrun: the range runs from 95k to 220k. A hybrid outsources processing but keeps one payroll lead in-house: half of each cost, less 1.5k of vendor change fees it avoids. On the likely values outsourcing leads by 500; it is cheapest in 54% of worlds; yet on average the hybrid is cheapest (103.1k vs 104k in-house vs 105.1k outsourced). The hybrid leads only in narrow bands of each number. A non-default random seed (7) is used.",
+  "source": "Marritt, 'Should you replace Sam?': point estimates and their spread ('Average it away and you never see it'), and the README's close-call rule (average and likely values disagree)",
+  "what_it_tests": [
+    "a strongly skewed Beta range (median near the top of the range), whose mean differs from its likely value",
+    "the leader on likely values differing from the leader on average",
+    "how often each option is best, against its closed form",
+    "switch points bounding a narrow band (2% of the sweep) in which one option leads",
+    "EVPPI of the only uncertain number equals EVPI",
+    "a non-default random seed"
+  ],
+  "state": {
+    "title": "Outsource payroll?",
+    "cur": "€",
+    "seed": 7,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "outsourcing_cost", "desc": "three-year cost of outsourcing, including overruns", "likely": "-100k", "low": "-220k", "high": "-95k", "evType": "expert", "evStrength": "low" },
+      { "id": "n2", "name": "in_house_cost", "desc": "three-year cost in-house", "likely": "-104k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n3", "name": "hybrid_saving", "desc": "vendor change fees a hybrid avoids", "likely": "1.5k", "low": "", "high": "", "evType": "guess", "evStrength": "low" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Keep payroll in-house", "value": "in_house_cost", "branches": [] },
+      { "id": "o2", "label": "Outsource payroll", "value": "outsourcing_cost", "branches": [] },
+      { "id": "o3", "label": "Hybrid: keep a payroll lead", "value": "0.5 * outsourcing_cost + 0.5 * in_house_cost + hybrid_saving", "branches": [] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "point:Outsource payroll", "expected": -100000, "tol": 0.01, "why": "the likely value" },
+    { "metric": "point:Keep payroll in-house", "expected": -104000, "tol": 0.01, "why": "fixed" },
+    { "metric": "point:Hybrid: keep a payroll lead", "expected": -100500, "tol": 0.01, "why": "-50k - 52k + 1.5k" },
+    { "metric": "leader", "expected": "Outsource payroll", "why": "on likely values, by 500" },
+    { "metric": "mean:Outsource payroll", "expected": -105110.035, "tol": 520, "why": "Beta mean L + (U - L) a / 6 with a = 5.515; 4 Monte Carlo SEs (SD 12.9k)" },
+    { "metric": "mean:Hybrid: keep a payroll lead", "expected": -103055.017, "tol": 260, "why": "half the outsourcing mean - 52k + 1.5k; 4 SEs" },
+    { "metric": "mean_leader", "expected": "Hybrid: keep a payroll lead", "why": "-103,055 beats -104,000 and -105,110" },
+    { "metric": "pbest:Outsource payroll", "expected": 0.540028905, "tol": 0.0199, "why": "P(O > -101k) for the fitted Beta; 4 SEs" },
+    { "metric": "pbest:Keep payroll in-house", "expected": 0.29330937, "tol": 0.0182, "why": "P(O < -107k); 4 SEs" },
+    { "metric": "pbest:Hybrid: keep a payroll lead", "expected": 0.166661723, "tol": 0.0149, "why": "P(-107k < O < -101k); 4 SEs" },
+    { "metric": "evpi", "expected": 3193.032, "tol": 150, "why": "E[max of the three] - max of the averages, by quadrature" },
+    { "metric": "evppi_equals_evpi:outsourcing_cost", "expected": 0, "tol": 1e-6, "why": "with one uncertain number, knowing it is knowing everything" },
+    { "metric": "switches:outsourcing_cost", "expected": [ { "at": -107000, "from": "Keep payroll in-house", "to": "Hybrid: keep a payroll lead", "inRange": true }, { "at": -101000, "from": "Hybrid: keep a payroll lead", "to": "Outsource payroll", "inRange": true } ], "tol": 0.01, "why": "hybrid = 0.5 O - 50.5k beats -104k above O = -107k and is beaten by O above -101k: a band 1.9% of the sweep wide" },
+    { "metric": "switches:in_house_cost", "expected": [ { "at": -103000, "from": "Outsource payroll", "to": "Hybrid: keep a payroll lead" }, { "at": -97000, "from": "Hybrid: keep a payroll lead", "to": "Keep payroll in-house" } ], "tol": 0.01, "why": "hybrid = 0.5 I - 48.5k beats -100k above I = -103k and is beaten by I above -97k" },
+    { "metric": "switches:hybrid_saving", "expected": [ { "at": 2000, "from": "Outsource payroll", "to": "Hybrid: keep a payroll lead" } ], "tol": 0.01, "why": "-102k + s = -100k" }
+  ]
+}

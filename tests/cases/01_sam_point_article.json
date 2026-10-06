@@ -1,0 +1,47 @@
+{
+  "id": "01_sam_point_article",
+  "title": "Sam: the article's point-estimate tree (Figure 1)",
+  "story": "Andrew Marritt's worked example with single numbers only. Sam is about one SD below par (GBP 16k a year), an exit costs GBP 30k all-in, six months of coaching costs GBP 5k plus half a year of the gap, and the HRBP puts the chance coaching works at 30%. Three-year view, measured against an average performer.",
+  "source": "Marritt, 'Should you replace Sam?', section 'Drawing Sam's tree'",
+  "what_it_tests": [
+    "fold-back of a tree with one chance node at likely values",
+    "the coaching threshold: cost of trying / cost of exit = 13k / 30k",
+    "switch points for every number, including a number with two switch points",
+    "a tree with no ranges: one world, no value of information"
+  ],
+  "state": {
+    "title": "Should we replace Sam? (point estimates)",
+    "cur": "£",
+    "seed": 2364,
+    "tpl": "blank",
+    "numbers": [
+      { "id": "n1", "name": "chance_coaching_works", "desc": "the chance coaching works", "likely": "30%", "low": "", "high": "", "evType": "expert", "evStrength": "low" },
+      { "id": "n2", "name": "sam_vs_average_per_year", "desc": "Sam's yearly gap vs an average performer", "likely": "-16k", "low": "", "high": "", "evType": "data", "evStrength": "low" },
+      { "id": "n3", "name": "cost_of_exit", "desc": "the cost of an exit", "likely": "-30k", "low": "", "high": "", "evType": "expert", "evStrength": "medium" },
+      { "id": "n4", "name": "cost_of_coaching", "desc": "the cost of coaching", "likely": "-5k", "low": "", "high": "", "evType": "data", "evStrength": "high" },
+      { "id": "n5", "name": "years", "desc": "years Sam would stay", "likely": "3", "low": "", "high": "", "evType": "", "evStrength": "" }
+    ],
+    "options": [
+      { "id": "o1", "label": "Keep and hope", "value": "years * sam_vs_average_per_year", "branches": [] },
+      { "id": "o2", "label": "Coach for six months", "value": "cost_of_coaching + sam_vs_average_per_year / 2", "branches": [
+        { "id": "b1", "label": "Sam reaches par", "prob": "chance_coaching_works", "value": "0", "branches": [] },
+        { "id": "b2", "label": "Sam doesn't: exit", "prob": "", "value": "cost_of_exit", "branches": [] }
+      ] },
+      { "id": "o3", "label": "Exit now", "value": "cost_of_exit", "branches": [] }
+    ],
+    "diag": {}
+  },
+  "hand_checks": [
+    { "metric": "point:Keep and hope", "expected": -48000, "tol": 0.01, "why": "3 x -16,000 (article: minus 48,000)" },
+    { "metric": "point:Coach for six months", "expected": -34000, "tol": 0.01, "why": "-5,000 - 8,000 + 0.7 x -30,000 (article: minus 34,000)" },
+    { "metric": "point:Exit now", "expected": -30000, "tol": 0.01, "why": "the exit (article: minus 30,000)" },
+    { "metric": "leader", "expected": "Exit now", "why": "article: exit now narrowly beats coaching" },
+    { "metric": "switches:chance_coaching_works", "expected": [ { "at": 0.433333333, "from": "Exit now", "to": "Coach for six months" } ], "tol": 1e-6, "why": "coaching wins when p > 13,000 / 30,000 (article: about 43%)" },
+    { "metric": "switches:cost_of_exit", "expected": [ { "at": -50000, "from": "Keep and hope", "to": "Coach for six months" }, { "at": -43333.3333, "from": "Coach for six months", "to": "Exit now" } ], "tol": 0.01, "why": "coach = -13k + 0.7X meets keep (-48k) at X = -50k and exit (X) at X = -13k / 0.3" },
+    { "metric": "switches:sam_vs_average_per_year", "expected": [ { "at": -10000, "from": "Exit now", "to": "Keep and hope" } ], "tol": 0.01, "why": "keep = 3g meets exit (-30k) at g = -10k; coach (-26k + g/2) never leads" },
+    { "metric": "switches:cost_of_coaching", "expected": [ { "at": -1000, "from": "Exit now", "to": "Coach for six months" } ], "tol": 0.01, "why": "coach = c - 29k meets exit at c = -1k" },
+    { "metric": "switches:years", "expected": [ { "at": 1.875, "from": "Keep and hope", "to": "Exit now" } ], "tol": 1e-6, "why": "-16k x y = -30k at y = 1.875" },
+    { "metric": "pbest:Exit now", "expected": 1, "tol": 0, "why": "no ranges: every world is the likely world" },
+    { "metric": "evpi", "expected": 0, "tol": 1e-9, "why": "no uncertainty, nothing to learn" }
+  ]
+}
